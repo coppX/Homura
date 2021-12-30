@@ -13,6 +13,7 @@ if(WIN32)
 elseif(APPLE)
     set(LIBS "libglfw.dylib" "libglfw.3.dylib" "libglfw.3.dylib")
     set(LIBS ${LIBS} "libassimpd.5.dylib" "libassimpd.dylib" "libassimpd.5.1.4.dylib")
+    set(LIBS ${LIBS} "libvulkan.1.2.154.dylib")
 endif(WIN32)
 
 set(CHAPTERS
