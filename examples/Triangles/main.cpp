@@ -3,45 +3,94 @@
 //
 
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
 
 #include <iostream>
+#include <exception>
 
 const int SCR_WIDTH = 1920;
 const int SCR_HEIGHT = 1080;
 
-void processInput(GLFWwindow* window);
+class TriangleApplication
+{
+public:
+    void run()
+    {
+        initWindow();
+        initVulkan();
+        mainLoop();
+        cleanup();
+    }
+
+private:
+    void initWindow()
+    {
+        glfwInit();
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+
+        window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "vulkanDemo", NULL, NULL);
+    }
+
+    void initVulkan()
+    {
+        VkApplicationInfo appInfo = {};
+        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+        appInfo.pApplicationName = "Hello Triangle";
+        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+        appInfo.pEngineName = "Hela";
+        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+        appInfo.apiVersion = VK_API_VERSION_1_0;
+
+        VkInstanceCreateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+        createInfo.pApplicationInfo = &appInfo;
+
+        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create vulkan instance!");
+        }
+    }
+
+    void mainLoop()
+    {
+        while(!glfwWindowShouldClose(window))
+        {
+            processInput(window);
+
+            glfwPollEvents();
+        }
+    }
+
+    void cleanup()
+    {
+        glfwDestroyWindow(window);
+        glfwTerminate();
+    }
+
+    void processInput(GLFWwindow* window)
+    {
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, true);
+    }
+
+    GLFWwindow *window;
+    VkInstance instance;
+};
+
+
+
 
 int main()
 {
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "vulkanDemo", NULL, NULL);
-    if (window == nullptr)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        return -1;
+    TriangleApplication app;
+    try{
+        app.run();
     }
-
-    while (!glfwWindowShouldClose(window))
+    catch (std::exception &e)
     {
-
-        processInput(window);
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
-
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
-
     return 0;
-}
-
-void processInput(GLFWwindow* window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
 }
