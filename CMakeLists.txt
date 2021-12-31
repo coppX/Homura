@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 project(vulkanDemo)
 set(CMAKE_CXX_STANDARD 17)
 
+configure_file(configuration/root_directory.h.in configuration/root_directory.h)
+include_directories(${CMAKE_BINARY_DIR}/configuration)
+
+include_directories("include")
 include_directories("libs/include")
 
 link_directories("libs/libs")
