@@ -95,6 +95,7 @@ private:
         createLogicDevice();
         createSwapChain();
         createImageView();
+        createGraphicsPipeline();
     }
 
     void createInstance()
@@ -366,6 +367,11 @@ private:
                 throw std::runtime_error("failed to create image views!");
             }
         }
+    }
+
+    void createGraphicsPipeline()
+    {
+
     }
 
     VkSurfaceFormatKHR chooseSwapChainFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats)
