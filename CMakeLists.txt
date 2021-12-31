@@ -16,6 +16,14 @@ elseif(APPLE)
     set(LIBS ${LIBS} "libvulkan.1.2.154.dylib")
 endif(WIN32)
 
+# compile GLSL shader to SPIR-V format
+file(GLOB_RECURSE SHADER ${CMAKE_CURRENT_LIST_DIR}/resources/shader/*.vert ${CMAKE_CURRENT_LIST_DIR}/resources/shader/*.frag)
+
+foreach(shaderFile ${SHADER})
+    execute_process(COMMAND ./bin/glslangValidator -V ${shaderFile} -o ${shaderFile}.spv
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+endforeach(shaderFile)
+
 set(CHAPTERS
     examples
     )
