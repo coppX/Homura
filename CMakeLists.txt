@@ -24,8 +24,13 @@ endif(WIN32)
 file(GLOB_RECURSE SHADER ${CMAKE_CURRENT_LIST_DIR}/resources/shader/*.vert ${CMAKE_CURRENT_LIST_DIR}/resources/shader/*.frag)
 
 foreach(shaderFile ${SHADER})
-    execute_process(COMMAND ./bin/glslangValidator -V ${shaderFile} -o ${shaderFile}.spv
+    if(WIN32)
+        execute_process(COMMAND ./bin/glslangValidator.exe -V ${shaderFile} -o ${shaderFile}.spv
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+    elseif(APPLE)
+        execute_process(COMMAND ./bin/glslangValidator -V ${shaderFile} -o ${shaderFile}.spv
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+    endif(WIN32)
 endforeach(shaderFile)
 
 set(CHAPTERS
