@@ -7,6 +7,7 @@
 
 #include <GLFW/glfw3.h>
 #include "platform/input.h"
+#include <vulkan/vulkan.h>
 
 #include <string>
 
@@ -70,6 +71,18 @@ namespace Homura
         std::string mTitle = "Hela";
 
         GLFWwindow *mWindow = nullptr;
+
+        struct Texture
+        {
+            VkImage image;
+            VkDeviceMemory mem;
+            VkImageView view;
+        };
+
+        Texture mDepthStencil;
+        VkSampleCountFlagBits mSampleCount;
+
+        VkRenderPass mRenderPass;
     };
 
 };
