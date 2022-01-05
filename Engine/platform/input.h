@@ -4,214 +4,226 @@
 
 #ifndef VULKANDEMO_INPUT_H
 #define VULKANDEMO_INPUT_H
-enum class EventSource
+
+namespace Hela
 {
-    KeyCode,
-    Mouse
-};
-
-class InputEvent
-{
-public:
-    InputEvent(EventSource source)
-        : mSource(source)
+    enum class EventSource
     {
+        KeyCode,
+        Mouse
+    };
 
-    }
-
-    EventSource getSource() const
+    class InputEvent
     {
-        return mSource;
-    }
+    public:
+        InputEvent(EventSource source)
+                : mSource(source)
+        {
 
-private:
-    EventSource mSource;
-};
+        }
 
-enum class KeyCode
-{
-    Unknown,
-    Space,
-    Apostrophe, /* ' */
-    Comma,      /* , */
-    Minus,      /* - */
-    Period,     /* . */
-    Slash,      /* / */
-    _0,
-    _1,
-    _2,
-    _3,
-    _4,
-    _5,
-    _6,
-    _7,
-    _8,
-    _9,
-    Semicolon, /* ; */
-    Equal,     /* = */
-    A,
-    B,
-    C,
-    D,
-    E,
-    F,
-    G,
-    H,
-    I,
-    J,
-    K,
-    L,
-    M,
-    N,
-    O,
-    P,
-    Q,
-    R,
-    S,
-    T,
-    U,
-    V,
-    W,
-    X,
-    Y,
-    Z,
-    LeftBracket,  /* [ */
-    Backslash,    /* \ */
-    RightBracket, /* ] */
-    GraveAccent,  /* ` */
-    Escape,
-    Enter,
-    Tab,
-    Backspace,
-    Insert,
-    DelKey,
-    Right,
-    Left,
-    Down,
-    Up,
-    PageUp,
-    PageDown,
-    Home,
-    End,
-    Back,
-    CapsLock,
-    ScrollLock,
-    NumLock,
-    PrintScreen,
-    Pause,
-    F1,
-    F2,
-    F3,
-    F4,
-    F5,
-    F6,
-    F7,
-    F8,
-    F9,
-    F10,
-    F11,
-    F12,
-    KP_0,
-    KP_1,
-    KP_2,
-    KP_3,
-    KP_4,
-    KP_5,
-    KP_6,
-    KP_7,
-    KP_8,
-    KP_9,
-    KP_Decimal,
-    KP_Divide,
-    KP_Multiply,
-    KP_Subtract,
-    KP_Add,
-    KP_Enter,
-    KP_Equal,
-    LeftShift,
-    LeftControl,
-    LeftAlt,
-    RightShift,
-    RightControl,
-    RightAlt
-};
+        EventSource getSource() const
+        {
+            return mSource;
+        }
 
-enum class KeyAction
-{
-    Down,
-    Up,
-    Repeat,
-    Unknown
-};
+    private:
+        EventSource mSource;
+    };
 
-class KeyInputEvent : public InputEvent
-{
-public:
-    KeyInputEvent(KeyCode code, KeyAction action)
-        : InputEvent{EventSource::KeyCode}
-        , mCode{code}
-        , mAction{action}
+    enum class KeyCode
     {
+        Unknown,
+        Space,
+        Apostrophe, /* ' */
+        Comma,      /* , */
+        Minus,      /* - */
+        Period,     /* . */
+        Slash,      /* / */
+        _0,
+        _1,
+        _2,
+        _3,
+        _4,
+        _5,
+        _6,
+        _7,
+        _8,
+        _9,
+        Semicolon, /* ; */
+        Equal,     /* = */
+        A,
+        B,
+        C,
+        D,
+        E,
+        F,
+        G,
+        H,
+        I,
+        J,
+        K,
+        L,
+        M,
+        N,
+        O,
+        P,
+        Q,
+        R,
+        S,
+        T,
+        U,
+        V,
+        W,
+        X,
+        Y,
+        Z,
+        LeftBracket,  /* [ */
+        Backslash,    /* \ */
+        RightBracket, /* ] */
+        GraveAccent,  /* ` */
+        Escape,
+        Enter,
+        Tab,
+        Backspace,
+        Insert,
+        DelKey,
+        Right,
+        Left,
+        Down,
+        Up,
+        PageUp,
+        PageDown,
+        Home,
+        End,
+        Back,
+        CapsLock,
+        ScrollLock,
+        NumLock,
+        PrintScreen,
+        Pause,
+        F1,
+        F2,
+        F3,
+        F4,
+        F5,
+        F6,
+        F7,
+        F8,
+        F9,
+        F10,
+        F11,
+        F12,
+        KP_0,
+        KP_1,
+        KP_2,
+        KP_3,
+        KP_4,
+        KP_5,
+        KP_6,
+        KP_7,
+        KP_8,
+        KP_9,
+        KP_Decimal,
+        KP_Divide,
+        KP_Multiply,
+        KP_Subtract,
+        KP_Add,
+        KP_Enter,
+        KP_Equal,
+        LeftShift,
+        LeftControl,
+        LeftAlt,
+        RightShift,
+        RightControl,
+        RightAlt
+    };
 
-    }
-
-    KeyCode getCode() const
+    enum class KeyAction
     {
-        return mCode;
-    }
+        Down,
+        Up,
+        Repeat,
+        Unknown
+    };
 
-    KeyAction getAction() const
+    class KeyInputEvent : public InputEvent
     {
-        return mAction;
-    }
+    public:
+        KeyInputEvent(KeyCode code, KeyAction action)
+                : InputEvent{EventSource::KeyCode}, mCode{code}, mAction{action}
+        {
 
-private:
-    KeyCode mCode;
-    KeyAction mAction;
-};
+        }
 
-enum class MouseButton
-{
-    Left,
-    Right,
-    Middle,
-    Back,
-    Forward,
-    Unknown
-};
+        KeyCode getCode() const
+        {
+            return mCode;
+        }
 
-enum class MouseAction
-{
-    Down,
-    Up,
-    Move,
-    Unknown
-};
+        KeyAction getAction() const
+        {
+            return mAction;
+        }
 
-class MouseEventInput : public InputEvent
-{
-public:
-    MouseEventInput(MouseButton button, MouseAction action)
-        : InputEvent{EventSource::Mouse}
-        , mButton{button}
-        , mAction{action}
+    private:
+        KeyCode mCode;
+        KeyAction mAction;
+    };
+
+    enum class MouseButton
     {
+        Left,
+        Right,
+        Middle,
+        Back,
+        Forward,
+        Unknown
+    };
 
-    }
-
-    MouseButton getButton() const
+    enum class MouseAction
     {
-        return mButton;
-    }
+        Down,
+        Up,
+        Move,
+        Unknown
+    };
 
-    MouseAction getAction() const
+    class MouseEventInput : public InputEvent
     {
-        return mAction;
-    }
+    public:
+        MouseEventInput(MouseButton button, MouseAction action, float x, float y)
+                : InputEvent{EventSource::Mouse}, mButton{button}, mAction{action}, mPosX{x}, mPosY{y}
+        {
 
-private:
-    MouseButton mButton;
-    MouseAction mAction;
-};
+        }
+
+        MouseButton getButton() const
+        {
+            return mButton;
+        }
+
+        MouseAction getAction() const
+        {
+            return mAction;
+        }
+
+        float getPosX() const
+        {
+            return mPosX;
+        }
+
+        float getPosY() const
+        {
+            return mPosY;
+        }
+
+    private:
+        MouseButton mButton;
+        MouseAction mAction;
+        float mPosX;
+        float mPosY;
+    };
+}
 
 #endif //VULKANDEMO_INPUT_H

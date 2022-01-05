@@ -27,9 +27,7 @@
 #include <unordered_map>
 
 #include <filesystem.h>
-
-const int SCR_WIDTH = 960;
-const int SCR_HEIGHT = 540;
+#include <application.h>
 
 const std::string MODEL_PATH = FileSystem::getPath("resources/models/viking_room.obj");
 const std::string TEXTURE_PATH = FileSystem::getPath("resources/textures/viking_room.png");
@@ -152,27 +150,81 @@ struct UniformBufferObject
     alignas(16) glm::mat4 proj;
 };
 
-class TriangleApplication
+class TriangleApplication : Hela::Application
 {
 public:
-    void run()
+    ~TriangleApplication()
+    {
+        exit();
+    }
+
+    bool init()
     {
         initWindow();
         initVulkan();
-        mainLoop();
-        cleanup();
+        update();
+        return true;
+    }
+
+    void update()
+    {
+        while (!glfwWindowShouldClose(mWindow))
+        {
+            processInput(mWindow);
+
+            glfwPollEvents();
+            drawFrame();
+        }
+        vkDeviceWaitIdle(device);
+    }
+
+    void exit()
+    {
+        cleanupSwapChain();
+
+        vkDestroySampler(device, textureSampler, nullptr);
+        vkDestroyImageView(device, textureImageView, nullptr);
+
+        vkDestroyImage(device, textureImage, nullptr);
+        vkFreeMemory(device, textureImageMemory, nullptr);
+
+        vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+
+        vkDestroyBuffer(device, indexBuffer, nullptr);
+        vkFreeMemory(device, indexBufferMemory, nullptr);
+
+        vkDestroyBuffer(device, vertexBuffer, nullptr);
+        vkFreeMemory(device, vertexBufferMemory, nullptr);
+
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+        {
+            vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+            vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+            vkDestroyFence(device, inFlightFences[i], nullptr);
+        }
+
+        vkDestroyCommandPool(device, commandPool, nullptr);
+
+        vkDestroyDevice(device, nullptr);
+
+        if (enableValidationLayer)
+        {
+            DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+        }
+
+        vkDestroySurfaceKHR(instance, surface, nullptr);
+        vkDestroyInstance(instance, nullptr);
+
+        glfwDestroyWindow(mWindow);
+        glfwTerminate();
     }
 
 private:
     void initWindow()
     {
-        glfwInit();
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-        window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "vulkanDemo", nullptr, nullptr);
-        glfwSetWindowUserPointer(window, this);
-        glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+        Hela::Application::initWindow();
+        glfwSetWindowUserPointer(mWindow, this);
+        glfwSetFramebufferSizeCallback(mWindow, framebufferResizeCallback);
     }
 
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
@@ -213,10 +265,10 @@ private:
     void recreateSwapChain()
     {
         int width = 0, height = 0;
-        glfwGetWindowSize(window, &width, &height);
+        glfwGetWindowSize(mWindow, &width, &height);
         while (width == 0 || height == 0)
         {
-            glfwGetFramebufferSize(window, &width, &height);
+            glfwGetFramebufferSize(mWindow, &width, &height);
             glfwWaitEvents();
         }
 
@@ -282,18 +334,6 @@ private:
         }
     }
 
-    void mainLoop()
-    {
-        while (!glfwWindowShouldClose(window))
-        {
-            processInput(window);
-
-            glfwPollEvents();
-            drawFrame();
-        }
-        vkDeviceWaitIdle(device);
-    }
-
     void cleanupSwapChain()
     {
         vkDestroyImageView(device, depthImageView, nullptr);
@@ -331,47 +371,6 @@ private:
         vkDestroyDescriptorPool(device, descriptorPool, nullptr);
     }
 
-    void cleanup()
-    {
-        cleanupSwapChain();
-
-        vkDestroySampler(device, textureSampler, nullptr);
-        vkDestroyImageView(device, textureImageView, nullptr);
-
-        vkDestroyImage(device, textureImage, nullptr);
-        vkFreeMemory(device, textureImageMemory, nullptr);
-
-        vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-
-        vkDestroyBuffer(device, indexBuffer, nullptr);
-        vkFreeMemory(device, indexBufferMemory, nullptr);
-
-        vkDestroyBuffer(device, vertexBuffer, nullptr);
-        vkFreeMemory(device, vertexBufferMemory, nullptr);
-
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-        {
-            vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
-            vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-            vkDestroyFence(device, inFlightFences[i], nullptr);
-        }
-
-        vkDestroyCommandPool(device, commandPool, nullptr);
-
-        vkDestroyDevice(device, nullptr);
-
-        if (enableValidationLayer)
-        {
-            DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-        }
-
-        vkDestroySurfaceKHR(instance, surface, nullptr);
-        vkDestroyInstance(instance, nullptr);
-
-        glfwDestroyWindow(window);
-        glfwTerminate();
-    }
-
     void processInput(GLFWwindow* window)
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -407,7 +406,7 @@ private:
 
     void createSurface()
     {
-        if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
+        if (glfwCreateWindowSurface(instance, mWindow, nullptr, &surface) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create window surface!");
         }
@@ -1707,7 +1706,7 @@ private:
         else
         {
             int width, height;
-            glfwGetFramebufferSize(window, &width, &height);
+            glfwGetFramebufferSize(mWindow, &width, &height);
 
             VkExtent2D actualExtent = {
                     static_cast<uint32_t>(width),
@@ -1868,8 +1867,6 @@ private:
         return true;
     }
 
-    GLFWwindow* window;
-
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
     VkSurfaceKHR surface;
@@ -1967,7 +1964,7 @@ int main()
     TriangleApplication app;
     try
     {
-        app.run();
+        app.init();
     }
     catch (std::exception &e)
     {
