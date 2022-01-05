@@ -38,7 +38,7 @@ set(CHAPTERS
     )
 
 set(examples
-    Triangles
+    Triangle
     )
 
 foreach(CHAPTER ${CHAPTERS})
