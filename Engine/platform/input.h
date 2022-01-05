@@ -5,7 +5,7 @@
 #ifndef VULKANDEMO_INPUT_H
 #define VULKANDEMO_INPUT_H
 
-namespace Hela
+namespace Homura
 {
     enum class EventSource
     {

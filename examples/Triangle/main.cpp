@@ -83,7 +83,7 @@ struct std::hash<Vertex>
     }
 };
 
-namespace Hela
+namespace Homura
 {
     const std::string MODEL_PATH = FileSystem::getPath("resources/models/viking_room.obj");
     const std::string TEXTURE_PATH = FileSystem::getPath("resources/textures/viking_room.png");
@@ -150,7 +150,7 @@ namespace Hela
         alignas(16) glm::mat4 proj;
     };
 
-    class TriangleApplication : Hela::Application
+    class TriangleApplication : Application
     {
     public:
         ~TriangleApplication()
@@ -222,7 +222,7 @@ namespace Hela
     private:
         void initWindow()
         {
-            Hela::Application::initWindow();
+            Application::initWindow();
             glfwSetWindowUserPointer(mWindow, this);
             glfwSetFramebufferSizeCallback(mWindow, framebufferResizeCallback);
         }
@@ -1970,7 +1970,7 @@ namespace Hela
 
 int main()
 {
-    Hela::TriangleApplication app;
+    Homura::TriangleApplication app;
     try
     {
         app.init();

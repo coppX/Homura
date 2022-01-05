@@ -10,7 +10,7 @@
 
 #include <string>
 
-namespace Hela
+namespace Homura
 {
     class Application
     {
