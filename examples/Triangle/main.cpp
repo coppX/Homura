@@ -28,6 +28,7 @@
 
 #include <filesystem.h>
 #include <application.h>
+#include <debugUtils.h>
 
 struct Vertex
 {
@@ -92,38 +93,6 @@ namespace Homura
 
     const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-
-#ifdef NDEBUG
-    const bool enableValidationLayer = false;
-#else
-    const bool enableValidationLayer = true;
-#endif
-
-    VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-                                          const VkAllocationCallbacks* pAllocator,
-                                          VkDebugUtilsMessengerEXT* pDebugMessenger)
-    {
-        auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-        if (func != nullptr)
-        {
-            return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-        }
-        else
-        {
-            return VK_ERROR_EXTENSION_NOT_PRESENT;
-        }
-    }
-
-    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
-                                       const VkAllocationCallbacks* pAllocator)
-    {
-        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,
-                                                                                "vkDestroyDebugUtilsMessengerEXT");
-        if (func != nullptr)
-        {
-            func(instance, debugMessenger, pAllocator);
-        }
-    }
 
     struct QueueFamilyIndices
     {
@@ -207,7 +176,7 @@ namespace Homura
 
             vkDestroyDevice(device, nullptr);
 
-            if (enableValidationLayer)
+            if (enableValidationLayers)
             {
                 DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
             }
@@ -292,7 +261,7 @@ namespace Homura
 
         void createInstance()
         {
-            if (enableValidationLayer && !checkValidationLayerSupport())
+            if (enableValidationLayers && !checkValidationLayerSupport())
             {
                 throw std::runtime_error("validation layers requested, but not available!");
             }
@@ -313,7 +282,7 @@ namespace Homura
             createInfo.ppEnabledExtensionNames = extensions.data();
 
             VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-            if (enableValidationLayer)
+            if (enableValidationLayers)
             {
                 createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
                 createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -393,7 +362,7 @@ namespace Homura
 
         void setupDebugMessenger()
         {
-            if (!enableValidationLayer) return;
+            if (!enableValidationLayers) return;
 
             VkDebugUtilsMessengerCreateInfoEXT createInfo;
             populateDebugMessengerCreateInfo(createInfo);
@@ -474,7 +443,7 @@ namespace Homura
             createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
             createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-            if (enableValidationLayer)
+            if (enableValidationLayers)
             {
                 createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
                 createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -1838,7 +1807,7 @@ namespace Homura
 
             std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-            if (enableValidationLayer)
+            if (enableValidationLayers)
             {
                 extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
             }
@@ -1954,15 +1923,6 @@ namespace Homura
             file.close();
 
             return buffer;
-        }
-
-        static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                            void* pUserData)
-        {
-            std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-            return VK_FALSE;
         }
     };
 }
