@@ -868,7 +868,7 @@ namespace Homura
                 {
                     return format;
                 }
-                else if (tiling == VK_IMAGE_TILING_OPTIMAL & (props.optimalTilingFeatures & features) == features)
+                else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
                 {
                     return format;
                 }
