@@ -10,6 +10,8 @@
 
 namespace Homura
 {
+    class VulkanDevice;
+
     class VulkanRHI
     {
     public:
@@ -35,7 +37,7 @@ namespace Homura
         }
 
         void createInstance();
-        void createDevice();
+        void SelectAndInitDevice();
         void createSwapChain();
 
         void destroyInstance();
@@ -52,7 +54,7 @@ namespace Homura
         std::vector<const char*> mValidationLayers;
         std::vector<const char*> mDeviceExtensions;
 
-        VkDevice mDevice;
+        std::shared_ptr<VulkanDevice> mDevice;
         VkSwapchainKHR mSwapChain;
     };
 }

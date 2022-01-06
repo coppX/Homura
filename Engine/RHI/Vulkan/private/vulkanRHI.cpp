@@ -5,6 +5,7 @@
 #include <vulkanRHI.h>
 #include <debugUtils.h>
 #include <GLFW/glfw3.h>
+#include "vulkanDevice.h"
 
 namespace Homura
 {
@@ -59,19 +60,88 @@ namespace Homura
         else
         {
             createInfo.enabledLayerCount = 0;
-
             createInfo.pNext = nullptr;
         }
 
-        if (vkCreateInstance(&createInfo, nullptr, &mInstance) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create instance!");
-        }
+        VERIFYVULKANRESULT(vkCreateInstance(&createInfo, nullptr, &mInstance));
     }
 
-    void VulkanRHI::createDevice()
+    void VulkanRHI::SelectAndInitDevice()
     {
+        uint32_t gpuCount = 0;
+        VkResult result = vkEnumeratePhysicalDevices(getInstance(), &gpuCount, nullptr);
+        if (result == VK_ERROR_INITIALIZATION_FAILED) {
+            printf("%s\n", "Cannot find a compatible Vulkan device or driver. Try updating your video driver to a more recent version and make sure your video card supports Vulkan.");
+            return;
+        }
 
+        if (gpuCount == 0) {
+            printf("%s\n", "Couldn't enumerate physical devices! Make sure your drivers are up to date and that you are not pending a reboot.");
+            return;
+        }
+
+        std::vector<VkPhysicalDevice> physicalDevices;
+        VERIFYVULKANRESULT_EXPANDED(vkEnumeratePhysicalDevices(getInstance(), &gpuCount, physicalDevices.data()));
+
+        struct DeviceInfo
+        {
+            std::shared_ptr<VulkanDevice> device;
+            uint32_t deviceIndex;
+        };
+
+        std::vector<DeviceInfo> discreteDevices;
+        std::vector<DeviceInfo> integratedDevices;
+
+        for (uint32_t index = 0; index < gpuCount; index++)
+        {
+            std::shared_ptr<VulkanDevice> newDevice = std::make_shared<VulkanDevice>(physicalDevices[index]);
+            bool isDiscrete = newDevice->queryDevice(index);
+            if (isDiscrete)
+            {
+                discreteDevices.push_back({newDevice, index});
+            }
+            else
+            {
+                integratedDevices.push_back({newDevice, index});
+            }
+        }
+
+        for (uint32_t index = 0; index < integratedDevices.size(); index++)
+        {
+            discreteDevices.push_back(integratedDevices[index]);
+        }
+
+        int32_t deviceIndex = -1;
+        if (discreteDevices.size() > 0)
+        {
+            int32_t preferredVendor = -1;
+            if (discreteDevices.size() > 1 && preferredVendor != -1)
+            {
+                for (int32_t index = 0; index < discreteDevices.size(); ++index)
+                {
+                    if (discreteDevices[index].device->getDeviceProperties().vendorID == preferredVendor)
+                    {
+                        mDevice = discreteDevices[index].device;
+                        deviceIndex = discreteDevices[index].deviceIndex;
+                        break;
+                    }
+                }
+            }
+
+            if (deviceIndex == -1)
+            {
+                mDevice = discreteDevices[0].device;
+                deviceIndex = discreteDevices[0].deviceIndex;
+            }
+        }
+        else
+        {
+            printf("%s", "No devices found!");
+            deviceIndex = -1;
+            return;
+        }
+
+        mDevice->initGPU(deviceIndex);
     }
 
     void VulkanRHI::createSwapChain()

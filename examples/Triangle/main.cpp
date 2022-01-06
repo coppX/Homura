@@ -190,7 +190,7 @@ namespace Homura
             }
 
             vkDestroySurfaceKHR(rhi->getInstance(), surface, nullptr);
-            vkDestroyInstance(rhi->getInstance(), nullptr);
+            rhi->destroyInstance();
 
             glfwDestroyWindow(mWindow);
             glfwTerminate();

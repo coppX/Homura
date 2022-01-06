@@ -15,6 +15,7 @@ namespace Homura
 #endif
 
 #define VERIFYVULKANRESULT(VkFunction) {const VkResult scopedResult = VkFunction; if (scopedResult != VK_SUCCESS) {printf("VKResult=%d,Function=%s,File=%s,Line=%d", scopedResult, #VkFunction, __FILE__, __LINE__);}}
+#define VERIFYVULKANRESULT_EXPANDED(VkFunction)	{ const VkResult scopedResult = VkFunction; if (scopedResult < VK_SUCCESS) { printf("VKResult=%d,Function=%s,File=%s,Line=%d", scopedResult, #VkFunction, __FILE__, __LINE__); }}
 
     inline VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
                                           const VkAllocationCallbacks* pAllocator,
