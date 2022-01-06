@@ -25,15 +25,16 @@
 #include <chrono>
 #include <string>
 #include <unordered_map>
+#include <memory>
 
 #include <filesystem.h>
 #include <application.h>
 #include <debugUtils.h>
 #include <vulkanShader.h>
+#include <vulkanRHI.h>
 
 struct Vertex
 {
-
     glm::vec3 pos;
     glm::vec3 color;
     glm::vec2 texCoord;
@@ -123,6 +124,12 @@ namespace Homura
     class TriangleApplication : Application
     {
     public:
+        TriangleApplication()
+            : rhi{std::make_shared<VulkanRHI>()}
+        {
+
+        }
+
         ~TriangleApplication()
         {
             exit();
@@ -179,11 +186,11 @@ namespace Homura
 
             if (enableValidationLayers)
             {
-                DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+                DestroyDebugUtilsMessengerEXT(rhi->getInstance(), debugMessenger, nullptr);
             }
 
-            vkDestroySurfaceKHR(instance, surface, nullptr);
-            vkDestroyInstance(instance, nullptr);
+            vkDestroySurfaceKHR(rhi->getInstance(), surface, nullptr);
+            vkDestroyInstance(rhi->getInstance(), nullptr);
 
             glfwDestroyWindow(mWindow);
             glfwTerminate();
@@ -205,7 +212,7 @@ namespace Homura
 
         void initVulkan()
         {
-            createInstance();
+            rhi->createInstance();
             setupDebugMessenger();
             createSurface();
             pickPhysicalDevice();
@@ -260,50 +267,6 @@ namespace Homura
             imagesInFlight.resize(swapChainImages.size(), VK_NULL_HANDLE);
         }
 
-        void createInstance()
-        {
-            if (enableValidationLayers && !checkValidationLayerSupport())
-            {
-                throw std::runtime_error("validation layers requested, but not available!");
-            }
-            VkApplicationInfo appInfo{};
-            appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-            appInfo.pApplicationName = "Hello Triangle";
-            appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-            appInfo.pEngineName = "Hela";
-            appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-            appInfo.apiVersion = VK_API_VERSION_1_0;
-
-            VkInstanceCreateInfo createInfo = {};
-            createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-            createInfo.pApplicationInfo = &appInfo;
-
-            auto extensions = getRequiredExtensions();
-            createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-            createInfo.ppEnabledExtensionNames = extensions.data();
-
-            VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-            if (enableValidationLayers)
-            {
-                createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-                createInfo.ppEnabledLayerNames = validationLayers.data();
-
-                populateDebugMessengerCreateInfo(debugCreateInfo);
-                createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
-            }
-            else
-            {
-                createInfo.enabledLayerCount = 0;
-
-                createInfo.pNext = nullptr;
-            }
-
-            if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
-            {
-                throw std::runtime_error("failed to create instance!");
-            }
-        }
-
         void cleanupSwapChain()
         {
             vkDestroyImageView(device, depthImageView, nullptr);
@@ -347,28 +310,14 @@ namespace Homura
                 glfwSetWindowShouldClose(window, true);
         }
 
-        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo)
-        {
-            createInfo = {};
-            createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-            createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
-                                         | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
-                                         | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-
-            createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
-                                     | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
-                                     | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-            createInfo.pfnUserCallback = debugCallback;
-        }
-
         void setupDebugMessenger()
         {
             if (!enableValidationLayers) return;
 
             VkDebugUtilsMessengerCreateInfoEXT createInfo;
-            populateDebugMessengerCreateInfo(createInfo);
+            rhi->populateDebugMessengerCreateInfo(createInfo);
 
-            if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
+            if (CreateDebugUtilsMessengerEXT(rhi->getInstance(), &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to set up debug messenger!");
             }
@@ -376,7 +325,7 @@ namespace Homura
 
         void createSurface()
         {
-            if (glfwCreateWindowSurface(instance, mWindow, nullptr, &surface) != VK_SUCCESS)
+            if (glfwCreateWindowSurface(rhi->getInstance(), mWindow, nullptr, &surface) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create window surface!");
             }
@@ -385,7 +334,7 @@ namespace Homura
         void pickPhysicalDevice()
         {
             uint32_t deviceCount = 0;
-            vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+            vkEnumeratePhysicalDevices(rhi->getInstance(), &deviceCount, nullptr);
 
             if (deviceCount == 0)
             {
@@ -393,7 +342,7 @@ namespace Homura
             }
 
             std::vector<VkPhysicalDevice> devices(deviceCount);
-            vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+            vkEnumeratePhysicalDevices(rhi->getInstance(), &deviceCount, devices.data());
 
             for (const auto &device : devices)
             {
@@ -853,11 +802,6 @@ namespace Homura
                     VK_IMAGE_TILING_OPTIMAL,
                     VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
             );
-        }
-
-        bool hasStencilComponent(VkFormat format)
-        {
-            return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
         }
 
         void createTextureImage()
@@ -1784,51 +1728,6 @@ namespace Homura
             return indices;
         }
 
-        std::vector<const char*> getRequiredExtensions()
-        {
-            uint32_t glfwExtensionCount = 0;
-            const char** glfwExtensions;
-            glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-            std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-
-            if (enableValidationLayers)
-            {
-                extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-            }
-            return extensions;
-        }
-
-        bool checkValidationLayerSupport()
-        {
-            uint32_t layerCount = 0;
-            vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-            std::vector<VkLayerProperties> availableLayers(layerCount);
-            vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-
-            for (const char* layerName : validationLayers)
-            {
-
-                bool layerFound = false;
-                for (const auto &layerProperties : availableLayers)
-                {
-                    if (strcmp(layerName, layerProperties.layerName) == 0)
-                    {
-                        layerFound = true;
-                        break;
-                    }
-                }
-
-                if (!layerFound)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
         VkSurfaceKHR surface;
 
@@ -1889,6 +1788,8 @@ namespace Homura
         size_t currentFrame = 0;
 
         bool framebufferResized = false;
+
+        std::shared_ptr<VulkanRHI> rhi;
     };
 }
 

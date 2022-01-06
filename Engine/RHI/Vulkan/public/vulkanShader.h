@@ -22,6 +22,7 @@ namespace Homura
 
     private:
         std::vector<char> readFile(const std::string &filename);
+        void destroyShaderModule();
 
     private:
         VkShaderModule mModule;

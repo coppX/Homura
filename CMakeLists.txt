@@ -27,8 +27,6 @@ file(GLOB VULKAN
     "${CMAKE_CURRENT_LIST_DIR}/Engine/RHI/Vulkan/private/*.cpp"
     )
 
-#add_library(VULKAN "${CMAKE_CURRENT_LIST_DIR}/Engine/RHI/Vulkan/private/vulkanShader.cpp")
-
 # compile GLSL shader to SPIR-V format
 file(GLOB_RECURSE SHADER ${CMAKE_CURRENT_LIST_DIR}/resources/shader/*.vert ${CMAKE_CURRENT_LIST_DIR}/resources/shader/*.frag)
 

@@ -19,11 +19,38 @@ namespace Homura
 
         void init();
 
+        const VkInstance& getInstance() const
+        {
+            return mInstance;
+        }
+
+        const VkDevice& getDevice() const
+        {
+            return mDevice;
+        }
+
+        const VkSwapchainKHR& getSwapChain() const
+        {
+            return mSwapChain;
+        }
+
+        void createInstance();
+        void createDevice();
+        void createSwapChain();
+
+        void destroyInstance();
+        void destroyDevice();
+        void destroySwapChain();
+
+        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+    private:
+        bool checkValidationLayerSupport();
+        std::vector<const char*> getRequiredExtensions();
+
     private:
         VkInstance mInstance;
         std::vector<const char*> mValidationLayers;
-        std::vector<const char*> mInstanceExtensions;
-        VkSurfaceFormatKHR mSurface;
+        std::vector<const char*> mDeviceExtensions;
 
         VkDevice mDevice;
         VkSwapchainKHR mSwapChain;

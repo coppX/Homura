@@ -19,10 +19,7 @@ namespace Homura
 
     VulkanShader::~VulkanShader()
     {
-        if (mModule != VK_NULL_HANDLE)
-        {
-            vkDestroyShaderModule(*mDevice.get(), mModule, pAllocator);
-        }
+        destroyShaderModule();
     }
 
     void VulkanShader::createShaderModule(std::string filename, VkAllocationCallbacks *allocator)
@@ -35,6 +32,14 @@ namespace Homura
         createInfo.codeSize = shaderCode.size();
         createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.data());
         VERIFYVULKANRESULT(vkCreateShaderModule(*mDevice.get(), &createInfo, pAllocator, &mModule));
+    }
+
+    void VulkanShader::destroyShaderModule()
+    {
+        if (mModule != VK_NULL_HANDLE)
+        {
+            vkDestroyShaderModule(*mDevice.get(), mModule, pAllocator);
+        }
     }
 
     std::vector<char> VulkanShader::readFile(const std::string &filename)
