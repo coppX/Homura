@@ -8,6 +8,7 @@
 #include <vulkan/vulkan.h>
 
 #include <memory>
+#include <vector>
 
 namespace Homura
 {
@@ -34,6 +35,8 @@ namespace Homura
     private:
         VkDevice mDevice;
         VkPhysicalDevice mPhysicalDevice;
+
+        std::vector<VkQueueFamilyProperties> mQueueFamilyProperties;
 
         VkPhysicalDeviceProperties  mPhysicalDeviceProperties;
 

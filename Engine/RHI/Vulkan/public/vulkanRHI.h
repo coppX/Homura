@@ -26,7 +26,7 @@ namespace Homura
             return mInstance;
         }
 
-        const VkDevice& getDevice() const
+        const std::shared_ptr<VulkanDevice> getDevice() const
         {
             return mDevice;
         }
