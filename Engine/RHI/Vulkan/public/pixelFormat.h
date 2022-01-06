@@ -2,8 +2,8 @@
 // Created by FDC on 2022/1/6.
 //
 
-#ifndef VULKANDEMO_PIXELFORMAT_H
-#define VULKANDEMO_PIXELFORMAT_H
+#ifndef HOMURA_PIXELFORMAT_H
+#define HOMURA_PIXELFORMAT_H
 
 #include <cstdint>
 
@@ -95,4 +95,4 @@ struct PixelFormatInfo
 
 extern PixelFormatInfo PixelFormats[PF_MAX];
 
-#endif //VULKANDEMO_PIXELFORMAT_H
+#endif //HOMURA_PIXELFORMAT_H

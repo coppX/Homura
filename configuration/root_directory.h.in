@@ -2,9 +2,9 @@
 // Created by 最上川 on 2021/12/31.
 //
 
-#ifndef VULKANDEMO_ROOT_DIRECTORY_H
-#define VULKANDEMO_ROOT_DIRECTORY_H
+#ifndef HOMURA_ROOT_DIRECTORY_H
+#define HOMURA_ROOT_DIRECTORY_H
 
 const char * logl_root = "${CMAKE_SOURCE_DIR}";
 
-#endif //VULKANDEMO_ROOT_DIRECTORY_H
+#endif //HOMURA_ROOT_DIRECTORY_H

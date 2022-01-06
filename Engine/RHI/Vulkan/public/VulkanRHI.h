@@ -2,8 +2,8 @@
 // Created by FDC on 2022/1/6.
 //
 
-#ifndef VULKANDEMO_VULKANRHI_H
-#define VULKANDEMO_VULKANRHI_H
+#ifndef HOMURA_VULKANRHI_H
+#define HOMURA_VULKANRHI_H
 
 #include <vector>
 
@@ -21,4 +21,4 @@ private:
     std::vector<const char*> mInstanceLayers;
     std::vector<const char*> mInstanceExtensions;
 };
-#endif //VULKANDEMO_VULKANRHI_H
+#endif //HOMURA_VULKANRHI_H

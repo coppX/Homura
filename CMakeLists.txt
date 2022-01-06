@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(vulkanDemo)
+project(Homura)
 set(CMAKE_CXX_STANDARD 17)
 
 configure_file(configuration/root_directory.h.in configuration/root_directory.h)

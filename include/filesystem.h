@@ -2,8 +2,8 @@
 // Created by 最上川 on 2021/12/31.
 //
 
-#ifndef VULKANDEMO_FILESYSTEM_H
-#define VULKANDEMO_FILESYSTEM_H
+#ifndef HOMURA_FILESYSTEM_H
+#define HOMURA_FILESYSTEM_H
 
 #include <string>
 #include <cstdlib>
@@ -50,4 +50,4 @@ private:
     }
 };
 
-#endif //VULKANDEMO_FILESYSTEM_H
+#endif //HOMURA_FILESYSTEM_H

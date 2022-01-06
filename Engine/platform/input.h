@@ -2,8 +2,8 @@
 // Created by FDC on 2022/1/5.
 //
 
-#ifndef VULKANDEMO_INPUT_H
-#define VULKANDEMO_INPUT_H
+#ifndef HOMURA_INPUT_H
+#define HOMURA_INPUT_H
 
 namespace Homura
 {
@@ -226,4 +226,4 @@ namespace Homura
     };
 }
 
-#endif //VULKANDEMO_INPUT_H
+#endif //HOMURA_INPUT_H

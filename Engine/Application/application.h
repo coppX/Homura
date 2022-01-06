@@ -2,8 +2,8 @@
 // Created by FDC on 2022/1/5.
 //
 
-#ifndef VULKANDEMO_APPLICATION_H
-#define VULKANDEMO_APPLICATION_H
+#ifndef HOMURA_APPLICATION_H
+#define HOMURA_APPLICATION_H
 
 #include "GLFW/glfw3.h"
 #include "input.h"
@@ -93,4 +93,4 @@ namespace Homura
     };
 
 };
-#endif //VULKANDEMO_APPLICATION_H
+#endif //HOMURA_APPLICATION_H
