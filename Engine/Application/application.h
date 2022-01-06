@@ -5,11 +5,14 @@
 #ifndef VULKANDEMO_APPLICATION_H
 #define VULKANDEMO_APPLICATION_H
 
-#include <GLFW/glfw3.h>
-#include "platform/input.h"
-#include <vulkan/vulkan.h>
+#include "GLFW/glfw3.h"
+#include "input.h"
+#include "vulkan/vulkan.h"
 
 #include <string>
+#include <vector>
+
+#include "pixelFormat.h"
 
 namespace Homura
 {
@@ -68,7 +71,7 @@ namespace Homura
     protected:
         uint32_t mWidth = 960;
         uint32_t mHeight = 540;
-        std::string mTitle = "Hela";
+        std::string mTitle = "madoka";
 
         GLFWwindow *mWindow = nullptr;
 
@@ -83,6 +86,10 @@ namespace Homura
         VkSampleCountFlagBits mSampleCount;
 
         VkRenderPass mRenderPass;
+
+        EPixelFormat mDepthFormat;
+
+        std::vector<VkFramebuffer> mFrameBuffers;
     };
 
 };

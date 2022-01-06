@@ -76,12 +76,23 @@ enum EPixelFormat
     PF_PLATFORM_HDR_0		=64,
     PF_PLATFORM_HDR_1		=65,
     PF_PLATFORM_HDR_2		=66,
-    PF_NV12					=67,
-    PF_R32G32_UINT          =68,
-    PF_ETC2_R11_EAC			=69,
-    PF_ETC2_RG11_EAC		=70,
-    PF_R8		            =71,
-    PF_MAX					=72
+    PF_MAX					=PF_PLATFORM_HDR_2 + 1,
 };
+
+struct PixelFormatInfo
+{
+    const char      *name;
+    int32_t         blockSizeX,
+                    blockSizeY,
+                    blockSizeZ,
+                    blockBytes,
+                    numComponents;
+    uint32_t        platformFormat;
+    bool            supported;
+    EPixelFormat    pixelFormat;
+
+};
+
+extern PixelFormatInfo PixelFormats[PF_MAX];
 
 #endif //VULKANDEMO_PIXELFORMAT_H
