@@ -4,7 +4,7 @@
 
 #ifndef HOMURA_VULKANQUEUE_H
 #define HOMURA_VULKANQUEUE_H
-#include <vulkan/vulkan.h>
+#include "vulkan/vulkan.h"
 #include "vulkanDevice.h"
 
 namespace Homura

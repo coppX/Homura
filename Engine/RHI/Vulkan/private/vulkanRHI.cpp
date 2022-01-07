@@ -66,7 +66,7 @@ namespace Homura
         VERIFYVULKANRESULT(vkCreateInstance(&createInfo, nullptr, &mInstance));
     }
 
-    void VulkanRHI::SelectAndInitDevice()
+    void VulkanRHI::selectAndInitDevice()
     {
         uint32_t gpuCount = 0;
         VkResult result = vkEnumeratePhysicalDevices(getInstance(), &gpuCount, nullptr);
@@ -80,7 +80,7 @@ namespace Homura
             return;
         }
 
-        std::vector<VkPhysicalDevice> physicalDevices;
+        std::vector<VkPhysicalDevice> physicalDevices(gpuCount);
         VERIFYVULKANRESULT_EXPANDED(vkEnumeratePhysicalDevices(getInstance(), &gpuCount, physicalDevices.data()));
 
         struct DeviceInfo

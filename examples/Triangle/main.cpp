@@ -152,37 +152,37 @@ namespace Homura
                 glfwPollEvents();
                 drawFrame();
             }
-            vkDeviceWaitIdle(device);
+            vkDeviceWaitIdle(rhi->getDevice()->getHandle());
         }
 
         void exit()
         {
             cleanupSwapChain();
 
-            vkDestroySampler(device, textureSampler, nullptr);
-            vkDestroyImageView(device, textureImageView, nullptr);
+            vkDestroySampler(rhi->getDevice()->getHandle(), textureSampler, nullptr);
+            vkDestroyImageView(rhi->getDevice()->getHandle(), textureImageView, nullptr);
 
-            vkDestroyImage(device, textureImage, nullptr);
-            vkFreeMemory(device, textureImageMemory, nullptr);
+            vkDestroyImage(rhi->getDevice()->getHandle(), textureImage, nullptr);
+            vkFreeMemory(rhi->getDevice()->getHandle(), textureImageMemory, nullptr);
 
-            vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+            vkDestroyDescriptorSetLayout(rhi->getDevice()->getHandle(), descriptorSetLayout, nullptr);
 
-            vkDestroyBuffer(device, indexBuffer, nullptr);
-            vkFreeMemory(device, indexBufferMemory, nullptr);
+            vkDestroyBuffer(rhi->getDevice()->getHandle(), indexBuffer, nullptr);
+            vkFreeMemory(rhi->getDevice()->getHandle(), indexBufferMemory, nullptr);
 
-            vkDestroyBuffer(device, vertexBuffer, nullptr);
-            vkFreeMemory(device, vertexBufferMemory, nullptr);
+            vkDestroyBuffer(rhi->getDevice()->getHandle(), vertexBuffer, nullptr);
+            vkFreeMemory(rhi->getDevice()->getHandle(), vertexBufferMemory, nullptr);
 
             for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
             {
-                vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
-                vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-                vkDestroyFence(device, inFlightFences[i], nullptr);
+                vkDestroySemaphore(rhi->getDevice()->getHandle(), renderFinishedSemaphores[i], nullptr);
+                vkDestroySemaphore(rhi->getDevice()->getHandle(), imageAvailableSemaphores[i], nullptr);
+                vkDestroyFence(rhi->getDevice()->getHandle(), inFlightFences[i], nullptr);
             }
 
-            vkDestroyCommandPool(device, commandPool, nullptr);
+            vkDestroyCommandPool(rhi->getDevice()->getHandle(), commandPool, nullptr);
 
-            vkDestroyDevice(device, nullptr);
+            vkDestroyDevice(rhi->getDevice()->getHandle(), nullptr);
 
             if (enableValidationLayers)
             {
@@ -213,10 +213,9 @@ namespace Homura
         void initVulkan()
         {
             rhi->createInstance();
+            rhi->selectAndInitDevice();
             setupDebugMessenger();
             createSurface();
-            pickPhysicalDevice();
-            createLogicDevice();
             createSwapChain();
             createImageViews();
             createRenderPass();
@@ -249,7 +248,7 @@ namespace Homura
                 glfwWaitEvents();
             }
 
-            vkDeviceWaitIdle(device);
+            vkDeviceWaitIdle(rhi->getDevice()->getHandle());
             cleanupSwapChain();
 
             createSwapChain();
@@ -269,39 +268,39 @@ namespace Homura
 
         void cleanupSwapChain()
         {
-            vkDestroyImageView(device, depthImageView, nullptr);
-            vkDestroyImage(device, depthImage, nullptr);
-            vkFreeMemory(device, depthImageMemory, nullptr);
+            vkDestroyImageView(rhi->getDevice()->getHandle(), depthImageView, nullptr);
+            vkDestroyImage(rhi->getDevice()->getHandle(), depthImage, nullptr);
+            vkFreeMemory(rhi->getDevice()->getHandle(), depthImageMemory, nullptr);
 
-            vkDestroyImageView(device, colorImageView, nullptr);
-            vkDestroyImage(device, colorImage, nullptr);
-            vkFreeMemory(device, colorImageMemory, nullptr);
+            vkDestroyImageView(rhi->getDevice()->getHandle(), colorImageView, nullptr);
+            vkDestroyImage(rhi->getDevice()->getHandle(), colorImage, nullptr);
+            vkFreeMemory(rhi->getDevice()->getHandle(), colorImageMemory, nullptr);
 
             for (auto frameBuffer : swapChainFrameBuffers)
             {
-                vkDestroyFramebuffer(device, frameBuffer, nullptr);
+                vkDestroyFramebuffer(rhi->getDevice()->getHandle(), frameBuffer, nullptr);
             }
 
-            vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+            vkFreeCommandBuffers(rhi->getDevice()->getHandle(), commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 
-            vkDestroyPipeline(device, graphicsPipeline, nullptr);
-            vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-            vkDestroyRenderPass(device, renderPass, nullptr);
+            vkDestroyPipeline(rhi->getDevice()->getHandle(), graphicsPipeline, nullptr);
+            vkDestroyPipelineLayout(rhi->getDevice()->getHandle(), pipelineLayout, nullptr);
+            vkDestroyRenderPass(rhi->getDevice()->getHandle(), renderPass, nullptr);
 
             for (auto imageView : swapChainImageViews)
             {
-                vkDestroyImageView(device, imageView, nullptr);
+                vkDestroyImageView(rhi->getDevice()->getHandle(), imageView, nullptr);
             }
 
-            vkDestroySwapchainKHR(device, swapChain, nullptr);
+            vkDestroySwapchainKHR(rhi->getDevice()->getHandle(), swapChain, nullptr);
 
             for (size_t i = 0; i < swapChainImages.size(); i++)
             {
-                vkDestroyBuffer(device, uniformBuffers[i], nullptr);
-                vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+                vkDestroyBuffer(rhi->getDevice()->getHandle(), uniformBuffers[i], nullptr);
+                vkFreeMemory(rhi->getDevice()->getHandle(), uniformBuffersMemory[i], nullptr);
             }
 
-            vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+            vkDestroyDescriptorPool(rhi->getDevice()->getHandle(), descriptorPool, nullptr);
         }
 
         void processInput(GLFWwindow* window)
@@ -331,90 +330,9 @@ namespace Homura
             }
         }
 
-        void pickPhysicalDevice()
-        {
-            uint32_t deviceCount = 0;
-            vkEnumeratePhysicalDevices(rhi->getInstance(), &deviceCount, nullptr);
-
-            if (deviceCount == 0)
-            {
-                throw std::runtime_error("failed to find GPUs with Vulkan support!");
-            }
-
-            std::vector<VkPhysicalDevice> devices(deviceCount);
-            vkEnumeratePhysicalDevices(rhi->getInstance(), &deviceCount, devices.data());
-
-            for (const auto &device : devices)
-            {
-                if (isDeviceSuitable(device))
-                {
-                    physicalDevice = device;
-                    msaaSamples = getMaxUsableSampleCount();
-                    break;
-                }
-            }
-
-            if (physicalDevice == VK_NULL_HANDLE)
-            {
-                throw std::runtime_error("failed to find a suitable GPU!");
-            }
-        }
-
-        void createLogicDevice()
-        {
-            QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
-
-            std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-            std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
-
-            float queuePriority = 1.0f;
-            for (uint32_t queueFamily : uniqueQueueFamilies)
-            {
-                VkDeviceQueueCreateInfo queueCreateInfo{};
-                queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-                queueCreateInfo.queueFamilyIndex = queueFamily;
-                queueCreateInfo.queueCount = 1;
-                queueCreateInfo.pQueuePriorities = &queuePriority;
-                queueCreateInfos.push_back(queueCreateInfo);
-            }
-
-            VkPhysicalDeviceFeatures deviceFeatures{};
-            deviceFeatures.samplerAnisotropy = VK_TRUE;
-            deviceFeatures.sampleRateShading = VK_TRUE;
-
-            VkDeviceCreateInfo createInfo{};
-            createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
-            createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-            createInfo.pQueueCreateInfos = queueCreateInfos.data();
-
-            createInfo.pEnabledFeatures = &deviceFeatures;
-
-            createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-            createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-
-            if (enableValidationLayers)
-            {
-                createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-                createInfo.ppEnabledLayerNames = validationLayers.data();
-            }
-            else
-            {
-                createInfo.enabledLayerCount = 0;
-            }
-
-            if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
-            {
-                throw std::runtime_error("failed to create logical device!");
-            }
-
-            vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
-            vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
-        }
-
         void createSwapChain()
         {
-            SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
+            SwapChainSupportDetails swapChainSupport = querySwapChainSupport(rhi->getDevice()->getNativeHandle());
 
             VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
             VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -437,7 +355,7 @@ namespace Homura
             createInfo.imageArrayLayers = 1;
             createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-            QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+            QueueFamilyIndices indices = findQueueFamilies(rhi->getDevice()->getNativeHandle());
             uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
             if (indices.graphicsFamily != indices.presentFamily)
@@ -456,14 +374,14 @@ namespace Homura
             createInfo.presentMode = presentMode;
             createInfo.clipped = VK_TRUE;
 
-            if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS)
+            if (vkCreateSwapchainKHR(rhi->getDevice()->getHandle(), &createInfo, nullptr, &swapChain) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create swap chain!");
             }
 
-            vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
+            vkGetSwapchainImagesKHR(rhi->getDevice()->getHandle(), swapChain, &imageCount, nullptr);
             swapChainImages.resize(imageCount);
-            vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
+            vkGetSwapchainImagesKHR(rhi->getDevice()->getHandle(), swapChain, &imageCount, swapChainImages.data());
 
             swapChainImageFormat = surfaceFormat.format;
             swapChainExtent = extent;
@@ -548,7 +466,7 @@ namespace Homura
             renderPassInfo.dependencyCount = 1;
             renderPassInfo.pDependencies = &dependency;
 
-            if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
+            if (vkCreateRenderPass(rhi->getDevice()->getHandle(), &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create render pass!");
             }
@@ -576,7 +494,7 @@ namespace Homura
             layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
             layoutInfo.pBindings = bindings.data();
 
-            if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+            if (vkCreateDescriptorSetLayout(rhi->getDevice()->getHandle(), &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create descriptor set layout!");
             }
@@ -584,8 +502,8 @@ namespace Homura
 
         void createGraphicsPipeline()
         {
-            VulkanShader vertShader(std::make_shared<VkDevice>(device));
-            VulkanShader fragShader(std::make_shared<VkDevice>(device));
+            VulkanShader vertShader(std::make_shared<VkDevice>(rhi->getDevice()->getHandle()));
+            VulkanShader fragShader(std::make_shared<VkDevice>(rhi->getDevice()->getHandle()));
 
             vertShader.createShaderModule(FileSystem::getPath("resources/shader/triangle/shader_depth.vert.spv"));
             fragShader.createShaderModule(FileSystem::getPath("resources/shader/triangle/shader_depth.frag.spv"));
@@ -688,7 +606,7 @@ namespace Homura
             pipelineLayoutInfo.setLayoutCount = 1;
             pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 
-            if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
+            if (vkCreatePipelineLayout(rhi->getDevice()->getHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create pipeline layout!");
             }
@@ -709,7 +627,7 @@ namespace Homura
             pipelineInfo.subpass = 0;
             pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-            if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) !=
+            if (vkCreateGraphicsPipelines(rhi->getDevice()->getHandle(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) !=
                 VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create graphics pipeline!");
@@ -737,7 +655,7 @@ namespace Homura
                 framebufferInfo.height = swapChainExtent.height;
                 framebufferInfo.layers = 1;
 
-                if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFrameBuffers[i]) != VK_SUCCESS)
+                if (vkCreateFramebuffer(rhi->getDevice()->getHandle(), &framebufferInfo, nullptr, &swapChainFrameBuffers[i]) != VK_SUCCESS)
                 {
                     throw std::runtime_error("failed to create framebuffer!");
                 }
@@ -746,13 +664,13 @@ namespace Homura
 
         void createCommandPool()
         {
-            QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+            QueueFamilyIndices queueFamilyIndices = findQueueFamilies(rhi->getDevice()->getNativeHandle());
 
             VkCommandPoolCreateInfo poolInfo{};
             poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
             poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-            if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+            if (vkCreateCommandPool(rhi->getDevice()->getHandle(), &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create graphics command pool!");
             }
@@ -781,7 +699,7 @@ namespace Homura
             for (VkFormat format : candidates)
             {
                 VkFormatProperties props;
-                vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
+                vkGetPhysicalDeviceFormatProperties(rhi->getDevice()->getNativeHandle(), format, &props);
 
                 if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
                 {
@@ -824,9 +742,9 @@ namespace Homura
                          stagingBufferMemory);
 
             void* data;
-            vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
+            vkMapMemory(rhi->getDevice()->getHandle(), stagingBufferMemory, 0, imageSize, 0, &data);
             memcpy(data, pixels, static_cast<size_t>(imageSize));
-            vkUnmapMemory(device, stagingBufferMemory);
+            vkUnmapMemory(rhi->getDevice()->getHandle(), stagingBufferMemory);
 
             stbi_image_free(pixels);
 
@@ -838,8 +756,8 @@ namespace Homura
             copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
             //transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
 
-            vkDestroyBuffer(device, stagingBuffer, nullptr);
-            vkFreeMemory(device, stagingBufferMemory, nullptr);
+            vkDestroyBuffer(rhi->getDevice()->getHandle(), stagingBuffer, nullptr);
+            vkFreeMemory(rhi->getDevice()->getHandle(), stagingBufferMemory, nullptr);
 
             generateMipmaps(textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
         }
@@ -847,7 +765,7 @@ namespace Homura
         void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
         {
             VkFormatProperties formatProperties;
-            vkGetPhysicalDeviceFormatProperties(physicalDevice, imageFormat, &formatProperties);
+            vkGetPhysicalDeviceFormatProperties(rhi->getDevice()->getNativeHandle(), imageFormat, &formatProperties);
 
             if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
             {
@@ -935,7 +853,7 @@ namespace Homura
         VkSampleCountFlagBits getMaxUsableSampleCount()
         {
             VkPhysicalDeviceProperties physicalDeviceProperties;
-            vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
+            vkGetPhysicalDeviceProperties(rhi->getDevice()->getNativeHandle(), &physicalDeviceProperties);
 
             VkSampleCountFlags counts =
                     physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
@@ -957,7 +875,7 @@ namespace Homura
         void createTextureSampler()
         {
             VkPhysicalDeviceProperties properties{};
-            vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+            vkGetPhysicalDeviceProperties(rhi->getDevice()->getNativeHandle(), &properties);
 
             VkSamplerCreateInfo samplerInfo{};
             samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -977,7 +895,7 @@ namespace Homura
             samplerInfo.maxLod = static_cast<float>(mipLevels);
             samplerInfo.mipLodBias = 0.0f;
 
-            if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS)
+            if (vkCreateSampler(rhi->getDevice()->getHandle(), &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create texture sampler!");
             }
@@ -997,7 +915,7 @@ namespace Homura
             viewInfo.subresourceRange.layerCount = 1;
 
             VkImageView imageView;
-            if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+            if (vkCreateImageView(rhi->getDevice()->getHandle(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create texture image view!");
             }
@@ -1024,25 +942,25 @@ namespace Homura
             imageInfo.samples = numSamples;
             imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-            if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS)
+            if (vkCreateImage(rhi->getDevice()->getHandle(), &imageInfo, nullptr, &image) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create image!");
             }
 
             VkMemoryRequirements memRequirements;
-            vkGetImageMemoryRequirements(device, image, &memRequirements);
+            vkGetImageMemoryRequirements(rhi->getDevice()->getHandle(), image, &memRequirements);
 
             VkMemoryAllocateInfo allocInfo{};
             allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
             allocInfo.allocationSize = memRequirements.size;
             allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-            if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+            if (vkAllocateMemory(rhi->getDevice()->getHandle(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to allocate image memory!");
             }
 
-            vkBindImageMemory(device, image, imageMemory, 0);
+            vkBindImageMemory(rhi->getDevice()->getHandle(), image, imageMemory, 0);
         }
 
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels)
@@ -1178,17 +1096,17 @@ namespace Homura
                          stagingBufferMemory);
 
             void* data;
-            vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+            vkMapMemory(rhi->getDevice()->getHandle(), stagingBufferMemory, 0, bufferSize, 0, &data);
             memcpy(data, vertices.data(), (size_t) bufferSize);
-            vkUnmapMemory(device, stagingBufferMemory);
+            vkUnmapMemory(rhi->getDevice()->getHandle(), stagingBufferMemory);
 
             createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
             copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
-            vkDestroyBuffer(device, stagingBuffer, nullptr);
-            vkFreeMemory(device, stagingBufferMemory, nullptr);
+            vkDestroyBuffer(rhi->getDevice()->getHandle(), stagingBuffer, nullptr);
+            vkFreeMemory(rhi->getDevice()->getHandle(), stagingBufferMemory, nullptr);
         }
 
         void createIndexBuffer()
@@ -1202,17 +1120,17 @@ namespace Homura
                          stagingBufferMemory);
 
             void* data;
-            vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+            vkMapMemory(rhi->getDevice()->getHandle(), stagingBufferMemory, 0, bufferSize, 0, &data);
             memcpy(data, indices.data(), (size_t) bufferSize);
-            vkUnmapMemory(device, stagingBufferMemory);
+            vkUnmapMemory(rhi->getDevice()->getHandle(), stagingBufferMemory);
 
             createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
             copyBuffer(stagingBuffer, indexBuffer, bufferSize);
 
-            vkDestroyBuffer(device, stagingBuffer, nullptr);
-            vkFreeMemory(device, stagingBufferMemory, nullptr);
+            vkDestroyBuffer(rhi->getDevice()->getHandle(), stagingBuffer, nullptr);
+            vkFreeMemory(rhi->getDevice()->getHandle(), stagingBufferMemory, nullptr);
         }
 
         void createUniformBuffers()
@@ -1244,7 +1162,7 @@ namespace Homura
             poolInfo.pPoolSizes = poolSizes.data();
             poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
 
-            if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+            if (vkCreateDescriptorPool(rhi->getDevice()->getHandle(), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create descriptor pool!");
             }
@@ -1260,7 +1178,7 @@ namespace Homura
             allocInfo.pSetLayouts = layouts.data();
 
             descriptorSets.resize(swapChainImages.size());
-            if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+            if (vkAllocateDescriptorSets(rhi->getDevice()->getHandle(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to allocate descriptor sets!");
             }
@@ -1295,7 +1213,7 @@ namespace Homura
                 descriptorWrites[1].descriptorCount = 1;
                 descriptorWrites[1].pImageInfo = &imageInfo;
 
-                vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0,
+                vkUpdateDescriptorSets(rhi->getDevice()->getHandle(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0,
                                        nullptr);
             }
         }
@@ -1309,25 +1227,25 @@ namespace Homura
             bufferInfo.usage = usage;
             bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-            if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+            if (vkCreateBuffer(rhi->getDevice()->getHandle(), &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create buffer!");
             }
 
             VkMemoryRequirements memRequirements;
-            vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
+            vkGetBufferMemoryRequirements(rhi->getDevice()->getHandle(), buffer, &memRequirements);
 
             VkMemoryAllocateInfo allocInfo{};
             allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
             allocInfo.allocationSize = memRequirements.size;
             allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-            if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+            if (vkAllocateMemory(rhi->getDevice()->getHandle(), &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to allocate buffer memory!");
             }
 
-            vkBindBufferMemory(device, buffer, bufferMemory, 0);
+            vkBindBufferMemory(rhi->getDevice()->getHandle(), buffer, bufferMemory, 0);
         }
 
         VkCommandBuffer beginSingleTimeCommands()
@@ -1339,7 +1257,7 @@ namespace Homura
             allocInfo.commandBufferCount = 1;
 
             VkCommandBuffer commandBuffer;
-            vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+            vkAllocateCommandBuffers(rhi->getDevice()->getHandle(), &allocInfo, &commandBuffer);
 
             VkCommandBufferBeginInfo beginInfo{};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1362,7 +1280,7 @@ namespace Homura
             vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
             vkQueueWaitIdle(graphicsQueue);
 
-            vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+            vkFreeCommandBuffers(rhi->getDevice()->getHandle(), commandPool, 1, &commandBuffer);
         }
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
@@ -1379,7 +1297,7 @@ namespace Homura
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
         {
             VkPhysicalDeviceMemoryProperties memProperties;
-            vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+            vkGetPhysicalDeviceMemoryProperties(rhi->getDevice()->getNativeHandle(), &memProperties);
 
             for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
             {
@@ -1402,7 +1320,7 @@ namespace Homura
             allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
 
-            if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
+            if (vkAllocateCommandBuffers(rhi->getDevice()->getHandle(), &allocInfo, commandBuffers.data()) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to allocate command buffers!");
             }
@@ -1471,9 +1389,9 @@ namespace Homura
 
             for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
             {
-                if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-                    vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-                    vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
+                if (vkCreateSemaphore(rhi->getDevice()->getHandle(), &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+                    vkCreateSemaphore(rhi->getDevice()->getHandle(), &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+                    vkCreateFence(rhi->getDevice()->getHandle(), &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
                 {
                     throw std::runtime_error("failed to create synchronization objects for a frame!");
                 }
@@ -1494,17 +1412,17 @@ namespace Homura
             ubo.proj[1][1] *= -1;
 
             void* data;
-            vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
+            vkMapMemory(rhi->getDevice()->getHandle(), uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
             memcpy(data, &ubo, sizeof(ubo));
-            vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
+            vkUnmapMemory(rhi->getDevice()->getHandle(), uniformBuffersMemory[currentImage]);
         }
 
         void drawFrame()
         {
-            vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+            vkWaitForFences(rhi->getDevice()->getHandle(), 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
             uint32_t imageIndex;
-            VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame],
+            VkResult result = vkAcquireNextImageKHR(rhi->getDevice()->getHandle(), swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame],
                                                     VK_NULL_HANDLE, &imageIndex);
 
             if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -1521,7 +1439,7 @@ namespace Homura
 
             if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
             {
-                vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+                vkWaitForFences(rhi->getDevice()->getHandle(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
             }
             imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
@@ -1541,7 +1459,7 @@ namespace Homura
             submitInfo.signalSemaphoreCount = 1;
             submitInfo.pSignalSemaphores = signalSemaphores;
 
-            vkResetFences(device, 1, &inFlightFences[currentFrame]);
+            vkResetFences(rhi->getDevice()->getHandle(), 1, &inFlightFences[currentFrame]);
 
             if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
             {
@@ -1730,10 +1648,8 @@ namespace Homura
 
         VkDebugUtilsMessengerEXT debugMessenger;
         VkSurfaceKHR surface;
-
-        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+        
         VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
-        VkDevice device;
 
         VkQueue graphicsQueue;
         VkQueue presentQueue;

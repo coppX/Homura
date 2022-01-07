@@ -152,7 +152,7 @@ namespace Homura
 
             if (!isValidQueue)
             {
-                printf("Skipping unnecessary Queue Family %d: %d queues%s", familyIndex, currProps.queueCount, GetQueueInfoString(currProps).c_str());
+                printf("Skipping unnecessary Queue Family %d: %d queues%s\n", familyIndex, currProps.queueCount, GetQueueInfoString(currProps).c_str());
                 continue;
             }
 
@@ -204,6 +204,38 @@ namespace Homura
         {
             vkDestroyDevice(mDevice, nullptr);
             mDevice = VK_NULL_HANDLE;
+        }
+    }
+
+    void VulkanDevice::setPresentQueue(VkSurfaceKHR surface)
+    {
+        if (mPresentQueue)
+        {
+            return;
+        }
+
+        const auto supportsPresent = [surface](VkPhysicalDevice physicalDevice, std::shared_ptr<VulkanQueue> queue)
+        {
+            VkBool32 support = VK_FALSE;
+            const uint32_t familyIndex = queue->getFamilyIndex();
+            VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, familyIndex, surface, &support));
+            if (support)
+                printf("Queue Family %d: Supports Present", familyIndex);
+            return support == VK_TRUE;
+        };
+
+        bool compute = supportsPresent(mPhysicalDevice, mComputeQueue);
+        if (mTransferQueue->getFamilyIndex() != mGfxQueue->getFamilyIndex() && mTransferQueue->getFamilyIndex() != mComputeQueue->getFamilyIndex())
+        {
+            supportsPresent(mPhysicalDevice, mTransferQueue);
+        }
+        if (mComputeQueue->getFamilyIndex() != mGfxQueue->getFamilyIndex() && compute)
+        {
+            mPresentQueue = mComputeQueue;
+        }
+        else
+        {
+            mPresentQueue = mGfxQueue;
         }
     }
 }

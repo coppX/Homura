@@ -8,11 +8,10 @@
 #include <vector>
 #include <memory>
 #include <vulkan/vulkan.h>
+#include "vulkanDevice.h"
 
 namespace Homura
 {
-    class VulkanDevice;
-
     class VulkanRHI
     {
     public:
@@ -38,7 +37,7 @@ namespace Homura
         }
 
         void createInstance();
-        void SelectAndInitDevice();
+        void selectAndInitDevice();
         void createSwapChain();
 
         void destroyInstance();
