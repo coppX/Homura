@@ -290,6 +290,39 @@ namespace Homura
 
     VulkanSwapChain::SwapStatus VulkanSwapChain::present(std::shared_ptr<VulkanQueue> gfxQueue, std::shared_ptr<VulkanQueue> presentQueue, VkSemaphore* complete)
     {
+        if (mCurrentImageIndex == -1)
+        {
+            return SwapStatus::Healthy;
+        }
+
+        mPresentID += 1;
+
+        VkPresentInfoKHR createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        createInfo.waitSemaphoreCount = complete == nullptr ? 0 : 1;
+        createInfo.pWaitSemaphores = complete;
+        createInfo.swapchainCount = 1;
+        createInfo.pSwapchains = &mSwapChain;
+        createInfo.pImageIndices = (uint32_t*)&mCurrentImageIndex;
+
+        VkResult presentResult = vkQueuePresentKHR(presentQueue->getHandle(), &createInfo);
+
+        if (presentResult == VK_ERROR_OUT_OF_DATE_KHR)
+        {
+            return SwapStatus::OutOfData;
+        }
+
+        if (presentResult == VK_ERROR_SURFACE_LOST_KHR)
+        {
+            return SwapStatus::SurfaceLost;
+        }
+
+        if (presentResult != VK_SUCCESS && presentResult != VK_SUBOPTIMAL_KHR)
+        {
+            VERIFYVULKANRESULT(presentResult);
+        }
+        mNumPresentCalls += 1;
+        
         return SwapStatus::Healthy;
     }
 
