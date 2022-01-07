@@ -15,7 +15,7 @@ namespace Homura
         , mGfxQueue{nullptr}
         , mComputeQueue{nullptr}
         , mTransferQueue{nullptr}
-        , mPresent{nullptr}
+        , mPresentQueue{nullptr}
     {
 
     }

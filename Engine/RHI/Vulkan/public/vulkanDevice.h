@@ -10,12 +10,10 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include "vulkanQueue.h"
 
 namespace Homura
 {
-
-    class VulkanQueue;
-
     class VulkanDevice
     {
     public:
@@ -38,7 +36,7 @@ namespace Homura
             return mDevice;
         }
 
-        VkPhysicalDevice getNativeHandle()
+        VkPhysicalDevice getPhysicalHandle()
         {
             return mPhysicalDevice;
         }
@@ -69,18 +67,18 @@ namespace Homura
             return mPresentQueue;
         }
     private:
-        VkDevice mDevice;
-        VkPhysicalDevice mPhysicalDevice;
+        VkDevice                                mDevice;
+        VkPhysicalDevice                        mPhysicalDevice;
 
-        std::vector<VkQueueFamilyProperties> mQueueFamilyProperties;
+        std::vector<VkQueueFamilyProperties>    mQueueFamilyProperties;
 
-        VkPhysicalDeviceProperties  mPhysicalDeviceProperties;
-        VkPhysicalDeviceFeatures mPhysicalDeviceFeatures;
+        VkPhysicalDeviceProperties              mPhysicalDeviceProperties;
+        VkPhysicalDeviceFeatures                mPhysicalDeviceFeatures;
 
-        std::shared_ptr<VulkanQueue> mGfxQueue;
-        std::shared_ptr<VulkanQueue> mComputeQueue;
-        std::shared_ptr<VulkanQueue> mTransferQueue;
-        std::shared_ptr<VulkanQueue> mPresentQueue;
+        std::shared_ptr<VulkanQueue>            mGfxQueue;
+        std::shared_ptr<VulkanQueue>            mComputeQueue;
+        std::shared_ptr<VulkanQueue>            mTransferQueue;
+        std::shared_ptr<VulkanQueue>            mPresentQueue;
     };
 }
 #endif //HOMURA_VULKANDEVICE_H

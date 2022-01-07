@@ -332,7 +332,7 @@ namespace Homura
 
         void createSwapChain()
         {
-            SwapChainSupportDetails swapChainSupport = querySwapChainSupport(rhi->getDevice()->getNativeHandle());
+            SwapChainSupportDetails swapChainSupport = querySwapChainSupport(rhi->getDevice()->getPhysicalHandle());
 
             VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
             VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -355,7 +355,7 @@ namespace Homura
             createInfo.imageArrayLayers = 1;
             createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-            QueueFamilyIndices indices = findQueueFamilies(rhi->getDevice()->getNativeHandle());
+            QueueFamilyIndices indices = findQueueFamilies(rhi->getDevice()->getPhysicalHandle());
             uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
             if (indices.graphicsFamily != indices.presentFamily)
@@ -664,7 +664,7 @@ namespace Homura
 
         void createCommandPool()
         {
-            QueueFamilyIndices queueFamilyIndices = findQueueFamilies(rhi->getDevice()->getNativeHandle());
+            QueueFamilyIndices queueFamilyIndices = findQueueFamilies(rhi->getDevice()->getPhysicalHandle());
 
             VkCommandPoolCreateInfo poolInfo{};
             poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -699,7 +699,7 @@ namespace Homura
             for (VkFormat format : candidates)
             {
                 VkFormatProperties props;
-                vkGetPhysicalDeviceFormatProperties(rhi->getDevice()->getNativeHandle(), format, &props);
+                vkGetPhysicalDeviceFormatProperties(rhi->getDevice()->getPhysicalHandle(), format, &props);
 
                 if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
                 {
@@ -765,7 +765,7 @@ namespace Homura
         void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
         {
             VkFormatProperties formatProperties;
-            vkGetPhysicalDeviceFormatProperties(rhi->getDevice()->getNativeHandle(), imageFormat, &formatProperties);
+            vkGetPhysicalDeviceFormatProperties(rhi->getDevice()->getPhysicalHandle(), imageFormat, &formatProperties);
 
             if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
             {
@@ -853,7 +853,7 @@ namespace Homura
         VkSampleCountFlagBits getMaxUsableSampleCount()
         {
             VkPhysicalDeviceProperties physicalDeviceProperties;
-            vkGetPhysicalDeviceProperties(rhi->getDevice()->getNativeHandle(), &physicalDeviceProperties);
+            vkGetPhysicalDeviceProperties(rhi->getDevice()->getPhysicalHandle(), &physicalDeviceProperties);
 
             VkSampleCountFlags counts =
                     physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
@@ -875,7 +875,7 @@ namespace Homura
         void createTextureSampler()
         {
             VkPhysicalDeviceProperties properties{};
-            vkGetPhysicalDeviceProperties(rhi->getDevice()->getNativeHandle(), &properties);
+            vkGetPhysicalDeviceProperties(rhi->getDevice()->getPhysicalHandle(), &properties);
 
             VkSamplerCreateInfo samplerInfo{};
             samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -1297,7 +1297,7 @@ namespace Homura
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
         {
             VkPhysicalDeviceMemoryProperties memProperties;
-            vkGetPhysicalDeviceMemoryProperties(rhi->getDevice()->getNativeHandle(), &memProperties);
+            vkGetPhysicalDeviceMemoryProperties(rhi->getDevice()->getPhysicalHandle(), &memProperties);
 
             for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
             {

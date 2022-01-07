@@ -6,6 +6,7 @@
 #include <debugUtils.h>
 #include <GLFW/glfw3.h>
 #include "vulkanDevice.h"
+#include "vulkanSwapChain.h"
 
 namespace Homura
 {

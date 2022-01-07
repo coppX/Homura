@@ -25,9 +25,9 @@ namespace Homura
         void destroyShaderModule();
 
     private:
-        VkShaderModule mModule;
-        VkAllocationCallbacks *pAllocator;
-        std::shared_ptr<VkDevice> mDevice;
+        VkShaderModule              mModule;
+        VkAllocationCallbacks       *pAllocator;
+        std::shared_ptr<VkDevice>   mDevice;
     };
 }
 
