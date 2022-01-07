@@ -9,14 +9,11 @@
 
 namespace Homura
 {
+    class VulkanDevice;
     class VulkanQueue
     {
     public:
-        VulkanQueue(VulkanDevice* device, uint32_t familyIndex)
-                : mQueue{VK_NULL_HANDLE}, mFamilyIndex{familyIndex}, mDevice{device}
-        {
-            vkGetDeviceQueue(mDevice->getHandle(), mFamilyIndex, 0, &mQueue);
-        }
+        VulkanQueue(VulkanDevice* device, uint32_t familyIndex);
 
         virtual ~VulkanQueue()
         {

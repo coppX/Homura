@@ -11,7 +11,7 @@
 #include <vector>
 #include <string>
 #include "vulkanQueue.h"
-
+#include "vulkanRHI.h"
 namespace Homura
 {
     class VulkanDevice

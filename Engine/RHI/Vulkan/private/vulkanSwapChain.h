@@ -56,6 +56,7 @@ namespace Homura
             return mLockToVsync;
         }
 
+        int32_t acquireImageIndex(VkSemaphore *outSemaphore);
     private:
         VkInstance                      mInstance;
         VkSwapchainKHR                  mSwapChain;

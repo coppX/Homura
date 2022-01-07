@@ -244,7 +244,15 @@ namespace Homura
 
     VulkanSwapChain::~VulkanSwapChain()
     {
+        VkDevice device = mDevice->getHandle();
 
+        for (int32_t index = 0; index < mImageAcquiredSemaphore.size(); ++index)
+        {
+            vkDestroySemaphore(mDevice->getHandle(), mImageAcquiredSemaphore[index], nullptr);
+        }
+
+        vkDestroySwapchainKHR(device, mSwapChain, nullptr);
+        vkDestroySurfaceKHR(mInstance, mSurface, nullptr);
     }
 
     void VulkanSwapChain::createSurface(GLFWwindow *window)
@@ -252,9 +260,37 @@ namespace Homura
         VERIFYVULKANRESULT(glfwCreateWindowSurface(mInstance, window, nullptr, &mSurface));
     }
 
+    int32_t VulkanSwapChain::acquireImageIndex(VkSemaphore *outSemaphore)
+    {
+        uint32_t imageIndex = 0;
+        VkDevice device = mDevice->getHandle();
+        const int32_t prev = mSemaphoreIndex;
+
+        mSemaphoreIndex = (mSemaphoreIndex + 1) % mImageAcquiredSemaphore.size();
+        VkResult result = vkAcquireNextImageKHR(device, mSwapChain, UINT64_MAX, mImageAcquiredSemaphore[mSemaphoreIndex], nullptr, &imageIndex);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR)
+        {
+            mSemaphoreIndex = prev;
+            return (int32_t)SwapStatus::OutOfData;
+        }
+
+        if (result == VK_ERROR_SURFACE_LOST_KHR)
+        {
+            mSemaphoreIndex = prev;
+            return (int32_t)SwapStatus::SurfaceLost;
+        }
+
+        mNumAcquireCalls += 1;
+        *outSemaphore = mImageAcquiredSemaphore[mSemaphoreIndex];
+        mCurrentImageIndex = imageIndex;
+
+        return mCurrentImageIndex;
+    }
+
     VulkanSwapChain::SwapStatus VulkanSwapChain::present(std::shared_ptr<VulkanQueue> gfxQueue, std::shared_ptr<VulkanQueue> presentQueue, VkSemaphore* complete)
     {
-
+        return SwapStatus::Healthy;
     }
 
 }
