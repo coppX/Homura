@@ -1,0 +1,42 @@
+//
+// Created by FDC on 2022/1/7.
+//
+
+#ifndef HOMURA_VULKANQUEUE_H
+#define HOMURA_VULKANQUEUE_H
+#include <vulkan/vulkan.h>
+#include "vulkanDevice.h"
+
+namespace Homura
+{
+    class VulkanQueue
+    {
+    public:
+        VulkanQueue(VulkanDevice* device, uint32_t familyIndex)
+                : mQueue{VK_NULL_HANDLE}, mFamilyIndex{familyIndex}, mDevice{device}
+        {
+            vkGetDeviceQueue(mDevice->getHandle(), mFamilyIndex, 0, &mQueue);
+        }
+
+        virtual ~VulkanQueue()
+        {
+
+        }
+
+        uint32_t getFamilyIndex() const
+        {
+            return mFamilyIndex;
+        }
+
+        VkQueue getHandle() const
+        {
+            return mQueue;
+        }
+
+    private:
+        VkQueue mQueue;
+        uint32_t mFamilyIndex;
+        VulkanDevice* mDevice;
+    };
+}
+#endif //HOMURA_VULKANQUEUE_H

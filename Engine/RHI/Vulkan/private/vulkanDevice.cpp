@@ -3,18 +3,29 @@
 //
 
 #include "vulkanDevice.h"
+#include "vulkanQueue.h"
 #include <string>
+#include <debugUtils.h>
 
 namespace Homura
 {
     VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice)
+        : mDevice{VK_NULL_HANDLE}
+        , mPhysicalDevice{physicalDevice}
+        , mGfxQueue{nullptr}
+        , mComputeQueue{nullptr}
+        , mTransferQueue{nullptr}
+        , mPresent{nullptr}
     {
 
     }
 
     VulkanDevice::~VulkanDevice()
     {
-
+        if (mDevice != VK_NULL_HANDLE)
+        {
+            destroyDevice();
+        }
     }
 
     bool VulkanDevice::queryDevice(uint32_t index)
@@ -22,7 +33,7 @@ namespace Homura
         bool discrete = false;
         vkGetPhysicalDeviceProperties(mPhysicalDevice, &mPhysicalDeviceProperties);
 
-        auto GetDeviceTypeString = [&]()->std::string
+        auto GetDeviceTypeString = [&]() -> std::string
         {
             std::string info;
             switch (mPhysicalDeviceProperties.deviceType)
@@ -58,6 +69,141 @@ namespace Homura
 
     void VulkanDevice::initGPU(uint32_t index)
     {
+        vkGetPhysicalDeviceFeatures(mPhysicalDevice, &mPhysicalDeviceFeatures);
+        createDevice();
+    }
 
+    void VulkanDevice::createDevice()
+    {
+        std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+        std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+
+        //getDeviceExtensionsAndLayers(deviceExtensions, validationLayers);
+
+        VkDeviceCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        // device extensions
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+        createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+        // device validationLayers
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+
+        // device features
+        createInfo.pEnabledFeatures = &mPhysicalDeviceFeatures;
+
+        std::vector<VkDeviceQueueCreateInfo> queueFamilyInfos;
+
+        // queue
+        uint32_t numProperties              = 0;
+        int32_t gfxQueueFamilyIndex         = -1;
+        int32_t computeQueueFamilyIndex     = -1;
+        int32_t transferQueueFamilyIndex    = -1;
+
+        for (int32_t familyIndex = 0; familyIndex < mQueueFamilyProperties.size(); familyIndex++)
+        {
+            const VkQueueFamilyProperties& currProps = mQueueFamilyProperties[familyIndex];
+            bool isValidQueue = false;
+            // graphics queue
+            if ((currProps.queueFlags & VK_QUEUE_GRAPHICS_BIT) == VK_QUEUE_GRAPHICS_BIT)
+            {
+                if (gfxQueueFamilyIndex == -1)
+                {
+                    gfxQueueFamilyIndex = familyIndex;
+                    isValidQueue = true;
+                }
+            }
+            // compute queue
+            if ((currProps.queueFlags & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT)
+            {
+                if (computeQueueFamilyIndex == -1)
+                {
+                    computeQueueFamilyIndex = familyIndex;
+                    isValidQueue = true;
+                }
+            }
+            // transfer queue
+            if ((currProps.queueFlags & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT)
+            {
+                if (transferQueueFamilyIndex == -1)
+                {
+                    transferQueueFamilyIndex = familyIndex;
+                    isValidQueue = true;
+                }
+            }
+
+            auto GetQueueInfoString = [](const VkQueueFamilyProperties& Props) -> std::string
+            {
+                std::string info;
+                if ((Props.queueFlags & VK_QUEUE_GRAPHICS_BIT) == VK_QUEUE_GRAPHICS_BIT) {
+                    info += " Gfx";
+                }
+                if ((Props.queueFlags & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT) {
+                    info += " Compute";
+                }
+                if ((Props.queueFlags & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT) {
+                    info += " Xfer";
+                }
+                if ((Props.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) == VK_QUEUE_SPARSE_BINDING_BIT) {
+                    info += " Sparse";
+                }
+                return info;
+            };
+
+            if (!isValidQueue)
+            {
+                printf("Skipping unnecessary Queue Family %d: %d queues%s", familyIndex, currProps.queueCount, GetQueueInfoString(currProps).c_str());
+                continue;
+            }
+
+            VkDeviceQueueCreateInfo currQueue{};
+            currQueue.queueFamilyIndex  = familyIndex;
+            currQueue.queueCount        = currProps.queueCount;
+            numProperties              += currProps.queueCount;
+            queueFamilyInfos.push_back(currQueue);
+        }
+
+        std::vector<float> queuePriorities(numProperties);
+        float* currentPriority = queuePriorities.data();
+        for (int32_t index = 0; index < queueFamilyInfos.size(); index++)
+        {
+            VkDeviceQueueCreateInfo &currQueue = queueFamilyInfos[index];
+            currQueue.pQueuePriorities = currentPriority;
+            const VkQueueFamilyProperties &currProps = mQueueFamilyProperties[currQueue.queueFamilyIndex];
+            for (int32_t queueIndex = 0; queueIndex < (int32_t)currProps.queueCount; queueIndex++)
+            {
+                *currentPriority++ = 1.0f;
+            }
+        }
+
+        createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueFamilyInfos.size());
+        createInfo.pQueueCreateInfos = queueFamilyInfos.data();
+
+        VERIFYVULKANRESULT_EXPANDED(vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice));
+
+        mGfxQueue = std::make_shared<VulkanQueue>(this, gfxQueueFamilyIndex);
+
+        if (computeQueueFamilyIndex == -1)
+        {
+            computeQueueFamilyIndex = gfxQueueFamilyIndex;
+        }
+
+        mComputeQueue = std::make_shared<VulkanQueue>(this, computeQueueFamilyIndex);
+
+        if (transferQueueFamilyIndex == -1)
+        {
+            transferQueueFamilyIndex = gfxQueueFamilyIndex;
+        }
+
+        mTransferQueue = std::make_shared<VulkanQueue>(this, transferQueueFamilyIndex);
+    }
+
+    void VulkanDevice::destroyDevice()
+    {
+        if (mDevice != VK_NULL_HANDLE)
+        {
+            vkDestroyDevice(mDevice, nullptr);
+            mDevice = VK_NULL_HANDLE;
+        }
     }
 }

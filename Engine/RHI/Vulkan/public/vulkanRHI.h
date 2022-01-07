@@ -6,6 +6,7 @@
 #define HOMURA_VULKANRHI_H
 
 #include <vector>
+#include <memory>
 #include <vulkan/vulkan.h>
 
 namespace Homura

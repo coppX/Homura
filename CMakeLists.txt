@@ -24,6 +24,7 @@ elseif(APPLE)
 endif(WIN32)
 
 file(GLOB VULKAN
+    "${CMAKE_CURRENT_LIST_DIR}/Engine/RHI/Vulkan/private/*.h"
     "${CMAKE_CURRENT_LIST_DIR}/Engine/RHI/Vulkan/private/*.cpp"
     )
 

@@ -9,9 +9,13 @@
 
 #include <memory>
 #include <vector>
+#include <string>
 
 namespace Homura
 {
+
+    class VulkanQueue;
+
     class VulkanDevice
     {
     public:
@@ -23,9 +27,14 @@ namespace Homura
 
         void initGPU(uint32_t index);
 
-        bool createDevice();
+        void createDevice();
 
         void destroyDevice();
+
+        VkDevice getHandle()
+        {
+            return mDevice;
+        }
 
         const VkPhysicalDeviceProperties& getDeviceProperties() const
         {
@@ -39,9 +48,12 @@ namespace Homura
         std::vector<VkQueueFamilyProperties> mQueueFamilyProperties;
 
         VkPhysicalDeviceProperties  mPhysicalDeviceProperties;
+        VkPhysicalDeviceFeatures mPhysicalDeviceFeatures;
 
-        std::shared_ptr<VkQueue> mGfxQueue;
-        std::shared_ptr<VkQueue> mPresent;
+        std::shared_ptr<VulkanQueue> mGfxQueue;
+        std::shared_ptr<VulkanQueue> mComputeQueue;
+        std::shared_ptr<VulkanQueue> mTransferQueue;
+        std::shared_ptr<VulkanQueue> mPresent;
     };
 }
 #endif //HOMURA_VULKANDEVICE_H
