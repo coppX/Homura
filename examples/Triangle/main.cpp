@@ -127,7 +127,7 @@ namespace Homura
     {
     public:
         TriangleApplication()
-            : rhi{std::make_shared<VulkanRHI>(mWindow)}
+            : rhi{std::make_shared<VulkanRHI>()}
         {
 
         }
@@ -216,6 +216,8 @@ namespace Homura
         {
             rhi->createInstance();
             rhi->selectAndInitDevice();
+            rhi->createSwapChain(mWindow);
+
             setupDebugMessenger();
             createSurface();
             createSwapChain();

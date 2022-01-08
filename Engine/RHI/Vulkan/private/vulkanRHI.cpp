@@ -10,16 +10,15 @@
 
 namespace Homura
 {
-    VulkanRHI::VulkanRHI(GLFWwindow *window)
+    VulkanRHI::VulkanRHI()
         : mInstance{VK_NULL_HANDLE}
-        , mDevice{VK_NULL_HANDLE}
-        , mSwapChain{VK_NULL_HANDLE}
+        , mDevice{nullptr}
+        , mSwapChain{nullptr}
         , mValidationLayers{"VK_LAYER_KHRONOS_validation"}
         , mDeviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME}
         , mPixelFormat{PF_R8G8B8A8}
         , mWidth(960)
         , mHeight(540)
-        , mWindow(window)
     {
 
     }
@@ -149,12 +148,12 @@ namespace Homura
         mDevice->initGPU(deviceIndex);
     }
 
-    void VulkanRHI::createSwapChain()
+    void VulkanRHI::createSwapChain(GLFWwindow *window)
     {
         destroySwapChain();
 
         uint32_t desiredNumBackBuffers = 3;
-        mSwapChain = std::make_shared<VulkanSwapChain>(mInstance, mDevice, mWindow, mPixelFormat, mWidth, mHeight, &desiredNumBackBuffers, mBackBufferImages, 1);
+        mSwapChain = std::make_shared<VulkanSwapChain>(mInstance, mDevice, window, mPixelFormat, mWidth, mHeight, &desiredNumBackBuffers, mBackBufferImages, 1);
 
         mBackBufferViews.resize(mBackBufferImages.size());
         for (int32_t i = 0; i < mBackBufferViews.size(); ++i)
@@ -186,11 +185,15 @@ namespace Homura
 
     void VulkanRHI::destroySwapChain()
     {
-        for (int32_t i = 0; i < mBackBufferViews.size(); ++i)
+        if (mSwapChain)
         {
-            vkDestroyImageView(mDevice->getHandle(), mBackBufferViews[i], nullptr);
-        }
+            for (int32_t i = 0; i < mBackBufferViews.size(); ++i)
+            {
+                vkDestroyImageView(mDevice->getHandle(), mBackBufferViews[i], nullptr);
+            }
             vkDestroySwapchainKHR(mDevice->getHandle(), mSwapChain->getHandle(), nullptr);
+            mSwapChain = nullptr;
+        }
     }
 
     bool VulkanRHI::checkValidationLayerSupport()

@@ -19,7 +19,7 @@ namespace Homura
     class VulkanRHI
     {
     public:
-        VulkanRHI(GLFWwindow *window);
+        VulkanRHI();
 
         virtual ~VulkanRHI();
 
@@ -42,7 +42,7 @@ namespace Homura
 
         void createInstance();
         void selectAndInitDevice();
-        void createSwapChain();
+        void createSwapChain(GLFWwindow *window);
 
         void destroyInstance();
         void destroyDevice();
@@ -67,7 +67,6 @@ namespace Homura
 
         uint32_t                            mWidth;
         uint32_t                            mHeight;
-        GLFWwindow*                         mWindow;
     };
 
     inline VkFormat PixelFormatToVkFormat(EPixelFormat format, const bool bIsSRGB)
