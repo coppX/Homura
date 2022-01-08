@@ -10,12 +10,16 @@
 
 namespace Homura
 {
-    VulkanRHI::VulkanRHI()
+    VulkanRHI::VulkanRHI(GLFWwindow *window)
         : mInstance{VK_NULL_HANDLE}
         , mDevice{VK_NULL_HANDLE}
         , mSwapChain{VK_NULL_HANDLE}
         , mValidationLayers{"VK_LAYER_KHRONOS_validation"}
         , mDeviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME}
+        , mPixelFormat{PF_R8G8B8A8}
+        , mWidth(960)
+        , mHeight(540)
+        , mWindow(window)
     {
 
     }
@@ -147,22 +151,46 @@ namespace Homura
 
     void VulkanRHI::createSwapChain()
     {
+        destroySwapChain();
 
+        uint32_t desiredNumBackBuffers = 3;
+        mSwapChain = std::make_shared<VulkanSwapChain>(mInstance, mDevice, mWindow, mPixelFormat, mWidth, mHeight, &desiredNumBackBuffers, mBackBufferImages, 1);
+
+        mBackBufferViews.resize(mBackBufferImages.size());
+        for (int32_t i = 0; i < mBackBufferViews.size(); ++i)
+        {
+            VkImageViewCreateInfo imageViewCreateInfo{};
+            imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            imageViewCreateInfo.format = PixelFormatToVkFormat(mPixelFormat, false);
+            imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            imageViewCreateInfo.image = mBackBufferImages[i];
+            imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+            imageViewCreateInfo.subresourceRange.levelCount = 1;
+            imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+            imageViewCreateInfo.subresourceRange.layerCount = 1;
+            VERIFYVULKANRESULT(vkCreateImageView(mDevice->getHandle(), &imageViewCreateInfo, nullptr, &(mBackBufferViews[i])));
+        }
     }
 
     void VulkanRHI::destroyInstance()
     {
-
+        vkDestroyInstance(mInstance, nullptr);
     }
 
     void VulkanRHI::destroyDevice()
     {
-
+        mDevice->destroyDevice();
+        mDevice = nullptr;
     }
 
     void VulkanRHI::destroySwapChain()
     {
-
+        for (int32_t i = 0; i < mBackBufferViews.size(); ++i)
+        {
+            vkDestroyImageView(mDevice->getHandle(), mBackBufferViews[i], nullptr);
+        }
+            vkDestroySwapchainKHR(mDevice->getHandle(), mSwapChain->getHandle(), nullptr);
     }
 
     bool VulkanRHI::checkValidationLayerSupport()

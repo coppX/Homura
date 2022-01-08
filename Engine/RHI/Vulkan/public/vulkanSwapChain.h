@@ -5,8 +5,8 @@
 #ifndef HOMURA_VULKANSWAPCHAIN_H
 #define HOMURA_VULKANSWAPCHAIN_H
 
-#include "vulkan/vulkan.h"
-#include "GLFW/glfw3.h"
+#include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
 
 #include <memory>
 #include <vector>
@@ -42,6 +42,11 @@ namespace Homura
             return mBackBufferCount;
         }
 
+        VkSwapchainKHR getHandle()
+        {
+            return mSwapChain;
+        }
+
         int32_t getWidth() const
         {
             return mSwapChainInfo.imageExtent.width;
@@ -55,6 +60,16 @@ namespace Homura
         int8_t doesLockToVsync()
         {
             return mLockToVsync;
+        }
+
+        const VkSwapchainCreateInfoKHR& getInfo() const
+        {
+            return mSwapChainInfo;
+        }
+
+        VkFormat getColorFormat() const
+        {
+            return mColorFormat;
         }
 
         int32_t acquireImageIndex(VkSemaphore *outSemaphore);

@@ -127,7 +127,7 @@ namespace Homura
     {
     public:
         TriangleApplication()
-            : rhi{std::make_shared<VulkanRHI>()}
+            : rhi{std::make_shared<VulkanRHI>(mWindow)}
         {
 
         }

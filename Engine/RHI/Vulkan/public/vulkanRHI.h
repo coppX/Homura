@@ -9,6 +9,7 @@
 #include <memory>
 #include <vulkan/vulkan.h>
 #include <pixelFormat.h>
+#include <GLFW/glfw3.h>
 
 namespace Homura
 {
@@ -18,7 +19,7 @@ namespace Homura
     class VulkanRHI
     {
     public:
-        VulkanRHI();
+        VulkanRHI(GLFWwindow *window);
 
         virtual ~VulkanRHI();
 
@@ -58,7 +59,15 @@ namespace Homura
         std::vector<const char*>            mDeviceExtensions;
 
         std::shared_ptr<VulkanDevice>       mDevice;
+
         std::shared_ptr<VulkanSwapChain>    mSwapChain;
+        EPixelFormat                        mPixelFormat;
+        std::vector<VkImage>                mBackBufferImages;
+        std::vector<VkImageView>            mBackBufferViews;
+
+        uint32_t                            mWidth;
+        uint32_t                            mHeight;
+        GLFWwindow*                         mWindow;
     };
 
     inline VkFormat PixelFormatToVkFormat(EPixelFormat format, const bool bIsSRGB)

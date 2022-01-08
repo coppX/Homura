@@ -5,8 +5,8 @@
 #ifndef HOMURA_VULKANDEVICE_H
 #define HOMURA_VULKANDEVICE_H
 
-#include "vulkan/vulkan.h"
-
+#include <vulkan/vulkan.h>
+#include <pixelFormat.h>
 #include <memory>
 #include <vector>
 #include <string>
