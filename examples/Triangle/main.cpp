@@ -15,7 +15,6 @@
 #include <tiny_obj_loader.h>
 
 #include <iostream>
-#include <fstream>
 #include <exception>
 #include <algorithm>
 #include <vector>
@@ -31,6 +30,9 @@
 #include <application.h>
 #include <debugUtils.h>
 #include <vulkanShader.h>
+#include <vulkanSwapChain.h>
+#include <vulkanQueue.h>
+#include <vulkanDevice.h>
 #include <vulkanRHI.h>
 
 struct Vertex

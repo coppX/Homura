@@ -10,10 +10,10 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include "vulkanQueue.h"
-#include "vulkanRHI.h"
+
 namespace Homura
 {
+    class VulkanQueue;
     class VulkanDevice
     {
     public:

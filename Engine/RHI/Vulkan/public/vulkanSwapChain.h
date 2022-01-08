@@ -5,13 +5,14 @@
 #ifndef HOMURA_VULKANSWAPCHAIN_H
 #define HOMURA_VULKANSWAPCHAIN_H
 
-#include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h>
+#include "vulkan/vulkan.h"
+#include "GLFW/glfw3.h"
 
 #include <memory>
 #include <vector>
 
-#include "pixelFormat.h"
+#include <vulkanRHI.h>
+#include <pixelFormat.h>
 
 namespace Homura
 {

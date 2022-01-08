@@ -8,11 +8,11 @@
 #include <vector>
 #include <memory>
 #include <vulkan/vulkan.h>
-#include "vulkanDevice.h"
 #include <pixelFormat.h>
 
 namespace Homura
 {
+    class VulkanDevice;
     class VulkanSwapChain;
 
     class VulkanRHI
@@ -61,7 +61,7 @@ namespace Homura
         std::shared_ptr<VulkanSwapChain>    mSwapChain;
     };
 
-    VkFormat PixelFormatToVkFormat(EPixelFormat format, const bool bIsSRGB)
+    inline VkFormat PixelFormatToVkFormat(EPixelFormat format, const bool bIsSRGB)
     {
         VkFormat result = (VkFormat)PixelFormats[format].platformFormat;
         if (bIsSRGB)
