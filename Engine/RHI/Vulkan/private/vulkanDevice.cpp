@@ -69,13 +69,13 @@ namespace Homura
 
     void VulkanDevice::initGPU(uint32_t index)
     {
-        vkGetPhysicalDeviceFeatures(mPhysicalDevice, &mPhysicalDeviceFeatures);
+        //vkGetPhysicalDeviceFeatures(mPhysicalDevice, &mPhysicalDeviceFeatures);
         createDevice();
     }
 
     void VulkanDevice::createDevice()
     {
-        std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+        std::vector<const char*> deviceExtensions = {"VK_KHR_portability_subset"};
         std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
 
         //getDeviceExtensionsAndLayers(deviceExtensions, validationLayers);
@@ -86,12 +86,30 @@ namespace Homura
         createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
         createInfo.ppEnabledExtensionNames = deviceExtensions.data();
         // device validationLayers
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
-
+        if (enableValidationLayers)
+        {
+            createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+            createInfo.ppEnabledLayerNames = validationLayers.data();
+        }
+        else
+        {
+            createInfo.enabledLayerCount = 0;
+        }
         // device features
-        createInfo.pEnabledFeatures = &mPhysicalDeviceFeatures;
+        mPhysicalDeviceFeatures = {};
+        mPhysicalDeviceFeatures.samplerAnisotropy = VK_TRUE;
+        mPhysicalDeviceFeatures.sampleRateShading = VK_TRUE;
 
+        if (mPhysicalDeviceFeatures2)
+        {
+            createInfo.pNext = mPhysicalDeviceFeatures2;
+            createInfo.pEnabledFeatures = nullptr;
+            mPhysicalDeviceFeatures2->features = mPhysicalDeviceFeatures;
+        }
+        else
+        {
+            createInfo.pEnabledFeatures = &mPhysicalDeviceFeatures;
+        }
         std::vector<VkDeviceQueueCreateInfo> queueFamilyInfos;
 
         // queue
@@ -157,6 +175,7 @@ namespace Homura
             }
 
             VkDeviceQueueCreateInfo currQueue{};
+            currQueue.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
             currQueue.queueFamilyIndex  = familyIndex;
             currQueue.queueCount        = currProps.queueCount;
             numProperties              += currProps.queueCount;

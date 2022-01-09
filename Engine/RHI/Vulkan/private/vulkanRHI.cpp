@@ -49,6 +49,7 @@ namespace Homura
         createInfo.pApplicationInfo = &appInfo;
 
         auto extensions = getRequiredExtensions();
+        extensions.push_back("VK_KHR_get_physical_device_properties2");
         createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
         createInfo.ppEnabledExtensionNames = extensions.data();
 
@@ -145,6 +146,7 @@ namespace Homura
             return;
         }
 
+        mDevice->setPhysicalDeviceFeatures(mPhysicalDeviceFeatures2);
         mDevice->initGPU(deviceIndex);
     }
 
@@ -160,7 +162,7 @@ namespace Homura
         {
             VkImageViewCreateInfo imageViewCreateInfo{};
             imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            imageViewCreateInfo.format = PixelFormatToVkFormat(mPixelFormat, false);
+            imageViewCreateInfo.format = VK_FORMAT_B8G8R8A8_SRGB;//PixelFormatToVkFormat(mPixelFormat, false);
             imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
             imageViewCreateInfo.image = mBackBufferImages[i];
             imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -252,5 +254,71 @@ namespace Homura
                                  | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
                                  | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
         createInfo.pfnUserCallback = debugCallback;
+    }
+
+
+
+    void VulkanRHI::createGraphicsPipeline()
+    {}
+
+
+    void VulkanRHI::createCommandPool()
+    {
+
+    }
+
+    void VulkanRHI::createColorResources()
+    {
+
+    }
+
+    void VulkanRHI::createDepthResources()
+    {
+
+    }
+
+    void VulkanRHI::createFrameBuffers()
+    {
+
+    }
+
+    void VulkanRHI::createVertexBuffer()
+    {
+
+    }
+
+    void VulkanRHI::createIndexBuffer()
+    {
+
+    }
+
+    void VulkanRHI::createUniformBuffer()
+    {
+
+    }
+
+    void VulkanRHI::createCommandBuffers()
+    {
+
+    }
+
+    void VulkanRHI::createSyncObjects()
+    {
+
+    }
+
+    void VulkanRHI::createSampler()
+    {
+
+    }
+
+    void VulkanRHI::createRenderPass()
+    {
+
+    }
+
+    void VulkanRHI::createDescriptorPool()
+    {
+
     }
 }

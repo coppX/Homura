@@ -66,6 +66,11 @@ namespace Homura
         {
             return mPresentQueue;
         }
+
+        void setPhysicalDeviceFeatures(VkPhysicalDeviceFeatures2* deviceFeatures)
+        {
+            mPhysicalDeviceFeatures2 = deviceFeatures;
+        }
     private:
         VkDevice                                mDevice;
         VkPhysicalDevice                        mPhysicalDevice;
@@ -74,6 +79,7 @@ namespace Homura
 
         VkPhysicalDeviceProperties              mPhysicalDeviceProperties;
         VkPhysicalDeviceFeatures                mPhysicalDeviceFeatures;
+        VkPhysicalDeviceFeatures2*              mPhysicalDeviceFeatures2;
 
         std::shared_ptr<VulkanQueue>            mGfxQueue;
         std::shared_ptr<VulkanQueue>            mComputeQueue;

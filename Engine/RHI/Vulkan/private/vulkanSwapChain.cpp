@@ -37,29 +37,29 @@ namespace Homura
         VkSurfaceFormatKHR currFormat = {};
         if (outPixelFormat != PF_Unknown)
         {
-            bool found = false;
+            bool bFound = false;
             if (PixelFormats[outPixelFormat].supported)
             {
-                VkFormat requested = (VkFormat)PixelFormats[outPixelFormat].platformFormat;
-                for (int32_t index = 0; index < formats.size(); index++)
+                VkFormat requested = (VkFormat)PixelFormats[outPixelFormat].pixelFormat;
+                for (int32_t index = 0; index < formats.size(); ++index)
                 {
                     if (formats[index].format == requested)
                     {
-                        found = true;
+                        bFound     = true;
                         currFormat = formats[index];
                         break;
                     }
                 }
 
-                if (!found)
+                if (!bFound)
                 {
-                    printf("Requested PixelFormat %d not supported by this swapchain! Falling back to supported swapchain format...", (int32_t)outPixelFormat);
+                    printf("Requested PixelFormat %d not supported by this swapchain! Falling back to supported swapchain format...\n", (uint32_t)outPixelFormat);
                     outPixelFormat = PF_Unknown;
                 }
             }
             else
             {
-                printf("Requested PixelFormat %d not supported by this Vulkan implementation!", (int32_t)outPixelFormat);
+                printf("Requested PixelFormat %d not supported by this Vulkan implementation!\n", (uint32_t)outPixelFormat);
                 outPixelFormat = PF_Unknown;
             }
         }
@@ -70,11 +70,11 @@ namespace Homura
             {
                 for (int32_t pfIndex = 0; pfIndex < PF_MAX; ++pfIndex)
                 {
-                    if (formats[index].format == PixelFormats[pfIndex].platformFormat)
+                    if (formats[index].format == PixelFormats[pfIndex].pixelFormat)
                     {
                         outPixelFormat = (EPixelFormat)pfIndex;
                         currFormat     = formats[index];
-                        printf("No swapchain format requested, picking up VulkanFormat %d", (uint32_t)currFormat.format);
+                        printf("No swapchain format requested, picking up VulkanFormat %d\n", (uint32_t)currFormat.format);
                         break;
                     }
                 }
@@ -88,7 +88,7 @@ namespace Homura
 
         if (outPixelFormat == PF_Unknown)
         {
-            printf("Can't find a proper pixel format for the swapchain, trying to pick up the first available");
+            printf("Can't find a proper pixel format for the swapchain, trying to pick up the first available\n");
             VkFormat platformFormat = PixelFormatToVkFormat(outPixelFormat, false);
             bool supported = false;
             for (int32_t index = 0; index < formats.size(); ++index)

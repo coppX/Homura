@@ -49,6 +49,33 @@ namespace Homura
         void destroySwapChain();
 
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+
+        void createGraphicsPipeline();
+
+        void createCommandPool();
+
+        void createColorResources();
+
+        void createDepthResources();
+
+        void createFrameBuffers();
+
+        void createVertexBuffer();
+
+        void createIndexBuffer();
+
+        void createUniformBuffer();
+
+        void createCommandBuffers();
+
+        void createSyncObjects();
+
+        void createSampler();
+
+        void createRenderPass();
+
+        void createDescriptorPool();
+
     private:
         bool checkValidationLayerSupport();
         std::vector<const char*> getRequiredExtensions();
@@ -57,6 +84,7 @@ namespace Homura
         VkInstance                          mInstance;
         std::vector<const char*>            mValidationLayers;
         std::vector<const char*>            mDeviceExtensions;
+        VkPhysicalDeviceFeatures2*          mPhysicalDeviceFeatures2 = nullptr;
 
         std::shared_ptr<VulkanDevice>       mDevice;
 
@@ -71,7 +99,7 @@ namespace Homura
 
     inline VkFormat PixelFormatToVkFormat(EPixelFormat format, const bool bIsSRGB)
     {
-        VkFormat result = (VkFormat)PixelFormats[format].platformFormat;
+        VkFormat result = (VkFormat)PixelFormats[format].pixelFormat;
         if (bIsSRGB)
         {
             switch (result)
