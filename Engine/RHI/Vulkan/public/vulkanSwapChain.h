@@ -72,6 +72,11 @@ namespace Homura
             return mColorFormat;
         }
 
+        VkSurfaceKHR getSurface()
+        {
+            return mSurface;
+        }
+
         int32_t acquireImageIndex(VkSemaphore *outSemaphore);
     private:
         VkInstance                      mInstance;
