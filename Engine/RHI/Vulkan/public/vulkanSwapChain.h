@@ -19,15 +19,17 @@ namespace Homura
     class VulkanDevice;
     class VulkanQueue;
 
+
+    enum class SwapStatus
+    {
+        Healthy     = 0,
+        OutOfData   = -1,
+        SurfaceLost = -2,
+    };
+
     class VulkanSwapChain
     {
     public:
-        enum class SwapStatus
-        {
-            Healthy     = 0,
-            OutOfData   = -1,
-            SurfaceLost = -2,
-        };
 
         VulkanSwapChain(VkInstance instance, std::shared_ptr<VulkanDevice> device, GLFWwindow* window, EPixelFormat& outPixelFormat, uint32_t width, uint32_t height,
                         uint32_t* outDesiredNumBackBuffers, std::vector<VkImage>& outImages, int8_t lockToVsync);

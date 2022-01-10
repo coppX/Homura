@@ -9,6 +9,7 @@
 namespace Homura
 {
     class VulkanDevice;
+
     class VulkanQueue
     {
     public:

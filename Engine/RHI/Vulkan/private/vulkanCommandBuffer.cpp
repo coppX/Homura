@@ -35,8 +35,8 @@ namespace Homura
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &mCommandBuffer;
 
-        vkQueueSubmit(mDevice->getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(mDevice->getGraphicsQueue());
+        vkQueueSubmit(mDevice->getGraphicsQueue()->getHandle(), 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(mDevice->getGraphicsQueue()->getHandle());
 
         //vkFreeCommandBuffers(mDevice->getHandle(), CommandPool, 1, mCommandBuffer);
     }

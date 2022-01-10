@@ -291,7 +291,7 @@ namespace Homura
         return mCurrentImageIndex;
     }
 
-    VulkanSwapChain::SwapStatus VulkanSwapChain::present(std::shared_ptr<VulkanQueue> gfxQueue, std::shared_ptr<VulkanQueue> presentQueue, VkSemaphore* complete)
+    SwapStatus VulkanSwapChain::present(std::shared_ptr<VulkanQueue> gfxQueue, std::shared_ptr<VulkanQueue> presentQueue, VkSemaphore* complete)
     {
         if (mCurrentImageIndex == -1)
         {
