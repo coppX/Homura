@@ -215,6 +215,8 @@ namespace Homura
         }
 
         mTransferQueue = std::make_shared<VulkanQueue>(this, transferQueueFamilyIndex);
+
+        createCommandPool(gfxQueueFamilyIndex);
     }
 
     void VulkanDevice::destroyDevice()
@@ -256,5 +258,14 @@ namespace Homura
         {
             mPresentQueue = mGfxQueue;
         }
+    }
+
+    void VulkanDevice::createCommandPool(uint32_t familyIndex)
+    {
+        VkCommandPoolCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        createInfo.queueFamilyIndex = familyIndex;
+
+        VERIFYVULKANRESULT(vkCreateCommandPool(getHandle(), &createInfo, nullptr, mCommandPool.get()));
     }
 }

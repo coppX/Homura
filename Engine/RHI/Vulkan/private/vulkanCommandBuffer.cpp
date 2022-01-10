@@ -15,7 +15,7 @@ namespace Homura
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        //allocInfo.commandPool = commandPool;
+        allocInfo.commandPool = *mDevice->getCommandPool();
         allocInfo.commandBufferCount = 1;
         VERIFYVULKANRESULT(vkAllocateCommandBuffers(mDevice->getHandle(), &allocInfo, &mCommandBuffer));
 
@@ -38,6 +38,6 @@ namespace Homura
         vkQueueSubmit(mDevice->getGraphicsQueue()->getHandle(), 1, &submitInfo, VK_NULL_HANDLE);
         vkQueueWaitIdle(mDevice->getGraphicsQueue()->getHandle());
 
-        //vkFreeCommandBuffers(mDevice->getHandle(), CommandPool, 1, mCommandBuffer);
+        vkFreeCommandBuffers(mDevice->getHandle(), *mDevice->getCommandPool(), 1, &mCommandBuffer);
     }
 }

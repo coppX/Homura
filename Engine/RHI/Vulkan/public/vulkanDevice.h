@@ -68,6 +68,13 @@ namespace Homura
             return mPresentQueue;
         }
 
+        std::shared_ptr<VkCommandPool> getCommandPool()
+        {
+            return mCommandPool;
+        }
+
+        void createCommandPool(uint32_t familyIndex);
+
         void setPhysicalDeviceFeatures(VkPhysicalDeviceFeatures2* deviceFeatures)
         {
             mPhysicalDeviceFeatures2 = deviceFeatures;
@@ -86,6 +93,8 @@ namespace Homura
         std::shared_ptr<VulkanQueue>            mComputeQueue;
         std::shared_ptr<VulkanQueue>            mTransferQueue;
         std::shared_ptr<VulkanQueue>            mPresentQueue;
+
+        std::shared_ptr<VkCommandPool>          mCommandPool;
     };
 }
 #endif //HOMURA_VULKANDEVICE_H
