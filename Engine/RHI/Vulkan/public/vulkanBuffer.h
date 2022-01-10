@@ -10,6 +10,7 @@
 namespace Homura
 {
     class VulkanDevice;
+    class VulkanCommandBuffer;
 
     enum class BufferType
     {
@@ -26,20 +27,23 @@ namespace Homura
 
         void fillBuffer(void *inData, uint64_t size);
 
-        //void copyToBuffer(VulkanBuffer dstBuffer, VkDeviceSize size);
+        void copyToBuffer(VulkanBuffer &dstBuffer, VkDeviceSize size);
+
+        void copyToImage(VkImage image, uint32_t width, uint32_t height);
 
         ~VulkanBuffer();
     private:
         uint32_t  findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-        std::shared_ptr<VulkanDevice>   mDevice;
+        std::shared_ptr<VulkanDevice>           mDevice;
+        std::shared_ptr<VulkanCommandBuffer>    mCommandBuffer;
 
-        BufferType              mBufferType;
-        VkDeviceSize            mSize;
-        VkBufferUsageFlagBits   mUsage;
-        VkMemoryPropertyFlags   mProperties;
-        VkBuffer                mBuffer;
-        VkDeviceMemory          mBufferMemory;
+        BufferType                              mBufferType;
+        VkDeviceSize                            mSize;
+        VkBufferUsageFlagBits                   mUsage;
+        VkMemoryPropertyFlags                   mProperties;
+        VkBuffer                                mBuffer;
+        VkDeviceMemory                          mBufferMemory;
     };
 }
 #endif //HOMURA_VULKANBUFFER_H

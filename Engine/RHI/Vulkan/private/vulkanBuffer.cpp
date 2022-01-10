@@ -5,6 +5,7 @@
 #include <vulkanBuffer.h>
 #include <debugUtils.h>
 #include <vulkanDevice.h>
+#include <vulkanCommandBuffer.h>
 
 namespace Homura
 {
@@ -12,6 +13,7 @@ namespace Homura
         : mBuffer{VK_NULL_HANDLE}
         , mBufferMemory{VK_NULL_HANDLE}
         , mDevice{device}
+        , mCommandBuffer{std::make_shared<VulkanCommandBuffer>(mDevice)}
         , mSize{size}
         , mUsage{usage}
         , mProperties{props}
@@ -59,5 +61,39 @@ namespace Homura
         vkUnmapMemory(mDevice->getHandle(), mBufferMemory);
     }
 
+    void VulkanBuffer::copyToBuffer(VulkanBuffer &dstBuffer, VkDeviceSize size)
+    {
+        mCommandBuffer->beginSingleTimeCommands();
+
+        VkBufferCopy copyRegion{};
+        copyRegion.size = size;
+        vkCmdCopyBuffer(mCommandBuffer->getHandle(), mBuffer, dstBuffer.mBuffer, 1, &copyRegion);
+
+        mCommandBuffer->endSingleTimeCommands();
+    }
+
+    void VulkanBuffer::copyToImage(VkImage image, uint32_t width, uint32_t height)
+    {
+        mCommandBuffer->beginSingleTimeCommands();
+
+        VkBufferImageCopy region{};
+        region.bufferOffset = 0;
+        region.bufferRowLength = 0;
+        region.bufferImageHeight = 0;
+        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.mipLevel = 0;
+        region.imageSubresource.baseArrayLayer = 0;
+        region.imageSubresource.layerCount = 1;
+        region.imageOffset = {0, 0, 0,};
+        region.imageExtent = {
+                width,
+                height,
+                1
+        };
+
+        vkCmdCopyBufferToImage(mCommandBuffer->getHandle(), mBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+        mCommandBuffer->endSingleTimeCommands();
+    }
 
 }
