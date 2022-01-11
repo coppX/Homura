@@ -5,6 +5,7 @@
 #include <vulkanTexture.h>
 #include <vulkanDevice.h>
 #include <vulkanBuffer.h>
+#include <vulkanCommandBuffer.h>
 #include <debugUtils.h>
 
 namespace Homura
@@ -153,5 +154,29 @@ namespace Homura
             }
         }
         return -1;
+    }
+
+    void VulkanTexture::fromBuffer(std::shared_ptr<VulkanBuffer> buffer, uint32_t width, uint32_t height)
+    {
+        VulkanCommandBuffer commandBuffer{mDevice};
+        commandBuffer.beginSingleTimeCommands();
+
+        VkBufferImageCopy region{};
+        region.bufferOffset = 0;
+        region.bufferRowLength = 0;
+        region.bufferImageHeight = 0;
+        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.mipLevel = 0;
+        region.imageSubresource.baseArrayLayer = 0;
+        region.imageSubresource.layerCount = 1;
+        region.imageOffset = {0, 0, 0};
+        region.imageExtent = {
+                width,
+                height,
+                1
+        };
+        vkCmdCopyBufferToImage(commandBuffer.getHandle(), buffer->getHandle(), mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+        commandBuffer.endSingleTimeCommands();
     }
 }

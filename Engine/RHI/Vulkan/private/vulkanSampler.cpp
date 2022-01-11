@@ -9,6 +9,7 @@ namespace Homura
 {
     VulkanSampler::VulkanSampler(std::shared_ptr<VulkanDevice> device)
         : mDevice{device}
+        , mSampler{VK_NULL_HANDLE}
     {
         VkPhysicalDeviceProperties properties{};
         vkGetPhysicalDeviceProperties(mDevice->getPhysicalHandle(), &properties);

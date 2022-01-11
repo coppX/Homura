@@ -30,7 +30,7 @@ namespace Homura
                       uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
         ~VulkanTexture();
 
-        void fromBuffer(std::shared_ptr<VulkanBuffer> buffer, VkDeviceSize bufferSize);
+        void fromBuffer(std::shared_ptr<VulkanBuffer> buffer, uint32_t width, uint32_t height);
 
     private:
         void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,

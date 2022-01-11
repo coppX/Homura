@@ -32,6 +32,12 @@ namespace Homura
         void copyToImage(VkImage image, uint32_t width, uint32_t height);
 
         ~VulkanBuffer();
+
+        VkBuffer getHandle()
+        {
+            return mBuffer;
+        }
+
     private:
         uint32_t  findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
