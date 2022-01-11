@@ -15,6 +15,7 @@ namespace Homura
     enum TextureType
     {
         TEXTURE_1D = 0,
+        TEXTURE_1D_ARRAy,
         TEXTURE_2D,
         TEXTURE_2D_ARRAY,
         TEXTURE_3D,
@@ -30,7 +31,13 @@ namespace Homura
         ~VulkanTexture();
 
         void fromBuffer(std::shared_ptr<VulkanBuffer> buffer, VkDeviceSize bufferSize);
+
     private:
+        void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
+                         VkMemoryPropertyFlags properties);
+
+        void createImageView(VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
+
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     private:
         std::shared_ptr<VulkanDevice>   mDevice;
