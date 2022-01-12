@@ -44,5 +44,20 @@ namespace Homura
             vkDestroyDescriptorPool(mDevice->getHandle(), mDescriptorPool, nullptr);
         }
     }
-    
+
+    VulkanDescriptorSet::VulkanDescriptorSet(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanDescriptorPool> pool)
+        : mDevice{device}
+        , mPool{pool}
+        , mDescriptorSets{0}
+    {
+        
+    }
+
+    VulkanDescriptorSet::~VulkanDescriptorSet()
+    {
+        if (!mDescriptorSets.empty())
+        {
+            vkFreeDescriptorSets(mDevice->getHandle(), mPool->getHandle(), mDescriptorSets.size(), mDescriptorSets.data());
+        }
+    }
 }

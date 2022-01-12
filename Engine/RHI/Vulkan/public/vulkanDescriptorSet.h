@@ -6,6 +6,7 @@
 #define HOMURA_VULKANDESCRIPTOR_H
 #include <vulkan/vulkan.h>
 #include <memory>
+#include <vector>
 
 namespace Homura
 {
@@ -31,7 +32,14 @@ namespace Homura
 
     class VulkanDescriptorSet
     {
+    public:
+        VulkanDescriptorSet(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanDescriptorPool> pool);
+        ~VulkanDescriptorSet();
 
+    private:
+        std::shared_ptr<VulkanDevice>           mDevice;
+        std::shared_ptr<VulkanDescriptorPool>   mPool;
+        std::vector<VkDescriptorSet>            mDescriptorSets;
     };
 
     class VulkanDescriptorSetLayout
