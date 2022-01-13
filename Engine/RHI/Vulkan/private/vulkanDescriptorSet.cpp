@@ -44,12 +44,21 @@ namespace Homura
         }
     }
 
-    VulkanDescriptorSet::VulkanDescriptorSet(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanDescriptorPool> pool)
+    VulkanDescriptorSet::VulkanDescriptorSet(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanDescriptorPool> pool, std::shared_ptr<VulkanDescriptorSetLayout> layout)
         : mDevice{device}
         , mPool{pool}
+        , mLayout{layout}
         , mDescriptorSets{0}
     {
-        
+        std::vector<VkDescriptorSetLayout> layouts(mPool->getFrameCount(), mLayout->getHandle());
+        VkDescriptorSetAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool = mPool->getHandle();
+        allocInfo.descriptorSetCount = mPool->getFrameCount();
+        allocInfo.pSetLayouts = layouts.data();
+
+        mDescriptorSets.resize(mPool->getFrameCount());
+        VERIFYVULKANRESULT(vkAllocateDescriptorSets(mDevice->getHandle(), &allocInfo, mDescriptorSets.data()));
     }
 
     VulkanDescriptorSet::~VulkanDescriptorSet()

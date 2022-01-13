@@ -22,6 +22,11 @@ namespace Homura
         {
             return mDescriptorPool;
         }
+
+        uint32_t& getFrameCount()
+        {
+            return mFrameCount;
+        }
     private:
         std::shared_ptr<VulkanDevice>   mDevice;
         VkDescriptorPool                mDescriptorPool;
@@ -30,27 +35,45 @@ namespace Homura
         uint32_t                        mFrameCount;
     };
 
-    class VulkanDescriptorSet
-    {
-    public:
-        VulkanDescriptorSet(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanDescriptorPool> pool);
-        ~VulkanDescriptorSet();
-
-    private:
-        std::shared_ptr<VulkanDevice>           mDevice;
-        std::shared_ptr<VulkanDescriptorPool>   mPool;
-        std::vector<VkDescriptorSet>            mDescriptorSets;
-    };
-
     class VulkanDescriptorSetLayout
     {
     public:
         VulkanDescriptorSetLayout(std::shared_ptr<VulkanDevice> device);
         ~VulkanDescriptorSetLayout();
 
+        VkDescriptorSetLayout& getHandle()
+        {
+            return mDescriptorSetLayout;
+        }
+
     private:
         std::shared_ptr<VulkanDevice>   mDevice;
         VkDescriptorSetLayout           mDescriptorSetLayout;
     };
+
+    class VulkanDescriptorSet
+    {
+    public:
+        VulkanDescriptorSet(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanDescriptorPool> pool, std::shared_ptr<VulkanDescriptorSetLayout> layout);
+        ~VulkanDescriptorSet();
+
+        uint32_t getCount()
+        {
+            return mDescriptorSets.size();
+        }
+
+        VkDescriptorSet* getData()
+        {
+            return mDescriptorSets.data();
+        }
+        
+    private:
+        std::shared_ptr<VulkanDevice>               mDevice;
+        std::shared_ptr<VulkanDescriptorPool>       mPool;
+        std::shared_ptr<VulkanDescriptorSetLayout>  mLayout;
+        std::vector<VkDescriptorSet>                mDescriptorSets;
+    };
+
+
 }
 #endif //HOMURA_VULKANDESCRIPTOR_H
