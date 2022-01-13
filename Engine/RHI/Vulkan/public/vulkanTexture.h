@@ -32,6 +32,11 @@ namespace Homura
 
         void fromBuffer(std::shared_ptr<VulkanBuffer> buffer, uint32_t width, uint32_t height);
 
+        VkImageView& getImageView()
+        {
+            return mImageView;
+        }
+
     private:
         void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
                          VkMemoryPropertyFlags properties);
@@ -39,11 +44,6 @@ namespace Homura
         void createImageView(VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-
-        VkImageView& getImageView()
-        {
-            return mImageView;
-        }
 
     private:
         std::shared_ptr<VulkanDevice>   mDevice;
