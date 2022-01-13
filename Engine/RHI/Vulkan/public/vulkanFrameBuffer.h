@@ -25,6 +25,15 @@ namespace Homura
                           std::vector<VulkanTexture> &depthImages);
         ~VulkanFrameBuffer();
 
+        uint32_t getCount() const
+        {
+            return mFrameBuffer.size();
+        }
+
+        VkFramebuffer* getData()
+        {
+            return mFrameBuffer.data();
+        }
     private:
         std::shared_ptr<VulkanDevice>       mDevice;
         std::shared_ptr<VulkanRenderPass>   mRenderPass;

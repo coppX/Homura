@@ -57,7 +57,7 @@ namespace Homura
         VulkanDescriptorSet(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanDescriptorPool> pool, std::shared_ptr<VulkanDescriptorSetLayout> layout);
         ~VulkanDescriptorSet();
 
-        uint32_t getCount()
+        const uint32_t getCount()
         {
             return mDescriptorSets.size();
         }
