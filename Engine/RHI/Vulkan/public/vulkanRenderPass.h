@@ -15,29 +15,22 @@ namespace Homura
     class VulkanSubPass
     {
     public:
-        VulkanSubPass();
+        VulkanSubPass(std::vector<VkAttachmentReference> &colorAttachmentRef,
+                      std::vector<VkAttachmentReference> &inputAttachmentRef,
+                      const VkAttachmentReference &depthStencilAttachmentRef,
+                      const VkAttachmentReference &resolveAttachmentRef);
         ~VulkanSubPass();
-
-        void addColorAttachmentReference(const VkAttachmentReference &ref);
-
-        void addInputAttachmentReference(const VkAttachmentReference &ref);
-
-        void setDepthStencilAttachmentReference(const VkAttachmentReference &ref);
-
-        void setResolveAttachmentReference(const VkAttachmentReference &ref);
-
-        void buildSubPassDescription();
 
         VkSubpassDescription& getSubPassHandle()
         {
             return mSubPassDescription;
         }
     private:
-        VkSubpassDescription                mSubPassDescription{};
-        std::vector<VkAttachmentReference>  mColorAttachmentReferences{};
-        std::vector<VkAttachmentReference>  mInputAttachmentReferences{};
-        VkAttachmentReference               mDepthStencilAttachmentReference{};
-        VkAttachmentReference               mResolvedAttachmentReference{};
+        VkSubpassDescription                mSubPassDescription;
+        std::vector<VkAttachmentReference>  mColorAttachmentReferences;
+        std::vector<VkAttachmentReference>  mInputAttachmentReferences;
+        VkAttachmentReference               mDepthStencilAttachmentReference;
+        VkAttachmentReference               mResolvedAttachmentReference;
     };
 
     class VulkanRenderPass
@@ -46,13 +39,23 @@ namespace Homura
         VulkanRenderPass(std::shared_ptr<VulkanDevice> device);
         ~VulkanRenderPass();
 
+        void addSubPass(const VulkanSubPass &subPass);
+
+        void addDependency(const VkSubpassDependency &dependency);
+
+        void addAttachment(const VkAttachmentDescription &attachment);
+
         VkRenderPass& getHandle()
         {
             return mRenderPass;
         }
     private:
-        std::shared_ptr<VulkanDevice>   mDevice;
-        VkRenderPass                    mRenderPass;
+        std::shared_ptr<VulkanDevice>           mDevice;
+        VkRenderPass                            mRenderPass;
+
+        std::vector<VulkanRenderPass>           mSubPasses;
+        std::vector<VkSubpassDependency>        mDependencies{};
+        std::vector<VkAttachmentDescription>    mAttachmentDescriptions;
     };
 }
 #endif //HOMURA_VULKANRENDERPASS_H
