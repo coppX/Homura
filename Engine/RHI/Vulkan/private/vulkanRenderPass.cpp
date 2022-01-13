@@ -46,6 +46,14 @@ namespace Homura
 
     }
 
+    VulkanRenderPass::~VulkanRenderPass()
+    {
+        if (mRenderPass != VK_NULL_HANDLE)
+        {
+            vkDestroyRenderPass(mDevice->getHandle(), mRenderPass, nullptr);
+        }
+    }
+
     void VulkanRenderPass::addSubPass(const VulkanSubPass &subPass)
     {
         mSubPasses.push_back(subPass);
