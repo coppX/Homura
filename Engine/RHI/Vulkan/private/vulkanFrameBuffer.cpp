@@ -48,4 +48,12 @@ namespace Homura
             VERIFYVULKANRESULT(vkCreateFramebuffer(mDevice->getHandle(), &frameBufferCreateInfo, nullptr, &mFrameBuffer[i]));
         }
     }
+
+    VulkanFrameBuffer::~VulkanFrameBuffer()
+    {
+        for (auto frameBuffer : mFrameBuffer)
+        {
+            vkDestroyFramebuffer(mDevice->getHandle(), frameBuffer, nullptr);
+        }
+    }
 }
