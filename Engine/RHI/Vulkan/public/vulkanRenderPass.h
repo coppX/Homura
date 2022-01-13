@@ -49,11 +49,13 @@ namespace Homura
         {
             return mRenderPass;
         }
+
+        void buildRenderPass();
     private:
         std::shared_ptr<VulkanDevice>           mDevice;
         VkRenderPass                            mRenderPass;
 
-        std::vector<VulkanRenderPass>           mSubPasses;
+        std::vector<VulkanSubPass>              mSubPasses;
         std::vector<VkSubpassDependency>        mDependencies{};
         std::vector<VkAttachmentDescription>    mAttachmentDescriptions;
     };
