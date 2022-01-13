@@ -66,7 +66,7 @@ namespace Homura
         {
             return mDescriptorSets.data();
         }
-        
+
     private:
         std::shared_ptr<VulkanDevice>               mDevice;
         std::shared_ptr<VulkanDescriptorPool>       mPool;
