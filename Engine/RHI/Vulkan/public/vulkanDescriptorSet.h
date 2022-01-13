@@ -44,7 +44,13 @@ namespace Homura
 
     class VulkanDescriptorSetLayout
     {
+    public:
+        VulkanDescriptorSetLayout(std::shared_ptr<VulkanDevice> device);
+        ~VulkanDescriptorSetLayout();
 
+    private:
+        std::shared_ptr<VulkanDevice>   mDevice;
+        VkDescriptorSetLayout           mDescriptorSetLayout;
     };
 }
 #endif //HOMURA_VULKANDESCRIPTOR_H
