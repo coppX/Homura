@@ -56,7 +56,7 @@ namespace Homura
         VkRenderPass                            mRenderPass;
 
         std::vector<VulkanSubPass>              mSubPasses;
-        std::vector<VkSubpassDependency>        mDependencies{};
+        std::vector<VkSubpassDependency>        mDependencies;
         std::vector<VkAttachmentDescription>    mAttachmentDescriptions;
     };
 }

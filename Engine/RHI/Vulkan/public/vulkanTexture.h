@@ -39,6 +39,12 @@ namespace Homura
         void createImageView(VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+        VkImageView& getImageView()
+        {
+            return mImageView;
+        }
+
     private:
         std::shared_ptr<VulkanDevice>   mDevice;
 
