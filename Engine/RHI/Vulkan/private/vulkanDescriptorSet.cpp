@@ -8,7 +8,7 @@
 
 namespace Homura
 {
-    VulkanDescriptorPool::VulkanDescriptorPool(std::shared_ptr<VulkanDevice> device, uint32_t uniformCount, uint32_t imageCount, uint32_t frameCount)
+    VulkanDescriptorPool::VulkanDescriptorPool(VulkanDevicePtr device, uint32_t uniformCount, uint32_t imageCount, uint32_t frameCount)
         : mDevice{device}
         , mDescriptorPool{VK_NULL_HANDLE}
         , mUniformCount{uniformCount}
@@ -44,7 +44,7 @@ namespace Homura
         }
     }
 
-    VulkanDescriptorSet::VulkanDescriptorSet(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanDescriptorPool> pool, std::shared_ptr<VulkanDescriptorSetLayout> layout)
+    VulkanDescriptorSet::VulkanDescriptorSet(VulkanDevicePtr device, VulkanDescriptorPoolPtr pool, VulkanDescriptorSetLayoutPtr layout)
         : mDevice{device}
         , mPool{pool}
         , mLayout{layout}
@@ -69,7 +69,7 @@ namespace Homura
         }
     }
 
-    VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(std::shared_ptr<VulkanDevice> device)
+    VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(VulkanDevicePtr device)
         : mDevice{device}
         , mDescriptorSetLayout{VK_NULL_HANDLE}
     {

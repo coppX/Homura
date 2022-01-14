@@ -5,7 +5,7 @@
 #ifndef HOMURA_VULKANFENCE_H
 #define HOMURA_VULKANFENCE_H
 #include <vulkan/vulkan.h>
-#include <memory>
+#include <vulkanTypes.h>
 
 namespace Homura
 {
@@ -14,7 +14,7 @@ namespace Homura
     class Fence
     {
     public:
-        Fence(std::shared_ptr<VulkanDevice> device, bool signaled);
+        Fence(VulkanDevicePtr device, bool signaled);
         ~Fence();
 
         VkFence& getHandle()
@@ -27,8 +27,8 @@ namespace Homura
         VkResult getResult();
 
     private:
-        std::shared_ptr<VulkanDevice>   mDevice;
-        VkFence                         mFence;
+        VulkanDevicePtr mDevice;
+        VkFence         mFence;
     };
 }
 #endif //HOMURA_VULKANFENCE_H

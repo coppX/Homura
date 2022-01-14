@@ -11,8 +11,8 @@
 
 namespace Homura
 {
-    VulkanFrameBuffer::VulkanFrameBuffer(std::shared_ptr<VulkanDevice> device,
-                                         std::shared_ptr<VulkanRenderPass> renderPass,
+    VulkanFrameBuffer::VulkanFrameBuffer(VulkanDevicePtr device,
+                                         VulkanRenderPassPtr renderPass,
                                          uint32_t imageCount,
                                          std::vector<VulkanTexture> &images,
                                          std::vector<VulkanTexture> &multiSampleImages,

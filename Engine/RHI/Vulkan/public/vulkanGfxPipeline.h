@@ -15,6 +15,7 @@ namespace Homura
 
     class VulkanPipeline
     {
+    public:
         VulkanPipeline(VulkanDevicePtr device, VulkanRenderPassPtr renderPass);
         ~VulkanPipeline();
 

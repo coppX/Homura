@@ -5,7 +5,7 @@
 #ifndef HOMURA_VULKANDESCRIPTOR_H
 #define HOMURA_VULKANDESCRIPTOR_H
 #include <vulkan/vulkan.h>
-#include <memory>
+#include <vulkanTypes.h>
 #include <vector>
 
 namespace Homura
@@ -15,7 +15,7 @@ namespace Homura
     class VulkanDescriptorPool
     {
     public:
-        VulkanDescriptorPool(std::shared_ptr<VulkanDevice> device, uint32_t uniformCount, uint32_t imageCount, uint32_t frameCount);
+        VulkanDescriptorPool(VulkanDevicePtr device, uint32_t uniformCount, uint32_t imageCount, uint32_t frameCount);
         ~VulkanDescriptorPool();
 
         VkDescriptorPool& getHandle()
@@ -28,17 +28,17 @@ namespace Homura
             return mFrameCount;
         }
     private:
-        std::shared_ptr<VulkanDevice>   mDevice;
-        VkDescriptorPool                mDescriptorPool;
-        uint32_t                        mUniformCount;
-        uint32_t                        mImageCount;
-        uint32_t                        mFrameCount;
+        VulkanDevicePtr     mDevice;
+        VkDescriptorPool    mDescriptorPool;
+        uint32_t            mUniformCount;
+        uint32_t            mImageCount;
+        uint32_t            mFrameCount;
     };
 
     class VulkanDescriptorSetLayout
     {
     public:
-        VulkanDescriptorSetLayout(std::shared_ptr<VulkanDevice> device);
+        VulkanDescriptorSetLayout(VulkanDevicePtr device);
         ~VulkanDescriptorSetLayout();
 
         VkDescriptorSetLayout& getHandle()
@@ -47,14 +47,14 @@ namespace Homura
         }
 
     private:
-        std::shared_ptr<VulkanDevice>   mDevice;
-        VkDescriptorSetLayout           mDescriptorSetLayout;
+        VulkanDevicePtr         mDevice;
+        VkDescriptorSetLayout   mDescriptorSetLayout;
     };
 
     class VulkanDescriptorSet
     {
     public:
-        VulkanDescriptorSet(std::shared_ptr<VulkanDevice> device, std::shared_ptr<VulkanDescriptorPool> pool, std::shared_ptr<VulkanDescriptorSetLayout> layout);
+        VulkanDescriptorSet(VulkanDevicePtr device, VulkanDescriptorPoolPtr pool, VulkanDescriptorSetLayoutPtr layout);
         ~VulkanDescriptorSet();
 
         const uint32_t getCount()
@@ -68,10 +68,10 @@ namespace Homura
         }
 
     private:
-        std::shared_ptr<VulkanDevice>               mDevice;
-        std::shared_ptr<VulkanDescriptorPool>       mPool;
-        std::shared_ptr<VulkanDescriptorSetLayout>  mLayout;
-        std::vector<VkDescriptorSet>                mDescriptorSets;
+        VulkanDevicePtr                 mDevice;
+        VulkanDescriptorPoolPtr         mPool;
+        VulkanDescriptorSetLayoutPtr    mLayout;
+        std::vector<VkDescriptorSet>    mDescriptorSets;
     };
 
 

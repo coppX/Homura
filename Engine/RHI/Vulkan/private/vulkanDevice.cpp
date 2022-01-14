@@ -235,7 +235,7 @@ namespace Homura
             return;
         }
 
-        const auto supportsPresent = [surface](VkPhysicalDevice physicalDevice, std::shared_ptr<VulkanQueue> queue)
+        const auto supportsPresent = [surface](VkPhysicalDevice physicalDevice, VulkanQueuePtr queue)
         {
             VkBool32 support = VK_FALSE;
             const uint32_t familyIndex = queue->getFamilyIndex();

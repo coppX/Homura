@@ -5,7 +5,7 @@
 #ifndef HOMURA_VULKANCOMMANDBUFFER_H
 #define HOMURA_VULKANCOMMANDBUFFER_H
 #include <vulkan/vulkan.h>
-#include <memory>
+#include <vulkanTypes.h>
 
 namespace Homura
 {
@@ -14,7 +14,7 @@ namespace Homura
     class VulkanCommandBuffer
     {
     public:
-        VulkanCommandBuffer(std::shared_ptr<VulkanDevice> device)
+        VulkanCommandBuffer(VulkanDevicePtr device)
             : mCommandBuffer{VK_NULL_HANDLE}
             , mDevice{device}
         {
@@ -35,8 +35,8 @@ namespace Homura
 
         void endSingleTimeCommands();
     private:
-        std::shared_ptr<VulkanDevice>   mDevice;
-        VkCommandBuffer                 mCommandBuffer;
+        VulkanDevicePtr mDevice;
+        VkCommandBuffer mCommandBuffer;
     };
 }
 #endif //HOMURA_VULKANCOMMANDBUFFER_H

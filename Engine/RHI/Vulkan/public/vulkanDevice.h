@@ -7,7 +7,7 @@
 
 #include <vulkan/vulkan.h>
 #include <pixelFormat.h>
-#include <memory>
+#include <vulkanTypes.h>
 #include <vector>
 #include <string>
 
@@ -48,22 +48,22 @@ namespace Homura
         }
 
 
-        std::shared_ptr<VulkanQueue> getGraphicsQueue()
+        VulkanQueuePtr getGraphicsQueue()
         {
             return mGfxQueue;
         }
 
-        std::shared_ptr<VulkanQueue> getComputeQueue()
+        VulkanQueuePtr getComputeQueue()
         {
             return mComputeQueue;
         }
 
-        std::shared_ptr<VulkanQueue> getTransferQueue()
+        VulkanQueuePtr getTransferQueue()
         {
             return mTransferQueue;
         }
 
-        std::shared_ptr<VulkanQueue> getPresentQueue()
+        VulkanQueuePtr getPresentQueue()
         {
             return mPresentQueue;
         }
@@ -89,10 +89,10 @@ namespace Homura
         VkPhysicalDeviceFeatures                mPhysicalDeviceFeatures;
         VkPhysicalDeviceFeatures2*              mPhysicalDeviceFeatures2;
 
-        std::shared_ptr<VulkanQueue>            mGfxQueue;
-        std::shared_ptr<VulkanQueue>            mComputeQueue;
-        std::shared_ptr<VulkanQueue>            mTransferQueue;
-        std::shared_ptr<VulkanQueue>            mPresentQueue;
+        VulkanQueuePtr                          mGfxQueue;
+        VulkanQueuePtr                          mComputeQueue;
+        VulkanQueuePtr                          mTransferQueue;
+        VulkanQueuePtr                          mPresentQueue;
 
         std::shared_ptr<VkCommandPool>          mCommandPool;
     };

@@ -8,7 +8,7 @@
 
 namespace Homura
 {
-    Fence::Fence(std::shared_ptr<VulkanDevice> device, bool signaled)
+    Fence::Fence(VulkanDevicePtr device, bool signaled)
         : mDevice{device}
     {
         VkFenceCreateInfo createInfo{};

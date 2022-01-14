@@ -5,7 +5,7 @@
 #ifndef HOMURA_VULKANFRAMEBUFFER_H
 #define HOMURA_VULKANFRAMEBUFFER_H
 #include <vulkan/vulkan.h>
-#include <memory>
+#include <vulkanTypes.h>
 #include <vector>
 
 namespace Homura
@@ -17,8 +17,8 @@ namespace Homura
     class VulkanFrameBuffer
     {
     public:
-        VulkanFrameBuffer(std::shared_ptr<VulkanDevice> device,
-                          std::shared_ptr<VulkanRenderPass> renderPass,
+        VulkanFrameBuffer(VulkanDevicePtr device,
+                          VulkanRenderPassPtr renderPass,
                           uint32_t imageCount,
                           std::vector<VulkanTexture> &images,
                           std::vector<VulkanTexture> &multiSampleImages,
@@ -35,8 +35,8 @@ namespace Homura
             return mFrameBuffer.data();
         }
     private:
-        std::shared_ptr<VulkanDevice>       mDevice;
-        std::shared_ptr<VulkanRenderPass>   mRenderPass;
+        VulkanDevicePtr                     mDevice;
+        VulkanRenderPassPtr                 mRenderPass;
         std::vector<VkFramebuffer>          mFrameBuffer;
 
         std::vector<VulkanTexture>          mImages;

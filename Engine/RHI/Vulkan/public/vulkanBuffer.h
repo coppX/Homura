@@ -5,7 +5,7 @@
 #ifndef HOMURA_VULKANBUFFER_H
 #define HOMURA_VULKANBUFFER_H
 #include <vulkan/vulkan.h>
-#include <memory>
+#include <vulkanTypes.h>
 
 namespace Homura
 {
@@ -41,15 +41,15 @@ namespace Homura
     private:
         uint32_t  findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-        std::shared_ptr<VulkanDevice>           mDevice;
-        std::shared_ptr<VulkanCommandBuffer>    mCommandBuffer;
+        VulkanDevicePtr         mDevice;
+        VulkanCommandBufferPtr  mCommandBuffer;
 
-        BufferType                              mBufferType;
-        VkDeviceSize                            mSize;
-        VkBufferUsageFlagBits                   mUsage;
-        VkMemoryPropertyFlags                   mProperties;
-        VkBuffer                                mBuffer;
-        VkDeviceMemory                          mBufferMemory;
+        BufferType              mBufferType;
+        VkDeviceSize            mSize;
+        VkBufferUsageFlagBits   mUsage;
+        VkMemoryPropertyFlags   mProperties;
+        VkBuffer                mBuffer;
+        VkDeviceMemory          mBufferMemory;
     };
 }
 #endif //HOMURA_VULKANBUFFER_H

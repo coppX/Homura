@@ -9,7 +9,7 @@
 
 namespace Homura
 {
-    VulkanBuffer::VulkanBuffer(std::shared_ptr<VulkanDevice> device, VkDeviceSize size, VkBufferUsageFlagBits usage, VkMemoryPropertyFlags props, BufferType type)
+    VulkanBuffer::VulkanBuffer(VulkanDevicePtr device, VkDeviceSize size, VkBufferUsageFlagBits usage, VkMemoryPropertyFlags props, BufferType type)
         : mBuffer{VK_NULL_HANDLE}
         , mBufferMemory{VK_NULL_HANDLE}
         , mDevice{device}
