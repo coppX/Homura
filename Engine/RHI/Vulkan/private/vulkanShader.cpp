@@ -9,10 +9,11 @@
 
 namespace Homura
 {
-    VulkanShader::VulkanShader(VulkanDevicePtr device)
-        : mModule{VK_NULL_HANDLE}
-        , mDevice{device}
-        , pAllocator{nullptr}
+    VulkanShader::VulkanShader(VulkanDevicePtr device, VkShaderStageFlagBits stage, std::string entryPoint)
+        : mDevice{device}
+        , mModule{VK_NULL_HANDLE}
+        , mStage{stage}
+        , mEntryPoint{entryPoint}
     {
 
     }
@@ -22,23 +23,22 @@ namespace Homura
         destroyShaderModule();
     }
 
-    void VulkanShader::createShaderModule(std::string filename, VkAllocationCallbacks *allocator)
+    void VulkanShader::createShaderModule(std::string filename)
     {
         std::vector<char> shaderCode = readFile(filename);
-        pAllocator = allocator;
 
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = shaderCode.size();
         createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.data());
-        VERIFYVULKANRESULT(vkCreateShaderModule(mDevice->getHandle(), &createInfo, pAllocator, &mModule));
+        VERIFYVULKANRESULT(vkCreateShaderModule(mDevice->getHandle(), &createInfo, nullptr, &mModule));
     }
 
     void VulkanShader::destroyShaderModule()
     {
         if (mModule != VK_NULL_HANDLE)
         {
-            vkDestroyShaderModule(mDevice->getHandle(), mModule, pAllocator);
+            vkDestroyShaderModule(mDevice->getHandle(), mModule, nullptr);
         }
     }
 

@@ -394,8 +394,8 @@ namespace Homura
 
         void createGraphicsPipeline()
         {
-            VulkanShader vertShader(rhi->getDevice());
-            VulkanShader fragShader(rhi->getDevice());
+            VulkanShader vertShader(rhi->getDevice(), VK_SHADER_STAGE_VERTEX_BIT, "vertex");
+            VulkanShader fragShader(rhi->getDevice(), VK_SHADER_STAGE_FRAGMENT_BIT, "fragment");
 
             vertShader.createShaderModule(FileSystem::getPath("resources/shader/triangle/shader_depth.vert.spv"));
             fragShader.createShaderModule(FileSystem::getPath("resources/shader/triangle/shader_depth.frag.spv"));

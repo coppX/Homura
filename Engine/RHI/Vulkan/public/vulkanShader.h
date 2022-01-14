@@ -14,20 +14,34 @@ namespace Homura
     class VulkanShader
     {
     public:
-        VulkanShader(VulkanDevicePtr device);
+        VulkanShader(VulkanDevicePtr device, VkShaderStageFlagBits stage, std::string entryPoint);
         ~VulkanShader();
 
-        void createShaderModule(std::string filename, VkAllocationCallbacks *allocator = nullptr);
-        VkShaderModule getHandle() { return mModule; }
+        void createShaderModule(std::string filename);
+        const VkShaderModule& getHandle() const
+        {
+            return mModule;
+        }
 
+        const VkShaderStageFlagBits& getStage() const
+        {
+            return mStage;
+        }
+
+        const char* getEntryPointName() const
+        {
+            return mEntryPoint.c_str();
+        }
     private:
         std::vector<char> readFile(const std::string &filename);
         void destroyShaderModule();
 
     private:
-        VkShaderModule              mModule;
-        VkAllocationCallbacks       *pAllocator;
         VulkanDevicePtr             mDevice;
+        
+        VkShaderModule              mModule;
+        VkShaderStageFlagBits       mStage;
+        std::string                 mEntryPoint;
     };
 }
 
