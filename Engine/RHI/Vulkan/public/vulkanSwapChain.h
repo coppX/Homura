@@ -8,11 +8,11 @@
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
-#include <memory>
 #include <vector>
 
 #include <vulkanRHI.h>
 #include <pixelFormat.h>
+#include <vulkanTypes.h>
 
 namespace Homura
 {
@@ -31,11 +31,11 @@ namespace Homura
     {
     public:
 
-        VulkanSwapChain(VkInstance instance, std::shared_ptr<VulkanDevice> device, GLFWwindow* window, EPixelFormat& outPixelFormat, uint32_t width, uint32_t height,
+        VulkanSwapChain(VkInstance instance, VulkanDevicePtr device, GLFWwindow* window, EPixelFormat& outPixelFormat, uint32_t width, uint32_t height,
                         uint32_t* outDesiredNumBackBuffers, std::vector<VkImage>& outImages, int8_t lockToVsync);
         ~VulkanSwapChain();
 
-        SwapStatus present(std::shared_ptr<VulkanQueue> gfxQueue, std::shared_ptr<VulkanQueue> presentQueue, VkSemaphore* complete);
+        SwapStatus present(VulkanQueuePtr gfxQueue, VulkanQueuePtr presentQueue, VkSemaphore* complete);
 
         void createSurface(GLFWwindow *window);
 
@@ -88,7 +88,7 @@ namespace Homura
         VkFormat                        mColorFormat;
         int32_t                         mBackBufferCount;
 
-        std::shared_ptr<VulkanDevice>   mDevice;
+        VulkanDevicePtr                 mDevice;
         std::vector<VkSemaphore>        mImageAcquiredSemaphore;
 
         int32_t                         mCurrentImageIndex;

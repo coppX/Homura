@@ -5,7 +5,7 @@
 #ifndef HOMURA_VULKANTEXTURE_H
 #define HOMURA_VULKANTEXTURE_H
 #include <vulkan/vulkan.h>
-#include <memory>
+#include <vulkanTypes.h>
 
 namespace Homura
 {
@@ -26,11 +26,11 @@ namespace Homura
     class VulkanTexture
     {
     public:
-        VulkanTexture(std::shared_ptr<VulkanDevice> device, uint32_t width, uint32_t height, TextureType type, VkImageTiling tiling,
+        VulkanTexture(VulkanDevicePtr device, uint32_t width, uint32_t height, TextureType type, VkImageTiling tiling,
                       uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
         ~VulkanTexture();
 
-        void fromBuffer(std::shared_ptr<VulkanBuffer> buffer, uint32_t width, uint32_t height);
+        void fromBuffer(VulkanBufferPtr buffer, uint32_t width, uint32_t height);
 
         VkImageView& getImageView()
         {
@@ -46,7 +46,7 @@ namespace Homura
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     private:
-        std::shared_ptr<VulkanDevice>   mDevice;
+        VulkanDevicePtr                 mDevice;
 
         VkImage                         mImage;
         VkImageView                     mImageView;

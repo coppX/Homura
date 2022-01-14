@@ -10,7 +10,7 @@
 
 namespace Homura
 {
-    VulkanTexture::VulkanTexture(std::shared_ptr<VulkanDevice> device, uint32_t width, uint32_t height, TextureType type, VkImageTiling tiling,
+    VulkanTexture::VulkanTexture(VulkanDevicePtr device, uint32_t width, uint32_t height, TextureType type, VkImageTiling tiling,
                                  uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
         : mDevice{device}
         , mWidth{width}
@@ -156,7 +156,7 @@ namespace Homura
         return -1;
     }
 
-    void VulkanTexture::fromBuffer(std::shared_ptr<VulkanBuffer> buffer, uint32_t width, uint32_t height)
+    void VulkanTexture::fromBuffer(VulkanBufferPtr buffer, uint32_t width, uint32_t height)
     {
         VulkanCommandBuffer commandBuffer{mDevice};
         commandBuffer.beginSingleTimeCommands();

@@ -10,7 +10,7 @@
 
 namespace Homura
 {
-    VulkanSwapChain::VulkanSwapChain(VkInstance instance, std::shared_ptr<VulkanDevice> device, GLFWwindow* window, EPixelFormat& outPixelFormat, uint32_t width, uint32_t height,
+    VulkanSwapChain::VulkanSwapChain(VkInstance instance, VulkanDevicePtr device, GLFWwindow* window, EPixelFormat& outPixelFormat, uint32_t width, uint32_t height,
                                     uint32_t* outDesiredNumBackBuffers, std::vector<VkImage>& outImages, int8_t lockToVsync)
         : mInstance{instance}
         , mSwapChain{VK_NULL_HANDLE}
@@ -291,7 +291,7 @@ namespace Homura
         return mCurrentImageIndex;
     }
 
-    SwapStatus VulkanSwapChain::present(std::shared_ptr<VulkanQueue> gfxQueue, std::shared_ptr<VulkanQueue> presentQueue, VkSemaphore* complete)
+    SwapStatus VulkanSwapChain::present(VulkanQueuePtr gfxQueue, VulkanQueuePtr presentQueue, VkSemaphore* complete)
     {
         if (mCurrentImageIndex == -1)
         {
