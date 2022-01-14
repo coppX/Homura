@@ -38,7 +38,7 @@ namespace Homura
 
     private:
         VulkanDevicePtr             mDevice;
-        
+
         VkShaderModule              mModule;
         VkShaderStageFlagBits       mStage;
         std::string                 mEntryPoint;

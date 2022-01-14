@@ -15,7 +15,13 @@ namespace Homura
     public:
         VulkanPipeline(VulkanDevicePtr device, VulkanRenderPassPtr renderPass);
         ~VulkanPipeline();
+        void setShaders(const std::vector<VulkanShaderPtr>& shaders);
 
+        void setViewports(const std::vector<VkViewport>& viewports);
+
+        void setScissors(const std::vector<VkRect2D>& scissors);
+
+        void build();
     private:
         VulkanDevicePtr                                     mDevice;
         VulkanRenderPassPtr                                 mRenderPass;
@@ -33,6 +39,9 @@ namespace Homura
         VkPipelineLayout                                    mPipelineLayout;
 
         std::vector<VkPipelineColorBlendAttachmentState>    mBlendAttachmentStates{};
+        std::vector<VulkanShaderPtr>                        mShaders;
+        std::vector<VkViewport>                             mViewports;
+        std::vector<VkRect2D>                               mScissors;
     };
 }
 #endif //HOMURA_VULKANGFXPIPELINE_H
