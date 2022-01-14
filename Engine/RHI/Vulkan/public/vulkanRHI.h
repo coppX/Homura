@@ -14,9 +14,6 @@
 
 namespace Homura
 {
-    class VulkanDevice;
-    class VulkanSwapChain;
-
     class VulkanRHI
     {
     public:

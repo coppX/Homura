@@ -9,8 +9,6 @@
 
 namespace Homura
 {
-    class VulkanDevice;
-
     class VulkanCommandBuffer
     {
     public:

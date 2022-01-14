@@ -16,6 +16,7 @@ namespace Homura
     class VulkanDescriptorPool;
     class VulkanDescriptorSetLayout;
     class VulkanCommandBuffer;
+    class VulkanTexture;
 
     using VulkanDevicePtr = std::shared_ptr<VulkanDevice>;
     using VulkanRenderPassPtr = std::shared_ptr<VulkanRenderPass>;

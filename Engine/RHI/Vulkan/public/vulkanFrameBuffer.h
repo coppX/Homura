@@ -10,10 +10,6 @@
 
 namespace Homura
 {
-    class VulkanDevice;
-    class VulkanTexture;
-    class VulkanRenderPass;
-
     class VulkanFrameBuffer
     {
     public:

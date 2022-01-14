@@ -10,8 +10,6 @@
 
 namespace Homura
 {
-    class VulkanDevice;
-
     class VulkanDescriptorPool
     {
     public:

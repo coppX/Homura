@@ -9,9 +9,6 @@
 
 namespace Homura
 {
-    class VulkanDevice;
-    class VulkanCommandBuffer;
-
     enum class BufferType
     {
         Vertex,

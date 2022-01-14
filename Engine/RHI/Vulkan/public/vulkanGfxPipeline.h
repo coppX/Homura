@@ -10,9 +10,6 @@
 
 namespace Homura
 {
-    class VulkanDevice;
-    class VulkanRenderPass;
-
     class VulkanPipeline
     {
     public:
