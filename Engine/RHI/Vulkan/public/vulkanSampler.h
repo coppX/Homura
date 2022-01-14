@@ -5,15 +5,13 @@
 #ifndef HOMURA_VULKANSAMPLER_H
 #define HOMURA_VULKANSAMPLER_H
 #include <vulkan/vulkan.h>
-#include <memory>
+#include <vulkanTypes.h>
 
 namespace Homura
 {
-    class VulkanDevice;
-
     class VulkanSampler
     {
-        VulkanSampler(std::shared_ptr<VulkanDevice> device);
+        VulkanSampler(VulkanDevicePtr device);
         ~VulkanSampler();
 
         VkSampler& getHandle()
@@ -21,7 +19,7 @@ namespace Homura
             return mSampler;
         }
     private:
-        std::shared_ptr<VulkanDevice>   mDevice;
+        VulkanDevicePtr                 mDevice;
         VkSampler                       mSampler;
     };
 }

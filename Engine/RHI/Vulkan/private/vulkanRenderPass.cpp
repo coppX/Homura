@@ -39,7 +39,7 @@ namespace Homura
 
     }
 
-    VulkanRenderPass::VulkanRenderPass(std::shared_ptr<VulkanDevice> device)
+    VulkanRenderPass::VulkanRenderPass(VulkanDevicePtr device)
         : mDevice{device}
         , mRenderPass{VK_NULL_HANDLE}
     {

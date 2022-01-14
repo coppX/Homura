@@ -3,13 +3,13 @@
 //
 
 #include <vulkanShader.h>
+#include <vulkanDevice.h>
 #include <debugUtils.h>
 #include <fstream>
-#include <vector>
 
 namespace Homura
 {
-    VulkanShader::VulkanShader(std::shared_ptr<VkDevice> device)
+    VulkanShader::VulkanShader(VulkanDevicePtr device)
         : mModule{VK_NULL_HANDLE}
         , mDevice{device}
         , pAllocator{nullptr}
@@ -31,14 +31,14 @@ namespace Homura
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = shaderCode.size();
         createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.data());
-        VERIFYVULKANRESULT(vkCreateShaderModule(*mDevice.get(), &createInfo, pAllocator, &mModule));
+        VERIFYVULKANRESULT(vkCreateShaderModule(mDevice->getHandle(), &createInfo, pAllocator, &mModule));
     }
 
     void VulkanShader::destroyShaderModule()
     {
         if (mModule != VK_NULL_HANDLE)
         {
-            vkDestroyShaderModule(*mDevice.get(), mModule, pAllocator);
+            vkDestroyShaderModule(mDevice->getHandle(), mModule, pAllocator);
         }
     }
 

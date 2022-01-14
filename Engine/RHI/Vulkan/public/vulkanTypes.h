@@ -12,10 +12,12 @@ namespace Homura
     class VulkanRenderPass;
     class VulkanBuffer;
     class VulkanQueue;
+    class VulkanSwapChain;
 
     using VulkanDevicePtr = std::shared_ptr<VulkanDevice>;
     using VulkanRenderPassPtr = std::shared_ptr<VulkanRenderPass>;
     using VulkanBufferPtr = std::shared_ptr<VulkanBuffer>;
     using VulkanQueuePtr = std::shared_ptr<VulkanQueue>;
+    using VulkanSwapChainPtr = std::shared_ptr<VulkanSwapChain>;
 }
 #endif //HOMURA_VULKANTYPES_H

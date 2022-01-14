@@ -9,9 +9,6 @@
 
 namespace Homura
 {
-    class VulkanDevice;
-    class VulkanBuffer;
-
     enum TextureType
     {
         TEXTURE_1D = 0,

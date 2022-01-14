@@ -7,7 +7,7 @@
 
 namespace Homura
 {
-    VulkanSampler::VulkanSampler(std::shared_ptr<VulkanDevice> device)
+    VulkanSampler::VulkanSampler(VulkanDevicePtr device)
         : mDevice{device}
         , mSampler{VK_NULL_HANDLE}
     {

@@ -5,16 +5,16 @@
 #ifndef HOMURA_VULKANSHADER_H
 #define HOMURA_VULKANSHADER_H
 #include <vulkan/vulkan.h>
+#include <vulkanTypes.h>
 #include <vector>
 #include <string>
-#include <memory>
 
 namespace Homura
 {
     class VulkanShader
     {
     public:
-        VulkanShader(std::shared_ptr<VkDevice> device);
+        VulkanShader(VulkanDevicePtr device);
         ~VulkanShader();
 
         void createShaderModule(std::string filename, VkAllocationCallbacks *allocator = nullptr);
@@ -27,7 +27,7 @@ namespace Homura
     private:
         VkShaderModule              mModule;
         VkAllocationCallbacks       *pAllocator;
-        std::shared_ptr<VkDevice>   mDevice;
+        VulkanDevicePtr             mDevice;
     };
 }
 

@@ -90,7 +90,7 @@ namespace Homura
 
         struct DeviceInfo
         {
-            std::shared_ptr<VulkanDevice> device;
+            VulkanDevicePtr device;
             uint32_t deviceIndex;
         };
 
@@ -99,7 +99,7 @@ namespace Homura
 
         for (uint32_t index = 0; index < gpuCount; index++)
         {
-            std::shared_ptr<VulkanDevice> newDevice = std::make_shared<VulkanDevice>(physicalDevices[index]);
+            VulkanDevicePtr newDevice = std::make_shared<VulkanDevice>(physicalDevices[index]);
             bool isDiscrete = newDevice->queryDevice(index);
             if (isDiscrete)
             {

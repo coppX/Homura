@@ -16,10 +16,6 @@
 
 namespace Homura
 {
-    class VulkanDevice;
-    class VulkanQueue;
-
-
     enum class SwapStatus
     {
         Healthy     = 0,

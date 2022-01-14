@@ -5,7 +5,7 @@
 #ifndef HOMURA_VULKANRENDERPASS_H
 #define HOMURA_VULKANRENDERPASS_H
 #include <vulkan/vulkan.h>
-#include <memory>
+#include <vulkanTypes.h>
 #include <vector>
 
 namespace Homura
@@ -36,7 +36,7 @@ namespace Homura
     class VulkanRenderPass
     {
     public:
-        VulkanRenderPass(std::shared_ptr<VulkanDevice> device);
+        VulkanRenderPass(VulkanDevicePtr device);
         ~VulkanRenderPass();
 
         void addSubPass(const VulkanSubPass &subPass);
@@ -52,7 +52,7 @@ namespace Homura
 
         void buildRenderPass();
     private:
-        std::shared_ptr<VulkanDevice>           mDevice;
+        VulkanDevicePtr                         mDevice;
         VkRenderPass                            mRenderPass;
 
         std::vector<VulkanSubPass>              mSubPasses;

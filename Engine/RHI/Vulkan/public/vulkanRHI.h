@@ -5,11 +5,12 @@
 #ifndef HOMURA_VULKANRHI_H
 #define HOMURA_VULKANRHI_H
 
-#include <vector>
-#include <memory>
 #include <vulkan/vulkan.h>
+#include <vulkanTypes.h>
 #include <pixelFormat.h>
 #include <GLFW/glfw3.h>
+
+#include <vector>
 
 namespace Homura
 {
@@ -30,12 +31,12 @@ namespace Homura
             return mInstance;
         }
 
-        const std::shared_ptr<VulkanDevice> getDevice() const
+        const VulkanDevicePtr getDevice() const
         {
             return mDevice;
         }
 
-        const std::shared_ptr<VulkanSwapChain> getSwapChain() const
+        const VulkanSwapChainPtr getSwapChain() const
         {
             return mSwapChain;
         }
@@ -86,9 +87,9 @@ namespace Homura
         std::vector<const char*>            mDeviceExtensions;
         VkPhysicalDeviceFeatures2*          mPhysicalDeviceFeatures2 = nullptr;
 
-        std::shared_ptr<VulkanDevice>       mDevice;
+        VulkanDevicePtr                     mDevice;
 
-        std::shared_ptr<VulkanSwapChain>    mSwapChain;
+        VulkanSwapChainPtr                  mSwapChain;
         EPixelFormat                        mPixelFormat;
         std::vector<VkImage>                mBackBufferImages;
         std::vector<VkImageView>            mBackBufferViews;
