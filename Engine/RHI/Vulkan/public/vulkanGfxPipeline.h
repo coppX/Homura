@@ -5,7 +5,7 @@
 #ifndef HOMURA_VULKANGFXPIPELINE_H
 #define HOMURA_VULKANGFXPIPELINE_H
 #include <vulkan/vulkan.h>
-#include <memory>
+#include <vulkanTypes.h>
 #include <vector>
 
 namespace Homura
@@ -15,9 +15,6 @@ namespace Homura
 
     class VulkanPipeline
     {
-        using VulkanDevicePtr = std::shared_ptr<VulkanDevice>;
-        using VulkanRenderPassPtr = std::shared_ptr<VulkanRenderPass>;
-
         VulkanPipeline(VulkanDevicePtr device, VulkanRenderPassPtr renderPass);
         ~VulkanPipeline();
 

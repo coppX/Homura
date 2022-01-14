@@ -32,4 +32,16 @@ namespace Homura
         mDepthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
         mColorBlendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     }
+    VulkanPipeline::~VulkanPipeline()
+    {
+        if (mPipelineLayout != VK_NULL_HANDLE)
+        {
+            vkDestroyPipelineLayout(mDevice->getHandle(), mPipelineLayout, nullptr);
+        }
+
+        if (mPipeline != VK_NULL_HANDLE)
+        {
+            vkDestroyPipeline(mDevice->getHandle(), mPipeline, nullptr);
+        }
+    }
 }
