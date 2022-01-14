@@ -23,7 +23,7 @@ namespace Homura
 
         uint32_t getCount() const
         {
-            return mFrameBuffer.size();
+            return (uint32_t)mFrameBuffer.size();
         }
 
         VkFramebuffer* getData()

@@ -57,7 +57,7 @@ namespace Homura
 
         const uint32_t getCount()
         {
-            return mDescriptorSets.size();
+            return (uint32_t )mDescriptorSets.size();
         }
 
         VkDescriptorSet* getData()
