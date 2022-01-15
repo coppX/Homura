@@ -30,6 +30,22 @@ namespace Homura
         createImageView(mFormat, VK_IMAGE_ASPECT_COLOR_BIT, mMipLevels);
     }
 
+    VulkanTexture::~VulkanTexture()
+    {
+        if (mImageView != VK_NULL_HANDLE)
+        {
+            vkDestroyImageView(mDevice->getHandle(), mImageView, nullptr);
+        }
+        if (mImage != VK_NULL_HANDLE)
+        {
+            vkDestroyImage(mDevice->getHandle(), mImage, nullptr);
+        }
+        if (mImageMemory != VK_NULL_HANDLE)
+        {
+            vkFreeMemory(mDevice->getHandle(), mImageMemory, nullptr);
+        }
+    }
+
     void VulkanTexture::createImage(uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
                                     VkMemoryPropertyFlags properties)
     {
@@ -38,6 +54,7 @@ namespace Homura
         switch (mType)
         {
             case TextureType::TEXTURE_1D:
+            case TextureType::TEXTURE_1D_ARRAy:
                 imageInfo.imageType = VK_IMAGE_TYPE_1D;
                 break;
             case TextureType::TEXTURE_2D:
