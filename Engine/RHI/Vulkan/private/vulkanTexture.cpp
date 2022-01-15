@@ -54,7 +54,7 @@ namespace Homura
         switch (mType)
         {
             case TextureType::TEXTURE_1D:
-            case TextureType::TEXTURE_1D_ARRAy:
+            case TextureType::TEXTURE_1D_ARRAY:
                 imageInfo.imageType = VK_IMAGE_TYPE_1D;
                 break;
             case TextureType::TEXTURE_2D:
@@ -130,7 +130,7 @@ namespace Homura
             case TextureType::TEXTURE_1D:
                 viewInfo.viewType = VK_IMAGE_VIEW_TYPE_1D;
                 break;
-            case TextureType::TEXTURE_1D_ARRAy:
+            case TextureType::TEXTURE_1D_ARRAY:
                 viewInfo.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
                 break;
             case TextureType::TEXTURE_2D:

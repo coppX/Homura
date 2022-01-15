@@ -12,7 +12,7 @@ namespace Homura
     enum TextureType
     {
         TEXTURE_1D = 0,
-        TEXTURE_1D_ARRAy,
+        TEXTURE_1D_ARRAY,
         TEXTURE_2D,
         TEXTURE_2D_ARRAY,
         TEXTURE_3D,

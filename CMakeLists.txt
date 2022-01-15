@@ -17,11 +17,9 @@ link_directories("libs/libs")
 
 if(WIN32)
     set(LIBS glfw3)
-    set(LIBS ${LIBS} assimp)
     set(LIBS ${LIBS} vulkan-1)
 elseif(APPLE)
     set(LIBS "libglfw.3.dylib")
-    set(LIBS ${LIBS} "libassimpd.5.dylib")
     set(LIBS ${LIBS} "libvulkan.1.2.154.dylib")
 endif(WIN32)
 
