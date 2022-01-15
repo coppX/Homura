@@ -7,6 +7,7 @@ include_directories(${CMAKE_BINARY_DIR}/configuration)
 
 include_directories("include")
 include_directories("libs/glm")
+include_directories("libs/glfw/include")
 include_directories("libs/include")
 include_directories("Engine/platform")
 include_directories("Engine/RHI/Vulkan/public")
