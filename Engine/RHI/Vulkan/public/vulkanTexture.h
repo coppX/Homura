@@ -29,16 +29,27 @@ namespace Homura
 
         void fromBuffer(VulkanBufferPtr buffer, uint32_t width, uint32_t height);
 
+        VkImage& getImage()
+        {
+            return mImage;
+        }
+
         VkImageView& getImageView()
         {
             return mImageView;
         }
 
-    private:
+        VkSampler& getSampler()
+        {
+            return mSampler;
+        }
+
         void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
                          VkMemoryPropertyFlags properties);
 
         void createImageView(VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
+
+        void createSampler(int mipLevels);
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
@@ -87,6 +98,5 @@ namespace Homura
     {
 
     };
-
 }
 #endif //HOMURA_VULKANTEXTURE_H

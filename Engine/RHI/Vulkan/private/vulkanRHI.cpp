@@ -30,6 +30,26 @@ namespace Homura
         destroyInstance();
     }
 
+    VkInstance& VulkanRHI::getInstance()
+    {
+        return mInstance;
+    }
+
+    VulkanDevicePtr& VulkanRHI::getDevice()
+    {
+        return mDevice;
+    }
+
+    VulkanSwapChainPtr& VulkanRHI::getSwapChain()
+    {
+        return mSwapChain;
+    }
+
+    VkPipelineCache& VulkanRHI::getPipelineCache()
+    {
+
+    }
+
     void VulkanRHI::createInstance()
     {
         if (enableValidationLayers && !checkValidationLayerSupport())
@@ -256,17 +276,6 @@ namespace Homura
         createInfo.pfnUserCallback = debugCallback;
     }
 
-
-
-    void VulkanRHI::createGraphicsPipeline()
-    {}
-
-
-    void VulkanRHI::createCommandPool()
-    {
-
-    }
-
     void VulkanRHI::createColorResources()
     {
 
@@ -277,7 +286,7 @@ namespace Homura
 
     }
 
-    void VulkanRHI::createFrameBuffers()
+    void VulkanRHI::createFrameBuffer()
     {
 
     }
@@ -297,12 +306,12 @@ namespace Homura
 
     }
 
-    void VulkanRHI::createCommandBuffers()
+    void VulkanRHI::createCommandPool()
     {
 
     }
 
-    void VulkanRHI::createSyncObjects()
+    void VulkanRHI::createCommandBuffer()
     {
 
     }

@@ -23,24 +23,25 @@ namespace Homura
 
         void init();
 
-        const VkInstance& getInstance() const
-        {
-            return mInstance;
-        }
+        VkInstance& getInstance();
+        VulkanDevicePtr& getDevice();
+        VulkanSwapChainPtr& getSwapChain();
+        VkPipelineCache& getPipelineCache();
 
-        const VulkanDevicePtr getDevice() const
-        {
-            return mDevice;
-        }
-
-        const VulkanSwapChainPtr getSwapChain() const
-        {
-            return mSwapChain;
-        }
-
+        void createWindow();
         void createInstance();
+        void createSurface();
         void selectAndInitDevice();
+        void createPipelineCache();
         void createSwapChain(GLFWwindow *window);
+        void createImageView();
+        void createRenderPass();
+        void createFrameBuffer();
+        void createCommandPool();
+        void createCommandBuffer();
+        void createFence();
+        void createPipeline();
+
 
         void destroyInstance();
         void destroyDevice();
@@ -48,15 +49,9 @@ namespace Homura
 
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
-        void createGraphicsPipeline();
-
-        void createCommandPool();
-
         void createColorResources();
 
         void createDepthResources();
-
-        void createFrameBuffers();
 
         void createVertexBuffer();
 
@@ -64,15 +59,11 @@ namespace Homura
 
         void createUniformBuffer();
 
-        void createCommandBuffers();
-
-        void createSyncObjects();
-
         void createSampler();
 
-        void createRenderPass();
-
         void createDescriptorPool();
+
+        void addPushConstant(const VkPushConstantRange& constantRange, const char* data);
 
     private:
         bool checkValidationLayerSupport();
