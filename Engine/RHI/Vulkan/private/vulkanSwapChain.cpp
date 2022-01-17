@@ -10,323 +10,117 @@
 
 namespace Homura
 {
-    VulkanSwapChain::VulkanSwapChain(VkInstance instance, VulkanDevicePtr device, GLFWwindow* window, EPixelFormat& outPixelFormat, uint32_t width, uint32_t height,
-                                    uint32_t* outDesiredNumBackBuffers, std::vector<VkImage>& outImages, int8_t lockToVsync)
-        : mInstance{instance}
-        , mSwapChain{VK_NULL_HANDLE}
-        , mSurface{VK_NULL_HANDLE}
-        , mColorFormat{VK_FORMAT_R8G8B8A8_UNORM}
-        , mBackBufferCount{3}
-        , mDevice{device}
-        , mCurrentImageIndex{-1}
-        , mSemaphoreIndex{0}
-        , mNumPresentCalls{0}
-        , mNumAcquireCalls{0}
-        , mLockToVsync{lockToVsync}
-        , mPresentID{0}
+    VulkanSwapChain::VulkanSwapChain(VulkanDevicePtr device, GLFWwindow* window, VkSurfaceKHR surface, VkCommandPool commandPool)
+        : mDevice{device}
+        , mSurface{surface}
     {
-        createSurface(window);
-        mDevice->setPresentQueue(mSurface);
+        auto swapChainSupportInfo = querySwapChainSupportInfo();
+        VkSurfaceFormatKHR surfaceFormat = chooseSurfaceFormat(swapChainSupportInfo.mFormats);
+        VkPresentModeKHR presentMode = chooseSurfacePresentMode(swapChainSupportInfo.mPresentModes);
+        VkExtent2D extent = chooseExtent(swapChainSupportInfo.mCapabilities);
+        mImageCount = swapChainSupportInfo.mCapabilities.minImageCount + 1;
 
-        uint32_t numFormats;
-        VERIFYVULKANRESULT_EXPANDED(vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->getPhysicalHandle(), mSurface, &numFormats, nullptr));
-
-        std::vector<VkSurfaceFormatKHR> formats(numFormats);
-        VERIFYVULKANRESULT_EXPANDED(vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->getPhysicalHandle(), mSurface, &numFormats, formats.data()));
-
-        VkSurfaceFormatKHR currFormat = {};
-        if (outPixelFormat != PF_Unknown)
+        if (swapChainSupportInfo.mCapabilities.maxImageCount > 0 && mImageCount > swapChainSupportInfo.mCapabilities.maxImageCount)
         {
-            bool bFound = false;
-            if (PixelFormats[outPixelFormat].supported)
-            {
-                VkFormat requested = (VkFormat)PixelFormats[outPixelFormat].pixelFormat;
-                for (int32_t index = 0; index < formats.size(); ++index)
-                {
-                    if (formats[index].format == requested)
-                    {
-                        bFound     = true;
-                        currFormat = formats[index];
-                        break;
-                    }
-                }
-
-                if (!bFound)
-                {
-                    printf("Requested PixelFormat %d not supported by this swapchain! Falling back to supported swapchain format...\n", (uint32_t)outPixelFormat);
-                    outPixelFormat = PF_Unknown;
-                }
-            }
-            else
-            {
-                printf("Requested PixelFormat %d not supported by this Vulkan implementation!\n", (uint32_t)outPixelFormat);
-                outPixelFormat = PF_Unknown;
-            }
+            mImageCount = swapChainSupportInfo.mCapabilities.maxImageCount;
         }
 
-        if (outPixelFormat == PF_Unknown)
+        VkSwapchainCreateInfoKHR createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        createInfo.surface = mSurface;
+        createInfo.minImageCount = mImageCount;
+        createInfo.imageFormat = surfaceFormat.format;
+        createInfo.imageColorSpace = surfaceFormat.colorSpace;
+        createInfo.imageExtent = extent;
+        createInfo.imageArrayLayers = 1;
+        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+        std::vector<uint32_t> queueFamilies = {mDevice->getGraphicsQueue()->getFamilyIndex(), mDevice->getPresentQueue()->getFamilyIndex()};
+
+        if (mDevice->getGraphicsQueue()->getFamilyIndex() == mDevice->getPresentQueue()->getFamilyIndex())
         {
-            for (int32_t index = 0; index < formats.size(); ++index)
-            {
-                for (int32_t pfIndex = 0; pfIndex < PF_MAX; ++pfIndex)
-                {
-                    if (formats[index].format == PixelFormats[pfIndex].pixelFormat)
-                    {
-                        outPixelFormat = (EPixelFormat)pfIndex;
-                        currFormat     = formats[index];
-                        printf("No swapchain format requested, picking up VulkanFormat %d\n", (uint32_t)currFormat.format);
-                        break;
-                    }
-                }
-
-                if (outPixelFormat != PF_Unknown)
-                {
-                    break;
-                }
-            }
-        }
-
-        if (outPixelFormat == PF_Unknown)
-        {
-            printf("Can't find a proper pixel format for the swapchain, trying to pick up the first available\n");
-            VkFormat platformFormat = PixelFormatToVkFormat(outPixelFormat, false);
-            bool supported = false;
-            for (int32_t index = 0; index < formats.size(); ++index)
-            {
-                if (formats[index].format == platformFormat)
-                {
-                    supported  = true;
-                    currFormat = formats[index];
-                }
-            }
-        }
-
-        // 检测Present Model
-        uint32_t numFoundPresentModes = 0;
-        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalHandle(), mSurface, &numFoundPresentModes, nullptr));
-
-        std::vector<VkPresentModeKHR> foundPresentModes(numFoundPresentModes);
-        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalHandle(), mSurface, &numFoundPresentModes, foundPresentModes.data()));
-
-        bool foundPresentModeMailbox    = false;
-        bool foundPresentModeImmediate  = false;
-        bool foundPresentModeFIFO       = false;
-
-        printf("Found %d present mode.", (int32_t)numFoundPresentModes);
-        for (int32_t index = 0; index < (int32_t)numFoundPresentModes; ++index)
-        {
-            switch (foundPresentModes[index])
-            {
-                case VK_PRESENT_MODE_MAILBOX_KHR:
-                    foundPresentModeMailbox = true;
-                    printf("- VK_PRESENT_MODE_MAILBOX_KHR (%d)", (int32_t)VK_PRESENT_MODE_MAILBOX_KHR);
-                    break;
-                case VK_PRESENT_MODE_IMMEDIATE_KHR:
-                    foundPresentModeImmediate = true;
-                    printf("- VK_PRESENT_MODE_IMMEDIATE_KHR (%d)", (int32_t)VK_PRESENT_MODE_IMMEDIATE_KHR);
-                    break;
-                case VK_PRESENT_MODE_FIFO_KHR:
-                    foundPresentModeFIFO = true;
-                    printf("- VK_PRESENT_MODE_FIFO_KHR (%d)", (int32_t)VK_PRESENT_MODE_FIFO_KHR);
-                    break;
-                default:
-                    printf("- VkPresentModeKHR (%d)", (int32_t)foundPresentModes[index]);
-                    break;
-            }
-        }
-
-        VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-        if (foundPresentModeImmediate && !mLockToVsync)
-        {
-            presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-        }
-        else if (foundPresentModeMailbox)
-        {
-            presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-        }
-        else if (foundPresentModeFIFO)
-        {
-            presentMode = VK_PRESENT_MODE_FIFO_KHR;
+            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            createInfo.queueFamilyIndexCount = 0;
+            createInfo.pQueueFamilyIndices = nullptr;
         }
         else
         {
-            printf("Couldn't find desired PresentMode! Using %d", (int32_t)foundPresentModes[0]);
-            presentMode = foundPresentModes[0];
+            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+            createInfo.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilies.size());
+            createInfo.pQueueFamilyIndices = queueFamilies.data();
         }
 
-        printf("Selected VkPresentModeKHR mode %d", presentMode);
+        createInfo.preTransform = swapChainSupportInfo.mCapabilities.currentTransform;
+        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        createInfo.presentMode = presentMode;
+        createInfo.clipped = VK_TRUE;
 
-        VkSurfaceCapabilitiesKHR surfProperties;
-        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mDevice->getPhysicalHandle(), mSurface, &surfProperties));
+        VERIFYVULKANRESULT(vkCreateSwapchainKHR(mDevice->getHandle(), &createInfo, nullptr, &mSwapChain));
+        mSwapChainFormat = surfaceFormat.format;
+        mSwapChainExtent = extent;
 
-        printf("Surface minSize:%dx%d maxSize:%dx%d",
-             (int32_t)surfProperties.minImageExtent.width, (int32_t)surfProperties.minImageExtent.height,
-             (int32_t)surfProperties.maxImageExtent.width, (int32_t)surfProperties.maxImageExtent.height
-        );
+        vkGetSwapchainImagesKHR(mDevice->getHandle(), mSwapChain, &mImageCount, nullptr);
+        mSwapChainImages.resize(mImageCount);
 
-        VkSurfaceTransformFlagBitsKHR preTransform;
-        if (surfProperties.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
+        vkGetSwapchainImagesKHR(mDevice->getHandle(), mSwapChain, &mImageCount, mSwapChainImages.data());
+
+        mSwapChainImageViews.resize(mImageCount);
+        for (int i = 0; i < mImageCount; ++i)
         {
-            preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+            mSwapChainImageViews[i] = createImageView(mSwapChainImages[i], mSwapChainFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
         }
-        else
+
+        mDepthImages.resize(mImageCount);
+
+        VkImageSubresourceRange region{};
+        region.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+        region.baseMipLevel = 0;
+        region.levelCount = 1;
+        region.baseArrayLayer = 0;
+        region.layerCount = 1;
+
+        for (int i = 0; i < mImageCount; ++i)
         {
-            preTransform = surfProperties.currentTransform;
+//            mDepthImages[i] = Image::createDepthImage(
+//                    mDevice,
+//                    mSwapChainExtent.width,
+//                    mSwapChainExtent.height,
+//                    mDevice->getMaxUsableSampleCount()
+//            );
+//
+//            mDepthImages[i]->setImageLayout(
+//                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+//                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+//                    VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+//                    region,
+//                    commandPool
+//            );
         }
 
-        VkCompositeAlphaFlagBitsKHR compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
-        if (surfProperties.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR)
-        {
-            compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        mMultiSampleImages.resize(mImageCount);
+
+        VkImageSubresourceRange regionMultiSample{};
+        regionMultiSample.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        regionMultiSample.baseMipLevel = 0;
+        regionMultiSample.levelCount = 1;
+        regionMultiSample.baseArrayLayer = 0;
+        regionMultiSample.layerCount = 1;
+        for (int i = 0; i < mImageCount; ++i) {
+//            mMutiSampleImages[i] = Image::createRenderTargetImage(
+//                    mDevice,
+//                    mSwapChainExtent.width,
+//                    mSwapChainExtent.height,
+//                    mSwapChainFormat
+//            );
+//
+//            mMutiSampleImages[i]->setImageLayout(
+//                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+//                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+//                    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+//                    regionMutiSample,
+//                    commandPool
+//            );
         }
-
-        uint32_t desiredNumBuffers = surfProperties.maxImageCount > 0 ? std::clamp(*outDesiredNumBackBuffers, surfProperties.minImageCount, surfProperties.maxImageCount) : *outDesiredNumBackBuffers;
-        uint32_t sizeX = surfProperties.currentExtent.width == 0xFFFFFFFF ? width : surfProperties.currentExtent.width;
-        uint32_t sizeY = surfProperties.currentExtent.height == 0xFFFFFFFF ? height : surfProperties.currentExtent.height;
-
-        mSwapChainInfo = {};
-        mSwapChainInfo.sType                = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        mSwapChainInfo.surface              = mSurface;
-        mSwapChainInfo.minImageCount        = desiredNumBuffers;
-        mSwapChainInfo.imageFormat          = VK_FORMAT_B8G8R8A8_SRGB;
-        mSwapChainInfo.imageColorSpace      = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-        mSwapChainInfo.imageExtent.width    = sizeX;
-        mSwapChainInfo.imageExtent.height   = sizeY;
-        mSwapChainInfo.imageUsage           = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-        mSwapChainInfo.preTransform         = preTransform;
-        mSwapChainInfo.imageArrayLayers     = 1;
-        mSwapChainInfo.imageSharingMode     = VK_SHARING_MODE_EXCLUSIVE;
-        mSwapChainInfo.presentMode          = presentMode;
-        mSwapChainInfo.oldSwapchain         = VK_NULL_HANDLE;
-        mSwapChainInfo.clipped              = VK_TRUE;
-        mSwapChainInfo.compositeAlpha       = compositeAlpha;
-
-        if (mSwapChainInfo.imageExtent.width == 0)
-        {
-            mSwapChainInfo.imageExtent.width = width;
-        }
-
-        if (mSwapChainInfo.imageExtent.height == 0)
-        {
-            mSwapChainInfo.imageExtent.height = height;
-        }
-
-        // 检测是否支持present
-        VkBool32 supportsPresent;
-        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceSupportKHR(mDevice->getPhysicalHandle(), mDevice->getPresentQueue()->getFamilyIndex(), mSurface, &supportsPresent));
-        if (!supportsPresent)
-        {
-            printf("Present queue not support.");
-        }
-
-        // 创建SwapChain
-        VERIFYVULKANRESULT(vkCreateSwapchainKHR(mDevice->getHandle(), &mSwapChainInfo, nullptr, &mSwapChain));
-
-        // 获取Backbuffer数量
-        uint32_t numSwapChainImages;
-        VERIFYVULKANRESULT(vkGetSwapchainImagesKHR(mDevice->getHandle(), mSwapChain, &numSwapChainImages, nullptr));
-
-        outImages.resize(numSwapChainImages);
-        VERIFYVULKANRESULT(vkGetSwapchainImagesKHR(mDevice->getHandle(), mSwapChain, &numSwapChainImages, outImages.data()));
-
-        *outDesiredNumBackBuffers = numSwapChainImages;
-        mBackBufferCount = numSwapChainImages;
-
-        mImageAcquiredSemaphore.resize(numSwapChainImages);
-        for (uint32_t index = 0; index < (uint32_t)numSwapChainImages; ++index)
-        {
-            VkSemaphoreCreateInfo createInfo{};
-            createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-            VERIFYVULKANRESULT(vkCreateSemaphore(mDevice->getHandle(), &createInfo, nullptr, &mImageAcquiredSemaphore[index]));
-        }
-
-        mPresentID = 0;
-        mColorFormat = currFormat.format;
-        printf("SwapChain: Backbuffer:%d Format:%d ColorSpace:%d Size:%dx%d Present:%d", mSwapChainInfo.minImageCount, mSwapChainInfo.imageFormat, mSwapChainInfo.imageColorSpace, mSwapChainInfo.imageExtent.width, mSwapChainInfo.imageExtent.height, mSwapChainInfo.presentMode);
-    }
-
-    VulkanSwapChain::~VulkanSwapChain()
-    {
-        VkDevice device = mDevice->getHandle();
-
-        for (int32_t index = 0; index < mImageAcquiredSemaphore.size(); ++index)
-        {
-            vkDestroySemaphore(mDevice->getHandle(), mImageAcquiredSemaphore[index], nullptr);
-        }
-
-        vkDestroySwapchainKHR(device, mSwapChain, nullptr);
-        vkDestroySurfaceKHR(mInstance, mSurface, nullptr);
-    }
-
-    void VulkanSwapChain::createSurface(GLFWwindow *window)
-    {
-        VERIFYVULKANRESULT(glfwCreateWindowSurface(mInstance, window, nullptr, &mSurface));
-    }
-
-    int32_t VulkanSwapChain::acquireImageIndex(VkSemaphore *outSemaphore)
-    {
-        uint32_t imageIndex = 0;
-        VkDevice device = mDevice->getHandle();
-        const int32_t prev = mSemaphoreIndex;
-
-        mSemaphoreIndex = (mSemaphoreIndex + 1) % mImageAcquiredSemaphore.size();
-        VkResult result = vkAcquireNextImageKHR(device, mSwapChain, UINT64_MAX, mImageAcquiredSemaphore[mSemaphoreIndex], nullptr, &imageIndex);
-
-        if (result == VK_ERROR_OUT_OF_DATE_KHR)
-        {
-            mSemaphoreIndex = prev;
-            return (int32_t)SwapStatus::OutOfData;
-        }
-
-        if (result == VK_ERROR_SURFACE_LOST_KHR)
-        {
-            mSemaphoreIndex = prev;
-            return (int32_t)SwapStatus::SurfaceLost;
-        }
-
-        mNumAcquireCalls += 1;
-        *outSemaphore = mImageAcquiredSemaphore[mSemaphoreIndex];
-        mCurrentImageIndex = imageIndex;
-
-        return mCurrentImageIndex;
-    }
-
-    SwapStatus VulkanSwapChain::present(VulkanQueuePtr gfxQueue, VulkanQueuePtr presentQueue, VkSemaphore* complete)
-    {
-        if (mCurrentImageIndex == -1)
-        {
-            return SwapStatus::Healthy;
-        }
-
-        mPresentID += 1;
-
-        VkPresentInfoKHR createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        createInfo.waitSemaphoreCount = complete == nullptr ? 0 : 1;
-        createInfo.pWaitSemaphores = complete;
-        createInfo.swapchainCount = 1;
-        createInfo.pSwapchains = &mSwapChain;
-        createInfo.pImageIndices = (uint32_t*)&mCurrentImageIndex;
-
-        VkResult presentResult = vkQueuePresentKHR(presentQueue->getHandle(), &createInfo);
-
-        if (presentResult == VK_ERROR_OUT_OF_DATE_KHR)
-        {
-            return SwapStatus::OutOfData;
-        }
-
-        if (presentResult == VK_ERROR_SURFACE_LOST_KHR)
-        {
-            return SwapStatus::SurfaceLost;
-        }
-
-        if (presentResult != VK_SUCCESS && presentResult != VK_SUBOPTIMAL_KHR)
-        {
-            VERIFYVULKANRESULT(presentResult);
-        }
-        mNumPresentCalls += 1;
-        
-        return SwapStatus::Healthy;
     }
 
 }

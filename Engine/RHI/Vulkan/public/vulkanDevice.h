@@ -71,7 +71,7 @@ namespace Homura
             return mCommandPool;
         }
 
-        void createCommandPool(uint32_t familyIndex);
+        void createCommandPool();
 
         void setPhysicalDeviceFeatures(VkPhysicalDeviceFeatures2* deviceFeatures)
         {

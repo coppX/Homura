@@ -197,12 +197,12 @@ namespace Homura
             rhi->createInstance();
             rhi->selectAndInitDevice();
             rhi->createSwapChain(mWindow);
+            rhi->createCommandPool();
 
             setupDebugMessenger();
             createRenderPass();
             createDescriptorSetLayout();
             createGraphicsPipeline();
-            createCommandPool();
             createColorResources();
             createDepthResources();
             createFrameBuffers();
@@ -550,18 +550,6 @@ namespace Homura
                 {
                     throw std::runtime_error("failed to create framebuffer!");
                 }
-            }
-        }
-
-        void createCommandPool()
-        {
-            VkCommandPoolCreateInfo poolInfo{};
-            poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-            poolInfo.queueFamilyIndex = rhi->getDevice()->getGraphicsQueue()->getFamilyIndex();
-
-            if (vkCreateCommandPool(rhi->getDevice()->getHandle(), &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
-            {
-                throw std::runtime_error("failed to create graphics command pool!");
             }
         }
 

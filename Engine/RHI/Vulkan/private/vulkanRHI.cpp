@@ -308,7 +308,7 @@ namespace Homura
 
     void VulkanRHI::createCommandPool()
     {
-
+        mDevice->createCommandPool();
     }
 
     void VulkanRHI::createCommandBuffer()

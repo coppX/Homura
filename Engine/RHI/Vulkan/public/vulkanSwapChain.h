@@ -16,83 +16,76 @@
 
 namespace Homura
 {
-    enum class SwapStatus
-    {
-        Healthy     = 0,
-        OutOfData   = -1,
-        SurfaceLost = -2,
+    struct SwapChainSupportInfo {
+        VkSurfaceCapabilitiesKHR mCapabilities;
+        std::vector<VkSurfaceFormatKHR> mFormats;
+        std::vector<VkPresentModeKHR> mPresentModes;
     };
 
     class VulkanSwapChain
     {
     public:
-
-        VulkanSwapChain(VkInstance instance, VulkanDevicePtr device, GLFWwindow* window, EPixelFormat& outPixelFormat, uint32_t width, uint32_t height,
-                        uint32_t* outDesiredNumBackBuffers, std::vector<VkImage>& outImages, int8_t lockToVsync);
+        VulkanSwapChain(VulkanDevicePtr device, GLFWwindow* window, VkSurfaceKHR surface, VkCommandPool commandPool);
         ~VulkanSwapChain();
 
-        SwapStatus present(VulkanQueuePtr gfxQueue, VulkanQueuePtr presentQueue, VkSemaphore* complete);
 
         void createSurface(GLFWwindow *window);
-
-        int32_t getBackBufferCount() const
-        {
-            return mBackBufferCount;
-        }
 
         VkSwapchainKHR getHandle()
         {
             return mSwapChain;
         }
 
-        int32_t getWidth() const
+        VkFormat& getFormat()
         {
-            return mSwapChainInfo.imageExtent.width;
+            return mSwapChainFormat;
         }
 
-        int32_t getHeight() const
+        uint32_t getImageCount()
         {
-            return mSwapChainInfo.imageExtent.height;
+            return mImageCount;
         }
 
-        int8_t doesLockToVsync()
+        VkFramebuffer& getFrameBuffer(const int index)
         {
-            return mLockToVsync;
+            return mSwapChainFrameBuffers[index];
         }
 
-        const VkSwapchainCreateInfoKHR& getInfo() const
+        VkExtent2D& getExtent()
         {
-            return mSwapChainInfo;
+            return mSwapChainExtent;
         }
 
-        VkFormat getColorFormat() const
-        {
-            return mColorFormat;
-        }
+        SwapChainSupportInfo querySwapChainSupportInfo();
 
-        VkSurfaceKHR getSurface()
-        {
-            return mSurface;
-        }
+        VkSurfaceFormatKHR chooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
 
-        int32_t acquireImageIndex(VkSemaphore *outSemaphore);
+        VkPresentModeKHR chooseSurfacePresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
+
+        VkExtent2D chooseExtent(const VkSurfaceCapabilitiesKHR &capabilities);
+
+        void createFrameBuffers(const VulkanRenderPassPtr renderPass);
+
     private:
-        VkInstance                      mInstance;
-        VkSwapchainKHR                  mSwapChain;
-        VkSwapchainCreateInfoKHR        mSwapChainInfo;
-        VkSurfaceKHR                    mSurface;
-        VkFormat                        mColorFormat;
-        int32_t                         mBackBufferCount;
+        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels = 1);
 
+    private:
         VulkanDevicePtr                 mDevice;
-        std::vector<VkSemaphore>        mImageAcquiredSemaphore;
+        VkInstance                      mInstance;
+        VkSurfaceKHR                    mSurface;
 
-        int32_t                         mCurrentImageIndex;
-        int32_t                         mSemaphoreIndex;
-        int32_t                         mNumPresentCalls;
-        int32_t                         mNumAcquireCalls;
-        int8_t                          mLockToVsync;
-        uint32_t                        mPresentID;
+        VkSwapchainKHR                  mSwapChain;
+
+        VkFormat                        mSwapChainFormat;
+        VkExtent2D                      mSwapChainExtent;
+        uint32_t                        mImageCount;
+
+        std::vector<VkImage>            mSwapChainImages;
+        std::vector<VkImageView>        mSwapChainImageViews;
+        std::vector<VkFramebuffer>      mSwapChainFrameBuffers;
+
+        std::vector<VulkanTexturePtr>   mDepthImages;
+        std::vector<VulkanTexturePtr>   mMultiSampleImages;
     };
 }
 #endif //HOMURA_VULKANSWAPCHAIN_H

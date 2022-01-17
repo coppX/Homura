@@ -28,5 +28,6 @@ namespace Homura
     using VulkanDescriptorSetLayoutPtr = std::shared_ptr<VulkanDescriptorSetLayout>;
     using VulkanCommandBufferPtr = std::shared_ptr<VulkanCommandBuffer>;
     using VulkanShaderPtr = std::shared_ptr<VulkanShader>;
+    using VulkanTexturePtr = std::shared_ptr<VulkanTexture>;
 }
 #endif //HOMURA_VULKANTYPES_H
