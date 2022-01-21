@@ -6,7 +6,10 @@
 #include <vulkanDevice.h>
 #include <vulkanQueue.h>
 #include <debugUtils.h>
+#include <vulkanTexture.h>
+#include <vulkanRenderPass.h>
 #include <algorithm>
+#include <array>
 
 namespace Homura
 {
@@ -122,5 +125,69 @@ namespace Homura
 //            );
         }
     }
+
+    void VulkanSwapChain::createFrameBuffers(const VulkanRenderPassPtr renderPass)
+    {
+        mSwapChainFrameBuffers.resize(mImageCount);
+        for (int i = 0; i < mImageCount; ++i)
+        {
+            std::array<VkImageView, 3> attachments = {
+                    mSwapChainImageViews[i],
+                    mMultiSampleImages[i]->getImageView(),
+                    mDepthImages[i]->getImageView()
+            };
+
+            VkFramebufferCreateInfo framebufferCreateInfo{};
+            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferCreateInfo.renderPass = renderPass->getHandle();
+            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+            framebufferCreateInfo.pAttachments = attachments.data();
+            framebufferCreateInfo.width = mSwapChainExtent.width;
+            framebufferCreateInfo.height = mSwapChainExtent.height;
+            framebufferCreateInfo.layers = 1;
+
+            VERIFYVULKANRESULT(vkCreateFramebuffer(mDevice->getHandle(), &framebufferCreateInfo, nullptr, &mSwapChainFrameBuffers[i]));
+        }
+    }
+
+    VulkanSwapChain::~VulkanSwapChain()
+    {
+        for (auto& imageView : mSwapChainImageViews)
+        {
+            vkDestroyImageView(mDevice->getHandle(), imageView, nullptr);
+        }
+
+        for (auto& framebuffer : mSwapChainFrameBuffers)
+        {
+            vkDestroyFramebuffer(mDevice->getHandle(), framebuffer, nullptr);
+        }
+
+        if (mSwapChain != VK_NULL_HANDLE)
+        {
+            vkDestroySwapchainKHR(mDevice->getHandle(), mSwapChain, nullptr);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
