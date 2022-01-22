@@ -73,7 +73,7 @@ namespace Homura
         VulkanDevicePtr                 mDevice;
         VkInstance                      mInstance;
         VkSurfaceKHR                    mSurface;
-
+        GLFWwindow*                     mWindow;
         VkSwapchainKHR                  mSwapChain;
 
         VkFormat                        mSwapChainFormat;

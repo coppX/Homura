@@ -14,8 +14,9 @@
 namespace Homura
 {
     VulkanSwapChain::VulkanSwapChain(VulkanDevicePtr device, GLFWwindow* window, VkSurfaceKHR surface, VkCommandPool commandPool)
-        : mDevice{device}
-        , mSurface{surface}
+            : mDevice{device}
+            , mSurface{surface}
+            , mWindow(window)
     {
         auto swapChainSupportInfo = querySwapChainSupportInfo();
         VkSurfaceFormatKHR surfaceFormat = chooseSurfaceFormat(swapChainSupportInfo.mFormats);
@@ -108,7 +109,8 @@ namespace Homura
         regionMultiSample.levelCount = 1;
         regionMultiSample.baseArrayLayer = 0;
         regionMultiSample.layerCount = 1;
-        for (int i = 0; i < mImageCount; ++i) {
+        for (int i = 0; i < mImageCount; ++i)
+        {
 //            mMutiSampleImages[i] = Image::createRenderTargetImage(
 //                    mDevice,
 //                    mSwapChainExtent.width,
@@ -152,12 +154,12 @@ namespace Homura
 
     VulkanSwapChain::~VulkanSwapChain()
     {
-        for (auto& imageView : mSwapChainImageViews)
+        for (auto &imageView : mSwapChainImageViews)
         {
             vkDestroyImageView(mDevice->getHandle(), imageView, nullptr);
         }
 
-        for (auto& framebuffer : mSwapChainFrameBuffers)
+        for (auto &framebuffer : mSwapChainFrameBuffers)
         {
             vkDestroyFramebuffer(mDevice->getHandle(), framebuffer, nullptr);
         }
@@ -168,26 +170,103 @@ namespace Homura
         }
     }
 
+    SwapChainSupportInfo VulkanSwapChain::querySwapChainSupportInfo()
+    {
+        SwapChainSupportInfo info;
+        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mDevice->getPhysicalHandle(), mSurface, &info.mCapabilities));
 
+        uint32_t formatCount = 0;
+        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->getPhysicalHandle(), mSurface, &formatCount, nullptr));
+        if (formatCount != 0)
+        {
+            info.mFormats.resize(formatCount);
+            VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->getPhysicalHandle(), mSurface, &formatCount, info.mFormats.data()));
+        }
 
+        uint32_t presentModeCount = 0;
+        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalHandle(), mSurface, &presentModeCount, nullptr));
+        if (presentModeCount != 0)
+        {
+            info.mPresentModes.resize(presentModeCount);
+            VERIFYVULKANRESULT(
+                    vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalHandle(), mSurface, &presentModeCount, info.mPresentModes.data()));
+        }
 
+        return info;
+    }
 
+    VkSurfaceFormatKHR VulkanSwapChain::chooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats)
+    {
+        if (availableFormats.size() == 1 && availableFormats[0].format == VK_FORMAT_UNDEFINED)
+        {
+            return {VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+        }
 
+        for (const auto& availableFormat : availableFormats)
+        {
+            if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
+                availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+            {
+                return availableFormat;
+            }
+        }
+        return availableFormats[0];
+    }
 
+    VkPresentModeKHR VulkanSwapChain::chooseSurfacePresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes)
+    {
+        VkPresentModeKHR bestMode = VK_PRESENT_MODE_FIFO_KHR;
 
+        for (const auto& availablePresentMode : availablePresentModes)
+        {
+            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+            {
+                return availablePresentMode;
+            }
+        }
+        return bestMode;
+    }
 
+    VkExtent2D VulkanSwapChain::chooseExtent(const VkSurfaceCapabilitiesKHR &capabilities)
+    {
+        if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+        {
+            return capabilities.currentExtent;
+        }
 
+        int width = 0, height = 0;
+        glfwGetFramebufferSize(mWindow, &width, &height);
 
+        VkExtent2D actualExtent = {
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height)
+        };
 
+        actualExtent.width = std::max(capabilities.minImageExtent.width,
+                                      std::min(capabilities.maxImageExtent.width, actualExtent.width));
+        actualExtent.height = std::max(capabilities.minImageExtent.height,
+                                       std::min(capabilities.maxImageExtent.height, actualExtent.height));
 
+        return actualExtent;
+    }
 
+    VkImageView VulkanSwapChain::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels)
+    {
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image = image;
+        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format = format;
 
+        viewInfo.subresourceRange.aspectMask = aspectFlags;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = mipLevels;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
 
+        VkImageView imageView{VK_NULL_HANDLE};
+        VERIFYVULKANRESULT(vkCreateImageView(mDevice->getHandle(), &viewInfo, nullptr, &imageView));
 
-
-
-
-
-
-
+        return imageView;
+    }
 }
