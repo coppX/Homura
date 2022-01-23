@@ -11,6 +11,16 @@ namespace Homura
     VulkanFence::VulkanFence(VulkanDevicePtr device, bool signaled)
         : mDevice{device}
     {
+        create(signaled);
+    }
+
+    VulkanFence::~VulkanFence()
+    {
+        destroy();
+    }
+
+    void VulkanFence::create(bool signaled)
+    {
         VkFenceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         createInfo.flags = signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
@@ -18,11 +28,12 @@ namespace Homura
         VERIFYVULKANRESULT(vkCreateFence(mDevice->getHandle(), &createInfo, nullptr, &mFence));
     }
 
-    VulkanFence::~VulkanFence()
+    void VulkanFence::destroy()
     {
         if (mFence != VK_NULL_HANDLE)
         {
             vkDestroyFence(mDevice->getHandle(), mFence, nullptr);
+            mFence = VK_NULL_HANDLE;
         }
     }
 

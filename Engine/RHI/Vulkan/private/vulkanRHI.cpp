@@ -35,6 +35,8 @@ namespace Homura
 
     VulkanRHI::~VulkanRHI()
     {
+        destroyFence();
+        destroyPipeline();
         destroyCommandBuffer();
         destroyDescriptorPool();
         destroySwapChain();
@@ -175,5 +177,15 @@ namespace Homura
     void VulkanRHI::destroyDescriptorPool()
     {
         mDescriptorPool->destroy();
+    }
+
+    void VulkanRHI::destroyFence()
+    {
+        mFence->destroy();
+    }
+
+    void VulkanRHI::destroyPipeline()
+    {
+        mPipeline->destroy();
     }
 }

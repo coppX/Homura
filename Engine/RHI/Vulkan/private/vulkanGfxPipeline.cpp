@@ -28,6 +28,16 @@ namespace Homura
         , mViewports{}
         , mScissors{}
     {
+        create();
+    }
+
+    VulkanPipeline::~VulkanPipeline()
+    {
+        destroy();
+    }
+
+    void VulkanPipeline::create()
+    {
         mVertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         mInputAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         mTessellationState.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
@@ -36,6 +46,21 @@ namespace Homura
         mMultisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
         mDepthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
         mColorBlendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    }
+
+    void VulkanPipeline::destroy()
+    {
+        if (mPipelineLayout != VK_NULL_HANDLE)
+        {
+            vkDestroyPipelineLayout(mDevice->getHandle(), mPipelineLayout, nullptr);
+            mPipelineLayout = VK_NULL_HANDLE;
+        }
+
+        if (mPipeline != VK_NULL_HANDLE)
+        {
+            vkDestroyPipeline(mDevice->getHandle(), mPipeline, nullptr);
+            mPipeline = VK_NULL_HANDLE;
+        }
     }
 
     void VulkanPipeline::setShaders(const std::vector<VulkanShaderPtr>& shaders)
@@ -51,19 +76,6 @@ namespace Homura
     void VulkanPipeline::setScissors(const std::vector<VkRect2D>& scissors)
     {
         mScissors = scissors;
-    }
-
-    VulkanPipeline::~VulkanPipeline()
-    {
-        if (mPipelineLayout != VK_NULL_HANDLE)
-        {
-            vkDestroyPipelineLayout(mDevice->getHandle(), mPipelineLayout, nullptr);
-        }
-
-        if (mPipeline != VK_NULL_HANDLE)
-        {
-            vkDestroyPipeline(mDevice->getHandle(), mPipeline, nullptr);
-        }
     }
 
     void VulkanPipeline::build()

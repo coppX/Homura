@@ -15,10 +15,12 @@ namespace Homura
     public:
         VulkanPipeline(VulkanDevicePtr device, VulkanRenderPassPtr renderPass);
         ~VulkanPipeline();
+
+        void create();
+        void destroy();
+
         void setShaders(const std::vector<VulkanShaderPtr>& shaders);
-
         void setViewports(const std::vector<VkViewport>& viewports);
-
         void setScissors(const std::vector<VkRect2D>& scissors);
 
         void build();

@@ -37,8 +37,8 @@ namespace Homura
         void createFrameBuffer();
         void createCommandBuffer();
         void createFence();
-
         void createPipeline();
+
         void createPipelineCache();
         void createImageView();
 
@@ -48,6 +48,8 @@ namespace Homura
         void destroySwapChain();
         void destroyDescriptorPool();
         void destroyCommandBuffer();
+        void destroyFence();
+        void destroyPipeline();
 
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 

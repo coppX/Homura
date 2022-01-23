@@ -15,15 +15,16 @@ namespace Homura
         VulkanFence(VulkanDevicePtr device, bool signaled);
         ~VulkanFence();
 
+        void create(bool signaled);
+        void destroy();
+
+        void reset();
+        VkResult getResult();
+
         VkFence& getHandle()
         {
             return mFence;
         }
-
-        void reset();
-
-        VkResult getResult();
-
     private:
         VulkanDevicePtr mDevice;
         VkFence         mFence;
