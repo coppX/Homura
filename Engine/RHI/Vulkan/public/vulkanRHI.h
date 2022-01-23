@@ -17,23 +17,22 @@ namespace Homura
     class VulkanRHI
     {
     public:
-        VulkanRHI();
-
+        VulkanRHI(GLFWwindow* window);
         virtual ~VulkanRHI();
 
         void init();
 
-        VkInstance& getInstance();
-        VulkanDevicePtr& getDevice();
-        VulkanSwapChainPtr& getSwapChain();
-        VkPipelineCache& getPipelineCache();
+        VulkanInstancePtr getInstance();
+        VulkanDevicePtr getDevice();
+        VulkanSwapChainPtr getSwapChain();
+        VkPipelineCache getPipelineCache();
 
-        void createWindow();
         void createInstance();
+        void createDevice();
         void createSurface();
-        void selectAndInitDevice();
-        void createPipelineCache();
         void createSwapChain(GLFWwindow *window);
+
+        void createPipelineCache();
         void createImageView();
         void createRenderPass();
         void createFrameBuffer();
@@ -42,9 +41,9 @@ namespace Homura
         void createFence();
         void createPipeline();
 
-
         void destroyInstance();
         void destroyDevice();
+        void destroySurface();
         void destroySwapChain();
 
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
@@ -66,22 +65,14 @@ namespace Homura
         void addPushConstant(const VkPushConstantRange& constantRange, const char* data);
 
     private:
-        bool checkValidationLayerSupport();
-        std::vector<const char*> getRequiredExtensions();
 
     private:
-        VkInstance                          mInstance;
-        std::vector<const char*>            mValidationLayers;
-        std::vector<const char*>            mDeviceExtensions;
-        VkPhysicalDeviceFeatures2*          mPhysicalDeviceFeatures2 = nullptr;
-
+        VulkanInstancePtr                   mInstance;;
         VulkanDevicePtr                     mDevice;
-
+        VulkanSurfacePtr                    mSurface;
         VulkanSwapChainPtr                  mSwapChain;
-        EPixelFormat                        mPixelFormat;
-        std::vector<VkImage>                mBackBufferImages;
-        std::vector<VkImageView>            mBackBufferViews;
 
+        GLFWwindow*                         mWindow;
         uint32_t                            mWidth;
         uint32_t                            mHeight;
     };

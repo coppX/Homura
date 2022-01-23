@@ -8,15 +8,50 @@
 #include <debugUtils.h>
 #include <vulkanTexture.h>
 #include <vulkanRenderPass.h>
+#include <vulkanSurface.h>
 #include <algorithm>
 #include <array>
 
 namespace Homura
 {
-    VulkanSwapChain::VulkanSwapChain(VulkanDevicePtr device, GLFWwindow* window, VkSurfaceKHR surface, VkCommandPool commandPool)
+    VulkanSwapChain::VulkanSwapChain(VulkanDevicePtr device, GLFWwindow* window, VulkanSurfacePtr surface)
             : mDevice{device}
             , mSurface{surface}
             , mWindow(window)
+    {
+
+    }
+
+    void VulkanSwapChain::createFrameBuffers(const VulkanRenderPassPtr renderPass)
+    {
+        mSwapChainFrameBuffers.resize(mImageCount);
+        for (int i = 0; i < mImageCount; ++i)
+        {
+            std::array<VkImageView, 3> attachments = {
+                    mSwapChainImageViews[i],
+                    mMultiSampleImages[i]->getImageView(),
+                    mDepthImages[i]->getImageView()
+            };
+
+            VkFramebufferCreateInfo framebufferCreateInfo{};
+            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferCreateInfo.renderPass = renderPass->getHandle();
+            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+            framebufferCreateInfo.pAttachments = attachments.data();
+            framebufferCreateInfo.width = mSwapChainExtent.width;
+            framebufferCreateInfo.height = mSwapChainExtent.height;
+            framebufferCreateInfo.layers = 1;
+
+            VERIFYVULKANRESULT(vkCreateFramebuffer(mDevice->getHandle(), &framebufferCreateInfo, nullptr, &mSwapChainFrameBuffers[i]));
+        }
+    }
+
+    VulkanSwapChain::~VulkanSwapChain()
+    {
+        destroy();
+    }
+
+    void VulkanSwapChain::create()
     {
         auto swapChainSupportInfo = querySwapChainSupportInfo();
         VkSurfaceFormatKHR surfaceFormat = chooseSurfaceFormat(swapChainSupportInfo.mFormats);
@@ -31,7 +66,7 @@ namespace Homura
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = mSurface;
+        createInfo.surface = mSurface->getHandle();
         createInfo.minImageCount = mImageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -128,31 +163,7 @@ namespace Homura
         }
     }
 
-    void VulkanSwapChain::createFrameBuffers(const VulkanRenderPassPtr renderPass)
-    {
-        mSwapChainFrameBuffers.resize(mImageCount);
-        for (int i = 0; i < mImageCount; ++i)
-        {
-            std::array<VkImageView, 3> attachments = {
-                    mSwapChainImageViews[i],
-                    mMultiSampleImages[i]->getImageView(),
-                    mDepthImages[i]->getImageView()
-            };
-
-            VkFramebufferCreateInfo framebufferCreateInfo{};
-            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferCreateInfo.renderPass = renderPass->getHandle();
-            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            framebufferCreateInfo.pAttachments = attachments.data();
-            framebufferCreateInfo.width = mSwapChainExtent.width;
-            framebufferCreateInfo.height = mSwapChainExtent.height;
-            framebufferCreateInfo.layers = 1;
-
-            VERIFYVULKANRESULT(vkCreateFramebuffer(mDevice->getHandle(), &framebufferCreateInfo, nullptr, &mSwapChainFrameBuffers[i]));
-        }
-    }
-
-    VulkanSwapChain::~VulkanSwapChain()
+    void VulkanSwapChain::destroy()
     {
         for (auto &imageView : mSwapChainImageViews)
         {
@@ -173,23 +184,23 @@ namespace Homura
     SwapChainSupportInfo VulkanSwapChain::querySwapChainSupportInfo()
     {
         SwapChainSupportInfo info;
-        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mDevice->getPhysicalHandle(), mSurface, &info.mCapabilities));
+        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mDevice->getPhysicalHandle(), mSurface->getHandle(), &info.mCapabilities));
 
         uint32_t formatCount = 0;
-        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->getPhysicalHandle(), mSurface, &formatCount, nullptr));
+        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->getPhysicalHandle(), mSurface->getHandle(), &formatCount, nullptr));
         if (formatCount != 0)
         {
             info.mFormats.resize(formatCount);
-            VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->getPhysicalHandle(), mSurface, &formatCount, info.mFormats.data()));
+            VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceFormatsKHR(mDevice->getPhysicalHandle(), mSurface->getHandle(), &formatCount, info.mFormats.data()));
         }
 
         uint32_t presentModeCount = 0;
-        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalHandle(), mSurface, &presentModeCount, nullptr));
+        VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalHandle(), mSurface->getHandle(), &presentModeCount, nullptr));
         if (presentModeCount != 0)
         {
             info.mPresentModes.resize(presentModeCount);
             VERIFYVULKANRESULT(
-                    vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalHandle(), mSurface, &presentModeCount, info.mPresentModes.data()));
+                    vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalHandle(), mSurface->getHandle(), &presentModeCount, info.mPresentModes.data()));
         }
 
         return info;
