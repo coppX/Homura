@@ -30,6 +30,7 @@ namespace Homura
         if (mSurface != VK_NULL_HANDLE)
         {
             vkDestroySurfaceKHR(mInstance->getHandle(), mSurface, nullptr);
+            mSurface = VK_NULL_HANDLE;
         }
     }
 }

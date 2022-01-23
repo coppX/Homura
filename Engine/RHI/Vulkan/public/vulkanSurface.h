@@ -19,6 +19,10 @@ namespace Homura
         void create();
         void destroy();
 
+        VkSurfaceKHR& getHandle()
+        {
+            return mSurface;
+        }
     private:
         VulkanInstancePtr   mInstance;
         GLFWwindow*         mWindow;

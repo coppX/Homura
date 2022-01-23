@@ -63,6 +63,7 @@ namespace Homura
         if (mInstance != VK_NULL_HANDLE)
         {
             vkDestroyInstance(mInstance, nullptr);
+            mInstance = VK_NULL_HANDLE;
         }
     }
 
