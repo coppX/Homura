@@ -8,27 +8,42 @@
 #include <vulkan/vulkan.h>
 #include <pixelFormat.h>
 #include <vulkanTypes.h>
+#include <optional>
 #include <vector>
 #include <string>
 
 namespace Homura
 {
+    const std::vector<const char*> deviceRequiredExtensions = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            VK_KHR_MAINTENANCE1_EXTENSION_NAME
+    };
+
+    const std::vector<const char*> validationLayers = {
+            "VK_LAYER_KHRONOS_validation"
+    };
+
+    struct QueueFamilyIndices
+    {
+        std::optional<uint32_t> graphicsFamily;
+        std::optional<uint32_t> presentFamily;
+
+        bool isComplete()
+        {
+            return graphicsFamily.has_value() && presentFamily.has_value();
+        }
+    };
+
     class VulkanDevice
     {
     public:
-        VulkanDevice(VkPhysicalDevice physicalDevice);
+        VulkanDevice(VulkanInstancePtr instance, VulkanSurfacePtr surface);
 
         ~VulkanDevice();
 
-        bool queryDevice(uint32_t index);
+        void create();
 
-        void initGPU(uint32_t index);
-
-        void createDevice();
-
-        void destroyDevice();
-
-        void setPresentQueue(VkSurfaceKHR surface);
+        void destroy();
 
         VkDevice getHandle()
         {
@@ -40,25 +55,9 @@ namespace Homura
             return mPhysicalDevice;
         }
 
-        const VkPhysicalDeviceProperties& getDeviceProperties() const
-        {
-            return mPhysicalDeviceProperties;
-        }
-
-
         VulkanQueuePtr getGraphicsQueue()
         {
             return mGfxQueue;
-        }
-
-        VulkanQueuePtr getComputeQueue()
-        {
-            return mComputeQueue;
-        }
-
-        VulkanQueuePtr getTransferQueue()
-        {
-            return mTransferQueue;
         }
 
         VulkanQueuePtr getPresentQueue()
@@ -71,28 +70,32 @@ namespace Homura
             return mCommandPool;
         }
 
+        const VkSampleCountFlagBits& getSampleCount() const
+        {
+            return mMsaaSamples;
+        }
+
         void createCommandPool();
 
-        void setPhysicalDeviceFeatures(VkPhysicalDeviceFeatures2* deviceFeatures)
-        {
-            mPhysicalDeviceFeatures2 = deviceFeatures;
-        }
     private:
-        VkDevice                                mDevice;
-        VkPhysicalDevice                        mPhysicalDevice;
+        void pickPhysicalDevice();
+        void createLogicalDevice();
+        bool isDeviceSuitable(VkPhysicalDevice device);
+        VkSampleCountFlagBits getMaxUsableSampleCount();
+        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
-        std::vector<VkQueueFamilyProperties>    mQueueFamilyProperties;
+    private:
+        VkDevice                        mDevice;
+        VkPhysicalDevice                mPhysicalDevice;
 
-        VkPhysicalDeviceProperties              mPhysicalDeviceProperties;
-        VkPhysicalDeviceFeatures                mPhysicalDeviceFeatures;
-        VkPhysicalDeviceFeatures2*              mPhysicalDeviceFeatures2;
+        VulkanInstancePtr               mInstance;
+        VulkanSurfacePtr                mSurface;
 
-        VulkanQueuePtr                          mGfxQueue;
-        VulkanQueuePtr                          mComputeQueue;
-        VulkanQueuePtr                          mTransferQueue;
-        VulkanQueuePtr                          mPresentQueue;
+        VulkanQueuePtr                  mGfxQueue;
+        VulkanQueuePtr                  mPresentQueue;
 
-        std::shared_ptr<VkCommandPool>          mCommandPool;
+        VkSampleCountFlagBits           mMsaaSamples;
+        std::shared_ptr<VkCommandPool>  mCommandPool;
     };
 }
 #endif //HOMURA_VULKANDEVICE_H
