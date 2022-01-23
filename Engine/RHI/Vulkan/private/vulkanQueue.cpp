@@ -6,9 +6,9 @@
 
 namespace Homura
 {
-    VulkanQueue::VulkanQueue(VulkanDevice* device, uint32_t familyIndex)
+    VulkanQueue::VulkanQueue(std::shared_ptr<VkDevice> device, uint32_t familyIndex)
         : mQueue{VK_NULL_HANDLE}, mFamilyIndex{familyIndex}, mDevice{device}
     {
-        vkGetDeviceQueue(mDevice->getHandle(), mFamilyIndex, 0, &mQueue);
+        vkGetDeviceQueue(*mDevice, mFamilyIndex, 0, &mQueue);
     }
 }

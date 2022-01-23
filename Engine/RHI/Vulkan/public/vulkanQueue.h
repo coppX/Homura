@@ -5,6 +5,7 @@
 #ifndef HOMURA_VULKANQUEUE_H
 #define HOMURA_VULKANQUEUE_H
 #include <vulkan/vulkan.h>
+#include <memory>
 
 namespace Homura
 {
@@ -13,7 +14,7 @@ namespace Homura
     class VulkanQueue
     {
     public:
-        VulkanQueue(VulkanDevice* device, uint32_t familyIndex);
+        VulkanQueue(std::shared_ptr<VkDevice> device, uint32_t familyIndex);
 
         virtual ~VulkanQueue()
         {
@@ -31,9 +32,9 @@ namespace Homura
         }
 
     private:
-        VkQueue mQueue;
-        uint32_t mFamilyIndex;
-        VulkanDevice* mDevice;
+        VkQueue                     mQueue;
+        uint32_t                    mFamilyIndex;
+        std::shared_ptr<VkDevice>   mDevice;
     };
 }
 #endif //HOMURA_VULKANQUEUE_H
