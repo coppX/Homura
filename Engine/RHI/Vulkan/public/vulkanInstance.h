@@ -18,8 +18,11 @@ namespace Homura
         VulkanInstance();
         ~VulkanInstance();
 
+        void create();
+        void destroy();
         std::vector<const char*> getRequiredExtensions();
         bool checkValidationLayerSupport();
+        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
         VkInstance& getHandle()
         {
