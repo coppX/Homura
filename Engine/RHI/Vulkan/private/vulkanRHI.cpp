@@ -11,6 +11,7 @@
 #include <vulkanSurface.h>
 #include <vulkanRenderPass.h>
 #include <vulkanDescriptorSet.h>
+#include <vulkanCommandBuffer.h>
 
 namespace Homura
 {
@@ -20,6 +21,8 @@ namespace Homura
         , mSurface{nullptr}
         , mSwapChain{nullptr}
         , mRenderPass{nullptr}
+        , mDescriptorPool{nullptr}
+        , mCommandBuffer{nullptr}
         , mWindow(window)
         , mWidth(960)
         , mHeight(540)
@@ -29,6 +32,7 @@ namespace Homura
 
     VulkanRHI::~VulkanRHI()
     {
+        destroyCommandBuffer();
         destroyDescriptorPool();
         destroySwapChain();
         destroySurface();
@@ -66,7 +70,7 @@ namespace Homura
         mDevice = std::make_shared<VulkanDevice>(mInstance, mSurface);
     }
 
-    void VulkanRHI::createSwapChain(GLFWwindow *window)
+    void VulkanRHI::createSwapChain()
     {
         mSwapChain = std::make_shared<VulkanSwapChain>(mDevice, mWindow, mSurface);
     }
@@ -89,6 +93,11 @@ namespace Homura
     void VulkanRHI::destroySwapChain()
     {
         mSwapChain->destroy();
+    }
+
+    void VulkanRHI::destroyCommandBuffer()
+    {
+        mCommandBuffer->destroy();
     }
 
     void VulkanRHI::createColorResources()
@@ -128,7 +137,7 @@ namespace Homura
 
     void VulkanRHI::createCommandBuffer()
     {
-
+        mCommandBuffer = std::make_shared<VulkanCommandBuffer>(mDevice);
     }
 
     void VulkanRHI::createSampler()

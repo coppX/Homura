@@ -30,23 +30,24 @@ namespace Homura
         void createInstance();
         void createDevice();
         void createSurface();
-        void createSwapChain(GLFWwindow *window);
-
-        void createPipelineCache();
-        void createImageView();
+        void createSwapChain();
         void createRenderPass();
         void createDescriptorPool();
-        void createFrameBuffer();
         void createCommandPool();
+        void createFrameBuffer();
         void createCommandBuffer();
+
         void createFence();
         void createPipeline();
+        void createPipelineCache();
+        void createImageView();
 
         void destroyInstance();
         void destroyDevice();
         void destroySurface();
         void destroySwapChain();
         void destroyDescriptorPool();
+        void destroyCommandBuffer();
 
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
@@ -73,6 +74,7 @@ namespace Homura
         VulkanSwapChainPtr                  mSwapChain;
         VulkanRenderPassPtr                 mRenderPass;
         VulkanDescriptorPoolPtr             mDescriptorPool;
+        VulkanCommandBufferPtr              mCommandBuffer;
 
         GLFWwindow*                         mWindow;
         uint32_t                            mWidth;

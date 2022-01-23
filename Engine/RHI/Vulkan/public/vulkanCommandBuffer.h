@@ -16,13 +16,16 @@ namespace Homura
             : mCommandBuffer{VK_NULL_HANDLE}
             , mDevice{device}
         {
-
+            create();
         }
 
         ~VulkanCommandBuffer()
         {
-
+            destroy();
         }
+
+        void create();
+        void destroy();
 
         VkCommandBuffer& getHandle()
         {

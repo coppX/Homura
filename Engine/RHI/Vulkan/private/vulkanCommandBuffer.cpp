@@ -9,6 +9,19 @@
 
 namespace Homura
 {
+    void VulkanCommandBuffer::create()
+    {
+
+    }
+
+    void VulkanCommandBuffer::destroy()
+    {
+        if (mCommandBuffer != VK_NULL_HANDLE)
+        {
+            vkFreeCommandBuffers(mDevice->getHandle(), *mDevice->getCommandPool(), 1, &mCommandBuffer);
+            mCommandBuffer = VK_NULL_HANDLE;
+        }
+    }
 
     void VulkanCommandBuffer::beginSingleTimeCommands()
     {
