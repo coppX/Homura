@@ -9,6 +9,7 @@
 namespace Homura
 {
     class VulkanDevice;
+    class VulkanInstance;
     class VulkanRenderPass;
     class VulkanBuffer;
     class VulkanQueue;
@@ -18,8 +19,10 @@ namespace Homura
     class VulkanCommandBuffer;
     class VulkanTexture;
     class VulkanShader;
+    class VulkanSurface;
 
     using VulkanDevicePtr = std::shared_ptr<VulkanDevice>;
+    using VulkanInstancePtr = std::shared_ptr<VulkanInstance>;
     using VulkanRenderPassPtr = std::shared_ptr<VulkanRenderPass>;
     using VulkanBufferPtr = std::shared_ptr<VulkanBuffer>;
     using VulkanQueuePtr = std::shared_ptr<VulkanQueue>;
@@ -29,5 +32,6 @@ namespace Homura
     using VulkanCommandBufferPtr = std::shared_ptr<VulkanCommandBuffer>;
     using VulkanShaderPtr = std::shared_ptr<VulkanShader>;
     using VulkanTexturePtr = std::shared_ptr<VulkanTexture>;
+    using VulkanSurfacePtr = std::shared_ptr<VulkanSurface>;
 }
 #endif //HOMURA_VULKANTYPES_H

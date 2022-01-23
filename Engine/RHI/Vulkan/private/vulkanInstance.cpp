@@ -14,7 +14,7 @@ namespace Homura
 
     VulkanInstance::~VulkanInstance()
     {
-
+        destroy();
     }
 
     void VulkanInstance::create()
