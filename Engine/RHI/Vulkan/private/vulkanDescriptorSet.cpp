@@ -15,6 +15,16 @@ namespace Homura
         , mImageCount{imageCount}
         , mFrameCount{frameCount}
     {
+        create();
+    }
+
+    VulkanDescriptorPool::~VulkanDescriptorPool()
+    {
+        destroy();
+    }
+
+    void VulkanDescriptorPool::create()
+    {
         std::vector<VkDescriptorPoolSize> poolSize{};
 
         VkDescriptorPoolSize uniformBufferSize{};
@@ -36,11 +46,12 @@ namespace Homura
         VERIFYVULKANRESULT(vkCreateDescriptorPool(mDevice->getHandle(), &createInfo, nullptr, &mDescriptorPool));
     }
 
-    VulkanDescriptorPool::~VulkanDescriptorPool()
+    void VulkanDescriptorPool::destroy()
     {
         if (mDescriptorPool != VK_NULL_HANDLE)
         {
             vkDestroyDescriptorPool(mDevice->getHandle(), mDescriptorPool, nullptr);
+            mDescriptorPool = VK_NULL_HANDLE;
         }
     }
 

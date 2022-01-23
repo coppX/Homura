@@ -21,6 +21,9 @@ namespace Homura
             return mDescriptorPool;
         }
 
+        void create();
+        void destroy();
+
         uint32_t& getFrameCount()
         {
             return mFrameCount;

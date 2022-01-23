@@ -9,6 +9,8 @@
 #include <vulkanSwapChain.h>
 #include <vulkanInstance.h>
 #include <vulkanSurface.h>
+#include <vulkanRenderPass.h>
+#include <vulkanDescriptorSet.h>
 
 namespace Homura
 {
@@ -17,6 +19,7 @@ namespace Homura
         , mDevice{nullptr}
         , mSurface{nullptr}
         , mSwapChain{nullptr}
+        , mRenderPass{nullptr}
         , mWindow(window)
         , mWidth(960)
         , mHeight(540)
@@ -26,7 +29,9 @@ namespace Homura
 
     VulkanRHI::~VulkanRHI()
     {
+        destroyDescriptorPool();
         destroySwapChain();
+        destroySurface();
         destroyDevice();
         destroyInstance();
     }
@@ -98,7 +103,7 @@ namespace Homura
 
     void VulkanRHI::createFrameBuffer()
     {
-
+        mSwapChain->createFrameBuffers(mRenderPass);
     }
 
     void VulkanRHI::createVertexBuffer()
@@ -133,11 +138,20 @@ namespace Homura
 
     void VulkanRHI::createRenderPass()
     {
-
+        mRenderPass = std::make_shared<VulkanRenderPass>(mDevice);
     }
 
     void VulkanRHI::createDescriptorPool()
     {
+        // todo
+        uint32_t uniformCount = 1;
+        uint32_t imageCount = 1;
+        uint32_t frameCount = 1;
+        mDescriptorPool = std::make_shared<VulkanDescriptorPool>(mDevice, uniformCount, imageCount, frameCount);
+    }
 
+    void VulkanRHI::destroyDescriptorPool()
+    {
+        mDescriptorPool->destroy();
     }
 }

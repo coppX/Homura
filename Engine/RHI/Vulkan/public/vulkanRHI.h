@@ -35,6 +35,7 @@ namespace Homura
         void createPipelineCache();
         void createImageView();
         void createRenderPass();
+        void createDescriptorPool();
         void createFrameBuffer();
         void createCommandPool();
         void createCommandBuffer();
@@ -45,6 +46,7 @@ namespace Homura
         void destroyDevice();
         void destroySurface();
         void destroySwapChain();
+        void destroyDescriptorPool();
 
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
@@ -60,8 +62,6 @@ namespace Homura
 
         void createSampler();
 
-        void createDescriptorPool();
-
         void addPushConstant(const VkPushConstantRange& constantRange, const char* data);
 
     private:
@@ -71,6 +71,8 @@ namespace Homura
         VulkanDevicePtr                     mDevice;
         VulkanSurfacePtr                    mSurface;
         VulkanSwapChainPtr                  mSwapChain;
+        VulkanRenderPassPtr                 mRenderPass;
+        VulkanDescriptorPoolPtr             mDescriptorPool;
 
         GLFWwindow*                         mWindow;
         uint32_t                            mWidth;
