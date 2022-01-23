@@ -36,8 +36,8 @@ namespace Homura
         void createCommandPool();
         void createFrameBuffer();
         void createCommandBuffer();
-
         void createFence();
+
         void createPipeline();
         void createPipelineCache();
         void createImageView();
@@ -75,6 +75,8 @@ namespace Homura
         VulkanRenderPassPtr                 mRenderPass;
         VulkanDescriptorPoolPtr             mDescriptorPool;
         VulkanCommandBufferPtr              mCommandBuffer;
+        VulkanFencePtr                      mFence;
+        VulkanPipelinePtr                   mPipeline;
 
         GLFWwindow*                         mWindow;
         uint32_t                            mWidth;

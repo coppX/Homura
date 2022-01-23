@@ -12,6 +12,8 @@
 #include <vulkanRenderPass.h>
 #include <vulkanDescriptorSet.h>
 #include <vulkanCommandBuffer.h>
+#include <vulkanGfxPipeline.h>
+#include <vulkanFence.h>
 
 namespace Homura
 {
@@ -23,6 +25,7 @@ namespace Homura
         , mRenderPass{nullptr}
         , mDescriptorPool{nullptr}
         , mCommandBuffer{nullptr}
+        , mFence{nullptr}
         , mWindow(window)
         , mWidth(960)
         , mHeight(540)
@@ -115,6 +118,11 @@ namespace Homura
         mSwapChain->createFrameBuffers(mRenderPass);
     }
 
+    void VulkanRHI::createFence()
+    {
+        mFence = std::make_shared<VulkanFence>(mDevice, false);
+    }
+
     void VulkanRHI::createVertexBuffer()
     {
 
@@ -157,6 +165,11 @@ namespace Homura
         uint32_t imageCount = 1;
         uint32_t frameCount = 1;
         mDescriptorPool = std::make_shared<VulkanDescriptorPool>(mDevice, uniformCount, imageCount, frameCount);
+    }
+
+    void VulkanRHI::createPipeline()
+    {
+        mPipeline = std::make_shared<VulkanPipeline>(mDevice, mRenderPass);
     }
 
     void VulkanRHI::destroyDescriptorPool()

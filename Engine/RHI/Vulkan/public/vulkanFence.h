@@ -9,11 +9,11 @@
 
 namespace Homura
 {
-    class Fence
+    class VulkanFence
     {
     public:
-        Fence(VulkanDevicePtr device, bool signaled);
-        ~Fence();
+        VulkanFence(VulkanDevicePtr device, bool signaled);
+        ~VulkanFence();
 
         VkFence& getHandle()
         {

@@ -21,6 +21,8 @@ namespace Homura
     class VulkanTexture;
     class VulkanShader;
     class VulkanSurface;
+    class VulkanFence;
+    class VulkanPipeline;
 
     using VulkanDevicePtr = std::shared_ptr<VulkanDevice>;
     using VulkanInstancePtr = std::shared_ptr<VulkanInstance>;
@@ -35,5 +37,7 @@ namespace Homura
     using VulkanShaderPtr = std::shared_ptr<VulkanShader>;
     using VulkanTexturePtr = std::shared_ptr<VulkanTexture>;
     using VulkanSurfacePtr = std::shared_ptr<VulkanSurface>;
+    using VulkanFencePtr = std::shared_ptr<VulkanFence>;
+    using VulkanPipelinePtr = std::shared_ptr<VulkanPipeline>;
 }
 #endif //HOMURA_VULKANTYPES_H

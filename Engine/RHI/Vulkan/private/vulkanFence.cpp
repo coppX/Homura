@@ -8,7 +8,7 @@
 
 namespace Homura
 {
-    Fence::Fence(VulkanDevicePtr device, bool signaled)
+    VulkanFence::VulkanFence(VulkanDevicePtr device, bool signaled)
         : mDevice{device}
     {
         VkFenceCreateInfo createInfo{};
@@ -18,7 +18,7 @@ namespace Homura
         VERIFYVULKANRESULT(vkCreateFence(mDevice->getHandle(), &createInfo, nullptr, &mFence));
     }
 
-    Fence::~Fence()
+    VulkanFence::~VulkanFence()
     {
         if (mFence != VK_NULL_HANDLE)
         {
@@ -26,7 +26,7 @@ namespace Homura
         }
     }
 
-    void Fence::reset()
+    void VulkanFence::reset()
     {
         if (mFence != VK_NULL_HANDLE)
         {
@@ -34,7 +34,7 @@ namespace Homura
         }
     }
 
-    VkResult Fence::getResult()
+    VkResult VulkanFence::getResult()
     {
         return vkGetFenceStatus(mDevice->getHandle(), mFence);
     }
