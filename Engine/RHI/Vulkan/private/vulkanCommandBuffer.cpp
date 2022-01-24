@@ -4,6 +4,7 @@
 
 #include <vulkanCommandBuffer.h>
 #include <vulkanCommandPool.h>
+#include <vulkanGfxPipeline.h>
 #include <vulkanDevice.h>
 #include <vulkanQueue.h>
 #include <debugUtils.h>
@@ -43,7 +44,11 @@ namespace Homura
     {
         vkCmdBeginRenderPass(mCommandBuffer, &renderPassBeginInfo, subPassContents);
     }
-    
+
+    void VulkanCommandBuffer::bindGraphicPipeline(VulkanPipelinePtr pipeline)
+    {
+        vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getHandle());
+    }
     void VulkanCommandBuffer::beginSingleTimeCommands()
     {
         VkCommandBufferAllocateInfo allocInfo{};

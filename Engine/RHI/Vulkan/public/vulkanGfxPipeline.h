@@ -24,6 +24,10 @@ namespace Homura
         void setScissors(const std::vector<VkRect2D>& scissors);
 
         void build();
+        VkPipeline& getHandle()
+        {
+            return mPipeline;
+        }
     private:
         VulkanDevicePtr                                     mDevice;
         VulkanRenderPassPtr                                 mRenderPass;

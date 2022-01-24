@@ -38,6 +38,9 @@ namespace Homura
 
         void beginRenderPass(const VkRenderPassBeginInfo& renderPassBeginInfo, const VkSubpassContents& subPassContents);
 
+        void bindGraphicPipeline(VulkanPipelinePtr pipeline);
+
+        
         void beginSingleTimeCommands();
 
         void endSingleTimeCommands();
