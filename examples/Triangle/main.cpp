@@ -102,9 +102,6 @@ namespace Homura
 
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
-    const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
-    const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-
     struct UniformBufferObject
     {
         alignas(16) glm::mat4 model;
@@ -116,7 +113,7 @@ namespace Homura
     {
     public:
         TriangleApplication()
-            : rhi{std::make_shared<VulkanRHI>()}
+            : rhi{std::make_shared<VulkanRHI>(mWindow)}
         {
 
         }
@@ -168,10 +165,10 @@ namespace Homura
 
             vkDestroyDevice(rhi->getDevice()->getHandle(), nullptr);
 
-            if (enableValidationLayers)
-            {
-                DestroyDebugUtilsMessengerEXT(rhi->getInstance(), debugMessenger, nullptr);
-            }
+//            if (enableValidationLayers)
+//            {
+//                DestroyDebugUtilsMessengerEXT(rhi->getInstance(), debugMessenger, nullptr);
+//            }
             rhi->destroyInstance();
 
             glfwDestroyWindow(mWindow);
@@ -195,11 +192,10 @@ namespace Homura
         void initVulkan()
         {
             rhi->createInstance();
-            rhi->selectAndInitDevice();
-            rhi->createSwapChain(mWindow);
+            rhi->createDevice();
+            rhi->createSwapChain();
             rhi->createCommandPool();
 
-            setupDebugMessenger();
             createRenderPass();
             createDescriptorSetLayout();
             createGraphicsPipeline();
@@ -273,19 +269,6 @@ namespace Homura
         {
             if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
                 glfwSetWindowShouldClose(window, true);
-        }
-
-        void setupDebugMessenger()
-        {
-            if (!enableValidationLayers) return;
-
-            VkDebugUtilsMessengerCreateInfoEXT createInfo;
-            rhi->populateDebugMessengerCreateInfo(createInfo);
-
-            if (CreateDebugUtilsMessengerEXT(rhi->getInstance(), &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
-            {
-                throw std::runtime_error("failed to set up debug messenger!");
-            }
         }
 
         void createRenderPass()

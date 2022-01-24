@@ -40,7 +40,7 @@ namespace Homura
 
         void bindGraphicPipeline(VulkanPipelinePtr pipeline);
 
-        
+
         void beginSingleTimeCommands();
 
         void endSingleTimeCommands();

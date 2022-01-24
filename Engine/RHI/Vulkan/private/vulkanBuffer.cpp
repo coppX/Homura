@@ -13,7 +13,7 @@ namespace Homura
         : mBuffer{VK_NULL_HANDLE}
         , mBufferMemory{VK_NULL_HANDLE}
         , mDevice{device}
-        , mCommandBuffer{std::make_shared<VulkanCommandBuffer>(mDevice)}
+        , mCommandBuffer{nullptr}
         , mSize{size}
         , mUsage{usage}
         , mProperties{props}

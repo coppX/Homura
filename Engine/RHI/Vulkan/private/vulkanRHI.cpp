@@ -148,7 +148,7 @@ namespace Homura
 
     void VulkanRHI::createCommandBuffer()
     {
-        mCommandBuffer = std::make_shared<VulkanCommandBuffer>(mDevice);
+        mCommandBuffer = std::make_shared<VulkanCommandBuffer>(mDevice, mCommandPool);
     }
 
     void VulkanRHI::createSampler()
