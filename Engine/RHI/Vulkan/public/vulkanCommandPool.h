@@ -16,6 +16,11 @@ namespace Homura
 
         void create();
         void destroy();
+
+        VkCommandPool& getHandle()
+        {
+            return mCommandPool;
+        }
     private:
         VulkanDevicePtr             mDevice;
         VkCommandPool               mCommandPool;
