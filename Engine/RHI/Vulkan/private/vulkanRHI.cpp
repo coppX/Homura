@@ -11,6 +11,7 @@
 #include <vulkanSurface.h>
 #include <vulkanRenderPass.h>
 #include <vulkanDescriptorSet.h>
+#include <vulkanCommandPool.h>
 #include <vulkanCommandBuffer.h>
 #include <vulkanGfxPipeline.h>
 #include <vulkanFence.h>
@@ -142,7 +143,7 @@ namespace Homura
 
     void VulkanRHI::createCommandPool()
     {
-        mDevice->createCommandPool();
+        mCommandPool = std::make_shared<VulkanCommandPool>(mDevice);
     }
 
     void VulkanRHI::createCommandBuffer()

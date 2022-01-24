@@ -163,13 +163,4 @@ namespace Homura
         }
         return indices;
     }
-
-    void VulkanDevice::createCommandPool()
-    {
-        VkCommandPoolCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        createInfo.queueFamilyIndex = mGfxQueue->getFamilyIndex();
-
-        VERIFYVULKANRESULT(vkCreateCommandPool(getHandle(), &createInfo, nullptr, mCommandPool.get()));
-    }
 }

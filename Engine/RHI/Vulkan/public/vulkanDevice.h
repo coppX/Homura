@@ -65,17 +65,10 @@ namespace Homura
             return mPresentQueue;
         }
 
-        std::shared_ptr<VkCommandPool> getCommandPool()
-        {
-            return mCommandPool;
-        }
-
         const VkSampleCountFlagBits& getSampleCount() const
         {
             return mMsaaSamples;
         }
-
-        void createCommandPool();
 
     private:
         void pickPhysicalDevice();
@@ -95,7 +88,6 @@ namespace Homura
         VulkanQueuePtr                  mPresentQueue;
 
         VkSampleCountFlagBits           mMsaaSamples;
-        std::shared_ptr<VkCommandPool>  mCommandPool;
     };
 }
 #endif //HOMURA_VULKANDEVICE_H

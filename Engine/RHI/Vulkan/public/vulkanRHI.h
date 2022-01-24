@@ -76,6 +76,7 @@ namespace Homura
         VulkanSwapChainPtr                  mSwapChain;
         VulkanRenderPassPtr                 mRenderPass;
         VulkanDescriptorPoolPtr             mDescriptorPool;
+        VulkanCommandPoolPtr                mCommandPool;
         VulkanCommandBufferPtr              mCommandBuffer;
         VulkanFencePtr                      mFence;
         VulkanPipelinePtr                   mPipeline;
