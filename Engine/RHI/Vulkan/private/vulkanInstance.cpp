@@ -9,7 +9,7 @@ namespace Homura
     VulkanInstance::VulkanInstance()
         : mInstance{VK_NULL_HANDLE}
     {
-
+        create();
     }
 
     VulkanInstance::~VulkanInstance()

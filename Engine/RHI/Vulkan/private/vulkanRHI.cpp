@@ -15,6 +15,7 @@
 #include <vulkanCommandBuffer.h>
 #include <vulkanGfxPipeline.h>
 #include <vulkanFence.h>
+#include <vulkanBuffer.h>
 
 namespace Homura
 {

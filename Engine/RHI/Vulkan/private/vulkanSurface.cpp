@@ -12,7 +12,7 @@ namespace Homura
         , mWindow{window}
         , mSurface{VK_NULL_HANDLE}
     {
-
+        create();
     }
 
     VulkanSurface::~VulkanSurface()

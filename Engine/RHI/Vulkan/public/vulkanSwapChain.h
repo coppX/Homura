@@ -28,8 +28,6 @@ namespace Homura
         VulkanSwapChain(VulkanDevicePtr device, GLFWwindow* window, VulkanSurfacePtr surface);
         ~VulkanSwapChain();
 
-        void createSurface(GLFWwindow *window);
-
         void create();
         void destroy();
 
