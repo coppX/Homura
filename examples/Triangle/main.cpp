@@ -33,7 +33,7 @@
 #include <vulkanQueue.h>
 #include <vulkanDevice.h>
 #include <vulkanRHI.h>
-#include <vulkanTexture.h>
+//#include <vulkanTexture.h>
 #include <vulkanRenderPass.h>
 #include <vulkanGfxPipeline.h>
 #include <vulkanFence.h>

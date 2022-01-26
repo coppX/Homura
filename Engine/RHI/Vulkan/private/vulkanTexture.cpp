@@ -173,8 +173,8 @@ namespace Homura
         return -1;
     }
 
-    void VulkanTexture::fromBuffer(VulkanBufferPtr buffer, uint32_t width, uint32_t height)
-    {
+//    void VulkanTexture::fromBuffer(VulkanBufferPtr buffer, uint32_t width, uint32_t height)
+//    {
 //        VulkanCommandBuffer commandBuffer{mDevice};
 //        commandBuffer.beginSingleTimeCommands();
 //
@@ -195,7 +195,7 @@ namespace Homura
 //        vkCmdCopyBufferToImage(commandBuffer.getHandle(), buffer->getHandle(), mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 //
 //        commandBuffer.endSingleTimeCommands();
-    }
+//    }
 
     void VulkanTexture::createSampler(int mipLevels)
     {

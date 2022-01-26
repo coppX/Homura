@@ -9,7 +9,7 @@
 
 namespace Homura
 {
-    VulkanBuffer::VulkanBuffer(VulkanDevicePtr device, VkDeviceSize size, VkBufferUsageFlagBits usage, VkMemoryPropertyFlags props, BufferType type)
+    VulkanBuffer::VulkanBuffer(VulkanDevicePtr device, VkDeviceSize size, VkBufferUsageFlags  usage, VkMemoryPropertyFlags props)
         : mBuffer{VK_NULL_HANDLE}
         , mBufferMemory{VK_NULL_HANDLE}
         , mDevice{device}
@@ -53,6 +53,8 @@ namespace Homura
         }
         return -1;
     }
+
+
     void VulkanBuffer::fillBuffer(void *inData, uint64_t size)
     {
         void* data;
@@ -61,13 +63,20 @@ namespace Homura
         vkUnmapMemory(mDevice->getHandle(), mBufferMemory);
     }
 
-    void VulkanBuffer::copyToBuffer(VulkanBuffer &dstBuffer, VkDeviceSize size)
+    void VulkanBuffer::updateBufferByStaging(void *pData, uint32_t size)
+    {
+        VulkanBuffer stagingBuffer = VulkanBuffer(mDevice, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        stagingBuffer.fillBuffer(pData, size);
+        copyBuffer(stagingBuffer, *this, static_cast<VkDeviceSize>(size));
+    }
+
+    void VulkanBuffer::copyBuffer(VulkanBuffer& srcBuffer, VulkanBuffer& dstBuffer, VkDeviceSize size)
     {
         mCommandBuffer->beginSingleTimeCommands();
 
         VkBufferCopy copyRegion{};
         copyRegion.size = size;
-        vkCmdCopyBuffer(mCommandBuffer->getHandle(), mBuffer, dstBuffer.mBuffer, 1, &copyRegion);
+        vkCmdCopyBuffer(mCommandBuffer->getHandle(), srcBuffer.getHandle(), dstBuffer.getHandle(), 1, &copyRegion);
 
         mCommandBuffer->endSingleTimeCommands();
     }

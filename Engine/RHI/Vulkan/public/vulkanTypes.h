@@ -11,7 +11,10 @@ namespace Homura
     class VulkanDevice;
     class VulkanInstance;
     class VulkanRenderPass;
-    class VulkanBuffer;
+    class VulkanVertexBuffer;
+    class VulkanIndexBuffer;
+    class VulkanUniformBuffer;
+    class VulkanStagingBuffer;
     class VulkanQueue;
     class VulkanSwapChain;
     class VulkanDescriptorPool;
@@ -28,7 +31,10 @@ namespace Homura
     using VulkanDevicePtr = std::shared_ptr<VulkanDevice>;
     using VulkanInstancePtr = std::shared_ptr<VulkanInstance>;
     using VulkanRenderPassPtr = std::shared_ptr<VulkanRenderPass>;
-    using VulkanBufferPtr = std::shared_ptr<VulkanBuffer>;
+    using VulkanVertexBufferPtr = std::shared_ptr<VulkanVertexBuffer>;
+    using VulkanIndexBufferPtr = std::shared_ptr<VulkanIndexBuffer>;
+    using VulkanUniformBufferPtr = std::shared_ptr<VulkanUniformBuffer>;
+    using VulkanStagingBufferPtr = std::shared_ptr<VulkanStagingBuffer>;
     using VulkanQueuePtr = std::shared_ptr<VulkanQueue>;
     using VulkanSwapChainPtr = std::shared_ptr<VulkanSwapChain>;
     using VulkanDescriptorPoolPtr = std::shared_ptr<VulkanDescriptorPool>;
