@@ -39,6 +39,21 @@ namespace Homura
         vkBindBufferMemory(mDevice->getHandle(), mBuffer, mBufferMemory, 0);
     }
 
+    VulkanBuffer::~VulkanBuffer()
+    {
+        if (mBuffer != VK_NULL_HANDLE)
+        {
+            vkDestroyBuffer(mDevice->getHandle(), mBuffer, nullptr);
+            mBuffer = VK_NULL_HANDLE;
+        }
+
+        if (mBufferMemory != VK_NULL_HANDLE)
+        {
+            vkFreeMemory(mDevice->getHandle(), mBufferMemory, nullptr);
+            mBufferMemory = VK_NULL_HANDLE;
+        }
+    }
+
     uint32_t VulkanBuffer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
     {
         VkPhysicalDeviceMemoryProperties memProperties;

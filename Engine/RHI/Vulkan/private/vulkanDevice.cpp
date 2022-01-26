@@ -114,6 +114,19 @@ namespace Homura
         mPresentQueue = std::make_shared<VulkanQueue>(std::make_shared<VkDevice>(mDevice), indices.presentFamily.value());
     }
 
+    bool VulkanDevice::isDeviceSuitable(VkPhysicalDevice device)
+    {
+        VkPhysicalDeviceProperties  deviceProp;
+        vkGetPhysicalDeviceProperties(device, &deviceProp);
+
+        VkPhysicalDeviceFeatures deviceFeatures;
+        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+        return deviceProp.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
+               deviceFeatures.geometryShader &&
+               deviceFeatures.samplerAnisotropy;
+    }
+
     VkSampleCountFlagBits VulkanDevice::getMaxUsableSampleCount()
     {
         VkPhysicalDeviceProperties physicalDeviceProperties;
