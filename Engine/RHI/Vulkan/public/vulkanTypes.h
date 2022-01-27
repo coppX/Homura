@@ -5,6 +5,7 @@
 #ifndef HOMURA_VULKANTYPES_H
 #define HOMURA_VULKANTYPES_H
 #include <memory>
+#include <cassert>
 
 namespace Homura
 {
