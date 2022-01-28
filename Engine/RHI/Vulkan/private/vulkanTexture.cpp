@@ -10,7 +10,7 @@
 
 namespace Homura
 {
-    VulkanTexture::VulkanTexture(VulkanDevicePtr device, uint32_t width, uint32_t height, TextureType type, VkImageTiling tiling,
+    VulkanTexture::VulkanTexture(VulkanDevicePtr device, uint32_t width, uint32_t height, TextureType type, VkImageTiling tiling, VkImageAspectFlags aspectFlags,
                                  uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
         : mDevice{device}
         , mWidth{width}
@@ -27,7 +27,7 @@ namespace Homura
         , mProperties{properties}
     {
         createImage(mWidth, mHeight, mMipLevels, mNumSamples, mFormat, tiling, usage, mProperties);
-        createImageView(mFormat, VK_IMAGE_ASPECT_COLOR_BIT, mMipLevels);
+        createImageView(mFormat, aspectFlags, mMipLevels);
     }
 
     VulkanTexture::~VulkanTexture()
