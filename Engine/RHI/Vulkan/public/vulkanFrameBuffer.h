@@ -16,9 +16,9 @@ namespace Homura
         VulkanFrameBuffer(VulkanDevicePtr device,
                           VulkanRenderPassPtr renderPass,
                           uint32_t imageCount,
-                          std::vector<VulkanTexture> &images,
-                          std::vector<VulkanTexture> &multiSampleImages,
-                          std::vector<VulkanTexture> &depthImages);
+                          std::vector<VulkanTexture2DPtr> &images,
+                          std::vector<VulkanTexture2DPtr> &multiSampleImages,
+                          std::vector<VulkanTextureDepthPtr> &depthImages);
         ~VulkanFrameBuffer();
 
         uint32_t getCount() const
@@ -35,9 +35,9 @@ namespace Homura
         VulkanRenderPassPtr                 mRenderPass;
         std::vector<VkFramebuffer>          mFrameBuffer;
 
-        std::vector<VulkanTexture>          mImages;
-        std::vector<VulkanTexture>          mMultiSampleImages;
-        std::vector<VulkanTexture>          mDepthImages;
+        std::vector<VulkanTexture2DPtr>     mImages;
+        std::vector<VulkanTexture2DPtr>     mMultiSampleImages;
+        std::vector<VulkanTextureDepthPtr>  mDepthImages;
 
         uint32_t                            mImageCount;
     };

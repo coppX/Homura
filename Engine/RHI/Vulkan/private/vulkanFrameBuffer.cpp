@@ -14,9 +14,9 @@ namespace Homura
     VulkanFrameBuffer::VulkanFrameBuffer(VulkanDevicePtr device,
                                          VulkanRenderPassPtr renderPass,
                                          uint32_t imageCount,
-                                         std::vector<VulkanTexture> &images,
-                                         std::vector<VulkanTexture> &multiSampleImages,
-                                         std::vector<VulkanTexture> &depthImages)
+                                         std::vector<VulkanTexture2DPtr> &images,
+                                         std::vector<VulkanTexture2DPtr> &multiSampleImages,
+                                         std::vector<VulkanTextureDepthPtr> &depthImages)
         : mDevice{device}
         , mRenderPass{renderPass}
         , mImageCount{imageCount}
@@ -30,9 +30,9 @@ namespace Homura
         for (uint32_t i = 0; i < mImageCount; ++i)
         {
             std::array<VkImageView, 3> attachments = {
-                mImages[i].getImageView(),
-                mMultiSampleImages[i].getImageView(),
-                mDepthImages[i].getImageView()
+                mImages[i]->getImageView(),
+                mMultiSampleImages[i]->getImageView(),
+                mDepthImages[i]->getImageView()
             };
 
             VkFramebufferCreateInfo frameBufferCreateInfo{};

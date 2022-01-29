@@ -83,8 +83,8 @@ namespace Homura
         std::vector<VkImageView>        mSwapChainImageViews;
         std::vector<VkFramebuffer>      mSwapChainFrameBuffers;
 
-        std::vector<VulkanTexturePtr>   mDepthImages;
-        std::vector<VulkanTexturePtr>   mMultiSampleImages;
+        std::vector<VulkanTextureDepthPtr>  mDepthImages;
+        std::vector<VulkanTexture2DPtr>     mMultiSampleImages;
     };
 }
 #endif //HOMURA_VULKANSWAPCHAIN_H
