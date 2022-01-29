@@ -23,7 +23,7 @@ namespace Homura
         void setViewports(const std::vector<VkViewport>& viewports);
         void setScissors(const std::vector<VkRect2D>& scissors);
 
-        void build();
+        void build(VulkanDescriptorSetLayoutPtr descriptorSetLayout);
         VkPipeline& getHandle()
         {
             return mPipeline;
@@ -42,7 +42,7 @@ namespace Homura
         VkPipelineColorBlendStateCreateInfo                 mColorBlendState;
 
         VkPipeline                                          mPipeline;
-        VkPipelineLayout                                    mPipelineLayout;
+        VulkanPipelineLayoutPtr                             mPipelineLayout;
 
         std::vector<VkPipelineColorBlendAttachmentState>    mBlendAttachmentStates{};
         std::vector<VulkanShaderPtr>                        mShaders;

@@ -90,7 +90,7 @@ namespace Homura
             nativeBuffers.push_back(buffer->getHandle());
         }
 
-        vkCmdBindVertexBuffers(mCommandBuffer, 0, nativeBuffers.size(), nativeBuffers.data(), offsets.data());
+        vkCmdBindVertexBuffers(mCommandBuffer, 0, static_cast<uint32_t>(nativeBuffers.size()), nativeBuffers.data(), offsets.data());
     }
 
     void VulkanCommandBuffer::bindIndexBuffer(VulkanIndexBufferPtr buffer)

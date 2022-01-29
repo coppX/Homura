@@ -45,6 +45,7 @@ namespace Homura
 
         void bindIndexBuffer(VulkanIndexBufferPtr buffer);
 
+        void bindDescriptorSet();
 
         void beginSingleTimeCommands();
 

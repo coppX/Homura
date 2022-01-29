@@ -7,6 +7,7 @@
 #include <vulkanDevice.h>
 #include <vulkanShader.h>
 #include <debugUtils.h>
+#include <vulkanLayout.h>
 
 namespace Homura
 {
@@ -22,7 +23,7 @@ namespace Homura
         , mDepthStencilState{}
         , mColorBlendState{}
         , mPipeline{VK_NULL_HANDLE}
-        , mPipelineLayout{VK_NULL_HANDLE}
+        , mPipelineLayout{std::make_shared<VulkanPipelineLayout>(device)}
         , mBlendAttachmentStates{}
         , mShaders{}
         , mViewports{}
@@ -50,11 +51,7 @@ namespace Homura
 
     void VulkanPipeline::destroy()
     {
-        if (mPipelineLayout != VK_NULL_HANDLE)
-        {
-            vkDestroyPipelineLayout(mDevice->getHandle(), mPipelineLayout, nullptr);
-            mPipelineLayout = VK_NULL_HANDLE;
-        }
+        mPipelineLayout->destroy();
 
         if (mPipeline != VK_NULL_HANDLE)
         {
@@ -78,7 +75,7 @@ namespace Homura
         mScissors = scissors;
     }
 
-    void VulkanPipeline::build()
+    void VulkanPipeline::build(VulkanDescriptorSetLayoutPtr descriptorSetLayout)
     {
         std::vector<VkPipelineShaderStageCreateInfo> shaderCreateInfos{};
         for (const auto& shader : mShaders)
@@ -99,13 +96,7 @@ namespace Homura
         mColorBlendState.attachmentCount = static_cast<uint32_t>(mBlendAttachmentStates.size());
         mColorBlendState.pAttachments = mBlendAttachmentStates.data();
 
-        if (mPipelineLayout != VK_NULL_HANDLE)
-        {
-            vkDestroyPipelineLayout(mDevice->getHandle(), mPipelineLayout, nullptr);
-        }
-        VkPipelineLayoutCreateInfo  layoutInfo{};
-        layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        VERIFYVULKANRESULT(vkCreatePipelineLayout(mDevice->getHandle(), &layoutInfo, nullptr, &mPipelineLayout));
+        mPipelineLayout->create(descriptorSetLayout);
 
         VkGraphicsPipelineCreateInfo  gfxPipelineInfo{};
         gfxPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -120,7 +111,7 @@ namespace Homura
         gfxPipelineInfo.pMultisampleState = &mMultisampleState;
         gfxPipelineInfo.pDepthStencilState = &mDepthStencilState;
         gfxPipelineInfo.pColorBlendState = &mColorBlendState;
-        gfxPipelineInfo.layout = mPipelineLayout;
+        gfxPipelineInfo.layout = mPipelineLayout->getHandle();
         gfxPipelineInfo.renderPass = mRenderPass->getHandle();
         gfxPipelineInfo.subpass = 0;
 

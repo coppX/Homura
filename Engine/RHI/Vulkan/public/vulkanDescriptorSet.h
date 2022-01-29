@@ -36,22 +36,6 @@ namespace Homura
         uint32_t            mFrameCount;
     };
 
-    class VulkanDescriptorSetLayout
-    {
-    public:
-        VulkanDescriptorSetLayout(VulkanDevicePtr device);
-        ~VulkanDescriptorSetLayout();
-
-        VkDescriptorSetLayout& getHandle()
-        {
-            return mDescriptorSetLayout;
-        }
-
-    private:
-        VulkanDevicePtr         mDevice;
-        VkDescriptorSetLayout   mDescriptorSetLayout;
-    };
-
     class VulkanDescriptorSet
     {
     public:
