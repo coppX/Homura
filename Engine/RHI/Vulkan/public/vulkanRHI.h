@@ -27,17 +27,17 @@ namespace Homura
         VulkanSwapChainPtr getSwapChain();
         VkPipelineCache getPipelineCache();
 
-        void createInstance();
-        void createDevice();
-        void createSurface();
-        void createSwapChain();
-        void createRenderPass();
-        void createDescriptorPool();
-        void createCommandPool();
+        VulkanInstancePtr createInstance();
+        VulkanDevicePtr createDevice();
+        VulkanSurfacePtr createSurface();
+        VulkanSwapChainPtr createSwapChain();
+        VulkanRenderPassPtr createRenderPass();
+        VulkanDescriptorPoolPtr createDescriptorPool();
+        VulkanCommandPoolPtr createCommandPool();
         void createFrameBuffer();
-        void createCommandBuffer();
-        void createFence();
-        void createPipeline();
+        VulkanCommandBufferPtr createCommandBuffer();
+        VulkanFencePtr createFence();
+        VulkanPipelinePtr createPipeline();
 
         void createPipelineCache();
         void createImageView();
@@ -54,7 +54,6 @@ namespace Homura
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
         void createColorResources();
-
         void createDepthResources();
 
         VulkanVertexBufferPtr createVertexBuffer(uint32_t size, void* pData);

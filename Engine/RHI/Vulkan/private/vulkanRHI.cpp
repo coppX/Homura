@@ -61,25 +61,29 @@ namespace Homura
     {
         return mSwapChain;
     }
-
-    void VulkanRHI::createInstance()
+    
+    VulkanInstancePtr VulkanRHI::createInstance()
     {
         mInstance = std::make_shared<VulkanInstance>();
+        return mInstance;
     }
 
-    void VulkanRHI::createSurface()
+    VulkanSurfacePtr VulkanRHI::createSurface()
     {
         mSurface = std::make_shared<VulkanSurface>(mInstance, mWindow);
+        return mSurface;
     }
 
-    void VulkanRHI::createDevice()
+    VulkanDevicePtr VulkanRHI::createDevice()
     {
         mDevice = std::make_shared<VulkanDevice>(mInstance, mSurface);
+        return mDevice;
     }
 
-    void VulkanRHI::createSwapChain()
+    VulkanSwapChainPtr VulkanRHI::createSwapChain()
     {
         mSwapChain = std::make_shared<VulkanSwapChain>(mDevice, mWindow, mSurface);
+        return mSwapChain;
     }
 
     void VulkanRHI::destroyInstance()
@@ -122,9 +126,10 @@ namespace Homura
         mSwapChain->createFrameBuffers(mRenderPass);
     }
 
-    void VulkanRHI::createFence()
+    VulkanFencePtr VulkanRHI::createFence()
     {
         mFence = std::make_shared<VulkanFence>(mDevice, false);
+        return mFence;
     }
 
     VulkanVertexBufferPtr VulkanRHI::createVertexBuffer(uint32_t size, void* pData)
@@ -147,14 +152,16 @@ namespace Homura
         return std::make_shared<VulkanStagingBuffer>(mDevice, static_cast<VkDeviceSize>(size), pData);
     }
 
-    void VulkanRHI::createCommandPool()
+    VulkanCommandPoolPtr VulkanRHI::createCommandPool()
     {
         mCommandPool = std::make_shared<VulkanCommandPool>(mDevice);
+        return mCommandPool;
     }
 
-    void VulkanRHI::createCommandBuffer()
+    VulkanCommandBufferPtr VulkanRHI::createCommandBuffer()
     {
         mCommandBuffer = std::make_shared<VulkanCommandBuffer>(mDevice, mCommandPool);
+        return mCommandBuffer;
     }
 
     void VulkanRHI::createSampler()
@@ -162,23 +169,26 @@ namespace Homura
 
     }
 
-    void VulkanRHI::createRenderPass()
+    VulkanRenderPassPtr VulkanRHI::createRenderPass()
     {
         mRenderPass = std::make_shared<VulkanRenderPass>(mDevice);
+        return mRenderPass;
     }
 
-    void VulkanRHI::createDescriptorPool()
+    VulkanDescriptorPoolPtr VulkanRHI::createDescriptorPool()
     {
         // todo
         uint32_t uniformCount = 1;
         uint32_t imageCount = 1;
         uint32_t frameCount = 1;
         mDescriptorPool = std::make_shared<VulkanDescriptorPool>(mDevice, uniformCount, imageCount, frameCount);
+        return mDescriptorPool;
     }
 
-    void VulkanRHI::createPipeline()
+    VulkanPipelinePtr VulkanRHI::createPipeline()
     {
         mPipeline = std::make_shared<VulkanPipeline>(mDevice, mRenderPass);
+        return mPipeline;
     }
 
     void VulkanRHI::destroyDescriptorPool()
