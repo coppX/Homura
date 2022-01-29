@@ -106,12 +106,12 @@ namespace Homura
         vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout->getHandle(), 0, descriptorSet->getCount(), descriptorSet->getData(), 0, nullptr);
     }
 
-    void VulkanCommandBuffer::draw(size_t vertexCount)
+    void VulkanCommandBuffer::draw(uint32_t vertexCount)
     {
         vkCmdDraw(mCommandBuffer, vertexCount, 1, 0, 0);
     }
 
-    void VulkanCommandBuffer::drawIndex(size_t indexCount)
+    void VulkanCommandBuffer::drawIndex(uint32_t indexCount)
     {
         vkCmdDrawIndexed(mCommandBuffer, indexCount, 1, 0, 0, 0);
     }

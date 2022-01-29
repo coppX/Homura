@@ -127,19 +127,24 @@ namespace Homura
         mFence = std::make_shared<VulkanFence>(mDevice, false);
     }
 
-    void VulkanRHI::createVertexBuffer()
+    VulkanVertexBufferPtr VulkanRHI::createVertexBuffer(uint32_t size, void* pData)
     {
-
+        return std::make_shared<VulkanVertexBuffer>(mDevice, static_cast<VkDeviceSize>(size), pData);
     }
 
-    void VulkanRHI::createIndexBuffer()
+    VulkanIndexBufferPtr VulkanRHI::createIndexBuffer(uint32_t size, void* pData)
     {
-
+        return std::make_shared<VulkanIndexBuffer>(mDevice, static_cast<VkDeviceSize>(size), pData);
     }
 
-    void VulkanRHI::createUniformBuffer()
+    VulkanUniformBufferPtr VulkanRHI::createUniformBuffer(uint32_t size, void* pData)
     {
+        return std::make_shared<VulkanUniformBuffer>(mDevice, static_cast<VkDeviceSize>(size), pData);
+    }
 
+    VulkanStagingBufferPtr VulkanRHI::createStagingBuffer(uint32_t size, void* pData)
+    {
+        return std::make_shared<VulkanStagingBuffer>(mDevice, static_cast<VkDeviceSize>(size), pData);
     }
 
     void VulkanRHI::createCommandPool()

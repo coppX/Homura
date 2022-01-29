@@ -48,6 +48,7 @@ namespace Homura
 
     class VulkanVertexBuffer : public VulkanBuffer
     {
+    public:
         VulkanVertexBuffer(VulkanDevicePtr device, VkDeviceSize size, void* pData)
             : VulkanBuffer(device, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
         {
@@ -57,6 +58,7 @@ namespace Homura
 
     class VulkanIndexBuffer : public VulkanBuffer
     {
+    public:
         VulkanIndexBuffer(VulkanDevicePtr device, VkDeviceSize size, void* pData)
                 : VulkanBuffer(device, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
         {
@@ -66,6 +68,7 @@ namespace Homura
 
     class VulkanUniformBuffer : public VulkanBuffer
     {
+    public:
         VulkanUniformBuffer(VulkanDevicePtr device, VkDeviceSize size, void* pData)
             : VulkanBuffer(device, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
         {
@@ -78,6 +81,7 @@ namespace Homura
 
     class VulkanStagingBuffer : public VulkanBuffer
     {
+    public:
         VulkanStagingBuffer(VulkanDevicePtr device, VkDeviceSize size, void* pData)
             : VulkanBuffer(device, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
         {

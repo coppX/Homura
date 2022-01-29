@@ -57,11 +57,10 @@ namespace Homura
 
         void createDepthResources();
 
-        void createVertexBuffer();
-
-        void createIndexBuffer();
-
-        void createUniformBuffer();
+        VulkanVertexBufferPtr createVertexBuffer(uint32_t size, void* pData);
+        VulkanIndexBufferPtr createIndexBuffer(uint32_t size, void* pData);
+        VulkanUniformBufferPtr createUniformBuffer(uint32_t size, void* pData);
+        VulkanStagingBufferPtr createStagingBuffer(uint32_t size, void* pData);
 
         void createSampler();
 
