@@ -11,7 +11,7 @@
 namespace Homura
 {
     VulkanTexture::VulkanTexture(VulkanDevicePtr device, uint32_t width, uint32_t height, TextureType type, VkImageTiling tiling, VkImageAspectFlags aspectFlags,
-                                 uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
+                                 uint32_t mipLevels, uint32_t arraySize, uint32_t numSamples, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
         : mDevice{device}
         , mWidth{width}
         , mHeight{height}
@@ -21,7 +21,7 @@ namespace Homura
         , mImageMemory{VK_NULL_HANDLE}
         , mSampler{VK_NULL_HANDLE}
         , mMipLevels{mipLevels}
-        , mLayerCount{layerCount}
+        , mLayerCount{arraySize * ((mType == TEXTURE_CUBE || mType == TEXTURE_CUBE_ARRAY) ? 6 : 1)}
         , mFormat{format}
         , mNumSamples{numSamples}
         , mProperties{properties}
@@ -67,6 +67,9 @@ namespace Homura
             case TextureType::TEXTURE_CUBE:
             case TextureType::TEXTURE_CUBE_ARRAY:
                 imageInfo.imageType = VK_IMAGE_TYPE_2D;
+                break;
+            default:
+                std::cerr<< "Unknown Texture Type!";
                 break;
         }
 
@@ -147,6 +150,9 @@ namespace Homura
                 break;
             case TextureType::TEXTURE_3D:
                 viewInfo.viewType = VK_IMAGE_VIEW_TYPE_3D;
+                break;
+            default:
+                std::cerr<< "Unknown Texture Type!";
                 break;
         }
         viewInfo.format = format;

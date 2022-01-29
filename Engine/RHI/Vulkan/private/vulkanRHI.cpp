@@ -3,7 +3,6 @@
 //
 
 #include <vulkanRHI.h>
-#include <debugUtils.h>
 #include <GLFW/glfw3.h>
 #include <vulkanDevice.h>
 #include <vulkanSwapChain.h>
@@ -16,6 +15,7 @@
 #include <vulkanGfxPipeline.h>
 #include <vulkanFence.h>
 #include <vulkanBuffer.h>
+#include <vulkanTexture.h>
 
 namespace Homura
 {
@@ -113,12 +113,14 @@ namespace Homura
 
     VulkanTexture2DPtr VulkanRHI::createColorResources()
     {
-
+        return std::make_shared<VulkanTexture2D>(mDevice, mWidth, mHeight, 1, mDevice->getSampleCount(), mSwapChain->getFormat(),
+                                          VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     }
 
     VulkanTextureDepthPtr VulkanRHI::createDepthResources()
     {
-
+        return std::make_shared<VulkanTextureDepth>(mDevice, mWidth, mHeight, 1, mDevice->getSampleCount(), findDepthFormat(),
+                                                    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     }
 
     void VulkanRHI::createFrameBuffer()
@@ -204,5 +206,28 @@ namespace Homura
     void VulkanRHI::destroyPipeline()
     {
         mPipeline->destroy();
+    }
+    VkFormat VulkanRHI::findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+    {
+        for (VkFormat format : candidates)
+        {
+            VkFormatProperties props;
+            vkGetPhysicalDeviceFormatProperties(mDevice->getPhysicalHandle(), format, &props);
+
+            if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+            {
+                return format;
+            }
+            else if (tiling == VK_IMAGE_TILING_OPTIMAL & (props.optimalTilingFeatures & features) == features)
+            {
+                return format;
+            }
+        }
+        throw std::runtime_error("failed to find supported format!");
+    }
+    VkFormat VulkanRHI::findDepthFormat()
+    {
+        return findSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+                                   VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     }
 }

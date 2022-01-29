@@ -36,7 +36,7 @@ namespace Homura
     {
     public:
         VulkanTexture(VulkanDevicePtr device, uint32_t width, uint32_t height, TextureType type, VkImageTiling tiling, VkImageAspectFlags aspectFlags,
-                      uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
+                      uint32_t mipLevels, uint32_t arraySize, uint32_t numSamples, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
         ~VulkanTexture();
 
 //        void fromBuffer(VulkanBufferPtr buffer, uint32_t width, uint32_t height);
@@ -65,6 +65,7 @@ namespace Homura
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
+        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
     private:
         VulkanDevicePtr                 mDevice;
 
@@ -88,6 +89,7 @@ namespace Homura
 
     class VulkanTexture1D : public VulkanTexture
     {
+    public:
         VulkanTexture1D(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples,
                         VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
             : VulkanTexture(device, width, height, TEXTURE_1D, VulkanViewTypeTilingMode[TEXTURE_1D], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, layerCount, numSamples, format, usage, properties)
@@ -98,9 +100,10 @@ namespace Homura
 
     class VulkanTexture2D : public VulkanTexture
     {
-        VulkanTexture2D(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples,
+    public:
+        VulkanTexture2D(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t numSamples,
                 VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
-        : VulkanTexture(device, width, height, TEXTURE_2D, VulkanViewTypeTilingMode[TEXTURE_2D], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, layerCount, numSamples, format, usage, properties)
+        : VulkanTexture(device, width, height, TEXTURE_2D, VulkanViewTypeTilingMode[TEXTURE_2D], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, 1, numSamples, format, usage, properties)
         {
 
         }
@@ -108,9 +111,10 @@ namespace Homura
 
     class VulkanTexture2DArray : public VulkanTexture
     {
-        VulkanTexture2DArray(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples,
+    public:
+        VulkanTexture2DArray(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t ArraySize, uint32_t numSamples,
                 VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
-        : VulkanTexture(device, width, height, TEXTURE_2D_ARRAY, VulkanViewTypeTilingMode[TEXTURE_2D_ARRAY], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, layerCount, numSamples, format, usage, properties)
+        : VulkanTexture(device, width, height, TEXTURE_2D_ARRAY, VulkanViewTypeTilingMode[TEXTURE_2D_ARRAY], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, ArraySize, numSamples, format, usage, properties)
         {
 
         }
@@ -118,9 +122,10 @@ namespace Homura
 
     class VulkanTexture3D : public VulkanTexture
     {
-        VulkanTexture3D(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples,
+    public:
+        VulkanTexture3D(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t numSamples,
                 VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
-        : VulkanTexture(device, width, height, TEXTURE_3D, VulkanViewTypeTilingMode[TEXTURE_3D], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, layerCount, numSamples, format, usage, properties)
+        : VulkanTexture(device, width, height, TEXTURE_3D, VulkanViewTypeTilingMode[TEXTURE_3D], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, 1, numSamples, format, usage, properties)
         {
 
         }
@@ -128,9 +133,21 @@ namespace Homura
 
     class VulkanTextureCube : public VulkanTexture
     {
-        VulkanTextureCube(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples,
+    public:
+        VulkanTextureCube(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t numSamples,
                 VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
-        : VulkanTexture(device, width, height, TEXTURE_CUBE, VulkanViewTypeTilingMode[TEXTURE_CUBE], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, layerCount, numSamples, format, usage, properties)
+        : VulkanTexture(device, width, height, TEXTURE_CUBE, VulkanViewTypeTilingMode[TEXTURE_CUBE], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, 1, numSamples, format, usage, properties)
+        {
+
+        }
+    };
+
+    class VulkanTextureCubeArray : public VulkanTexture
+    {
+    public:
+        VulkanTextureCubeArray(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t arraySize, uint32_t numSamples,
+                          VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
+                : VulkanTexture(device, width, height, TEXTURE_CUBE_ARRAY, VulkanViewTypeTilingMode[TEXTURE_CUBE_ARRAY], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, arraySize, numSamples, format, usage, properties)
         {
 
         }
@@ -138,9 +155,10 @@ namespace Homura
 
     class VulkanTextureDepth : public VulkanTexture
     {
-        VulkanTextureDepth(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples,
+    public:
+        VulkanTextureDepth(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t numSamples,
                 VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
-        : VulkanTexture(device, width, height, TEXTURE_2D, VulkanViewTypeTilingMode[TEXTURE_2D], VK_IMAGE_ASPECT_DEPTH_BIT, mipLevels, layerCount, numSamples, format, usage, properties)
+        : VulkanTexture(device, width, height, TEXTURE_2D, VulkanViewTypeTilingMode[TEXTURE_2D], VK_IMAGE_ASPECT_DEPTH_BIT, mipLevels, 1, numSamples, format, usage, properties)
         {
 
         }

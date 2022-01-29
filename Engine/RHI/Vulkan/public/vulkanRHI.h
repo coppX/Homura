@@ -66,7 +66,8 @@ namespace Homura
         void addPushConstant(const VkPushConstantRange& constantRange, const char* data);
 
     private:
-
+        VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+        VkFormat findDepthFormat();
     private:
         VulkanInstancePtr                   mInstance;;
         VulkanDevicePtr                     mDevice;
