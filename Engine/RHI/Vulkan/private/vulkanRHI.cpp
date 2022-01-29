@@ -61,7 +61,7 @@ namespace Homura
     {
         return mSwapChain;
     }
-    
+
     VulkanInstancePtr VulkanRHI::createInstance()
     {
         mInstance = std::make_shared<VulkanInstance>();
@@ -111,12 +111,12 @@ namespace Homura
         mCommandBuffer->destroy();
     }
 
-    void VulkanRHI::createColorResources()
+    VulkanTexture2DPtr VulkanRHI::createColorResources()
     {
 
     }
 
-    void VulkanRHI::createDepthResources()
+    VulkanTextureDepthPtr VulkanRHI::createDepthResources()
     {
 
     }

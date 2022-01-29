@@ -53,8 +53,8 @@ namespace Homura
 
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
-        void createColorResources();
-        void createDepthResources();
+        VulkanTexture2DPtr createColorResources();
+        VulkanTextureDepthPtr createDepthResources();
 
         VulkanVertexBufferPtr createVertexBuffer(uint32_t size, void* pData);
         VulkanIndexBufferPtr createIndexBuffer(uint32_t size, void* pData);
