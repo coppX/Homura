@@ -6,6 +6,7 @@
 #define HOMURA_VULKANCOMMANDBUFFER_H
 #include <vulkan/vulkan.h>
 #include <vulkanTypes.h>
+#include <vector>
 
 namespace Homura
 {
@@ -39,6 +40,10 @@ namespace Homura
         void beginRenderPass(const VkRenderPassBeginInfo& renderPassBeginInfo, const VkSubpassContents& subPassContents);
 
         void bindGraphicPipeline(VulkanPipelinePtr pipeline);
+
+        void bindVertexBuffer(std::vector<VulkanVertexBufferPtr>& buffers);
+
+        void bindIndexBuffer(VulkanIndexBufferPtr buffer);
 
 
         void beginSingleTimeCommands();

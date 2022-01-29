@@ -28,6 +28,11 @@ namespace Homura
             return mBuffer;
         }
 
+        VkDeviceSize& getSize()
+        {
+            return mSize;
+        }
+
     private:
         uint32_t  findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 

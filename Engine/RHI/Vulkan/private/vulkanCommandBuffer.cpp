@@ -7,6 +7,7 @@
 #include <vulkanGfxPipeline.h>
 #include <vulkanDevice.h>
 #include <vulkanQueue.h>
+#include <vulkanBuffer.h>
 #include <debugUtils.h>
 
 namespace Homura
@@ -78,5 +79,22 @@ namespace Homura
         vkQueueWaitIdle(mDevice->getGraphicsQueue()->getHandle());
 
         vkFreeCommandBuffers(mDevice->getHandle(), mCommandPool->getHandle(), 1, &mCommandBuffer);
+    }
+
+    void VulkanCommandBuffer::bindVertexBuffer(std::vector<VulkanVertexBufferPtr>& buffers)
+    {
+        std::vector<VkDeviceSize> offsets(buffers.size(), 0);
+        std::vector<VkBuffer> nativeBuffers;
+        for (const auto& buffer : buffers)
+        {
+            nativeBuffers.push_back(buffer->getHandle());
+        }
+
+        vkCmdBindVertexBuffers(mCommandBuffer, 0, nativeBuffers.size(), nativeBuffers.data(), offsets.data());
+    }
+
+    void VulkanCommandBuffer::bindIndexBuffer(VulkanIndexBufferPtr buffer)
+    {
+        vkCmdBindIndexBuffer(mCommandBuffer, buffer->getHandle(), 0, VK_INDEX_TYPE_UINT32);
     }
 }
