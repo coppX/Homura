@@ -8,6 +8,8 @@
 #include <vulkanDevice.h>
 #include <vulkanQueue.h>
 #include <vulkanBuffer.h>
+#include <vulkanLayout.h>
+#include <vulkanDescriptorSet.h>
 #include <debugUtils.h>
 
 namespace Homura
@@ -32,24 +34,6 @@ namespace Homura
         }
     }
 
-    void VulkanCommandBuffer::begin(const VkCommandBufferUsageFlags flag, const VkCommandBufferInheritanceInfo &inheritance)
-    {
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = flag;
-        beginInfo.pInheritanceInfo = &inheritance;
-        VERIFYVULKANRESULT(vkBeginCommandBuffer(mCommandBuffer, &beginInfo));
-    }
-
-    void VulkanCommandBuffer::beginRenderPass(const VkRenderPassBeginInfo &renderPassBeginInfo, const VkSubpassContents &subPassContents)
-    {
-        vkCmdBeginRenderPass(mCommandBuffer, &renderPassBeginInfo, subPassContents);
-    }
-
-    void VulkanCommandBuffer::bindGraphicPipeline(VulkanPipelinePtr pipeline)
-    {
-        vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getHandle());
-    }
     void VulkanCommandBuffer::beginSingleTimeCommands()
     {
         VkCommandBufferAllocateInfo allocInfo{};
@@ -81,6 +65,25 @@ namespace Homura
         vkFreeCommandBuffers(mDevice->getHandle(), mCommandPool->getHandle(), 1, &mCommandBuffer);
     }
 
+    void VulkanCommandBuffer::begin(const VkCommandBufferUsageFlags flag, const VkCommandBufferInheritanceInfo &inheritance)
+    {
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = flag;
+        beginInfo.pInheritanceInfo = &inheritance;
+        VERIFYVULKANRESULT(vkBeginCommandBuffer(mCommandBuffer, &beginInfo));
+    }
+
+    void VulkanCommandBuffer::beginRenderPass(const VkRenderPassBeginInfo &renderPassBeginInfo, const VkSubpassContents &subPassContents)
+    {
+        vkCmdBeginRenderPass(mCommandBuffer, &renderPassBeginInfo, subPassContents);
+    }
+
+    void VulkanCommandBuffer::bindGraphicPipeline(VulkanPipelinePtr pipeline)
+    {
+        vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getHandle());
+    }
+
     void VulkanCommandBuffer::bindVertexBuffer(std::vector<VulkanVertexBufferPtr>& buffers)
     {
         std::vector<VkDeviceSize> offsets(buffers.size(), 0);
@@ -96,5 +99,40 @@ namespace Homura
     void VulkanCommandBuffer::bindIndexBuffer(VulkanIndexBufferPtr buffer)
     {
         vkCmdBindIndexBuffer(mCommandBuffer, buffer->getHandle(), 0, VK_INDEX_TYPE_UINT32);
+    }
+
+    void VulkanCommandBuffer::bindDescriptorSet(const VulkanPipelineLayoutPtr layout, const VulkanDescriptorSetPtr descriptorSet)
+    {
+        vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout->getHandle(), 0, descriptorSet->getCount(), descriptorSet->getData(), 0, nullptr);
+    }
+
+    void VulkanCommandBuffer::draw(size_t vertexCount)
+    {
+        vkCmdDraw(mCommandBuffer, vertexCount, 1, 0, 0);
+    }
+
+    void VulkanCommandBuffer::drawIndex(size_t indexCount)
+    {
+        vkCmdDrawIndexed(mCommandBuffer, indexCount, 1, 0, 0, 0);
+    }
+
+    void VulkanCommandBuffer::drawIndirect(VulkanVertexBufferPtr buffer)
+    {
+        vkCmdDrawIndirect(mCommandBuffer, buffer->getHandle(), 0, 1, sizeof(VkDrawIndirectCommand));
+    }
+
+    void VulkanCommandBuffer::drawIndexIndirect(VulkanStagingBufferPtr buffer)
+    {
+        vkCmdDrawIndexedIndirect(mCommandBuffer, buffer->getHandle(), 0, 1, sizeof(VkDrawIndexedIndirectCommand));
+    }
+
+    void VulkanCommandBuffer::endRenderPass()
+    {
+        vkCmdEndRenderPass(mCommandBuffer);
+    }
+
+    void VulkanCommandBuffer::end()
+    {
+        VERIFYVULKANRESULT(vkEndCommandBuffer(mCommandBuffer));
     }
 }

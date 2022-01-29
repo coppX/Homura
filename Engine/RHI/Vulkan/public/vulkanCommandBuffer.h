@@ -45,7 +45,19 @@ namespace Homura
 
         void bindIndexBuffer(VulkanIndexBufferPtr buffer);
 
-        void bindDescriptorSet();
+        void bindDescriptorSet(const VulkanPipelineLayoutPtr layout, const VulkanDescriptorSetPtr descriptorSet);
+
+        void draw(size_t vertexCount);
+
+        void drawIndex(size_t indexCount);
+
+        void drawIndirect(VulkanVertexBufferPtr buffer);
+
+        void drawIndexIndirect(VulkanStagingBufferPtr buffer);
+
+        void endRenderPass();
+
+        void end();
 
         void beginSingleTimeCommands();
 
