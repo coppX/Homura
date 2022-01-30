@@ -116,36 +116,6 @@ namespace Homura
         return mSwapChain;
     }
 
-    void VulkanRHI::destroyInstance()
-    {
-        mInstance->destroy();
-    }
-
-    void VulkanRHI::destroyDevice()
-    {
-        mDevice->destroy();
-    }
-
-    void VulkanRHI::destroySurface()
-    {
-        mSurface->destroy();
-    }
-
-    void VulkanRHI::destroySwapChain()
-    {
-        mSwapChain->destroy();
-    }
-
-    void VulkanRHI::destroyCommandBuffer()
-    {
-        mCommandBuffer->destroy();
-    }
-
-    void VulkanRHI::destroyFrameBuffer()
-    {
-        mSwapChain->destroyFrameBuffer();
-    }
-
     VulkanTexture2DPtr VulkanRHI::createColorResources()
     {
         return std::make_shared<VulkanTexture2D>(mDevice, mWidth, mHeight, 1, mDevice->getSampleCount(), mSwapChain->getFormat(),
@@ -226,6 +196,35 @@ namespace Homura
     {
         mPipeline = std::make_shared<VulkanPipeline>(mDevice, mRenderPass);
         return mPipeline;
+    }
+    void VulkanRHI::destroyInstance()
+    {
+        mInstance->destroy();
+    }
+
+    void VulkanRHI::destroyDevice()
+    {
+        mDevice->destroy();
+    }
+
+    void VulkanRHI::destroySurface()
+    {
+        mSurface->destroy();
+    }
+
+    void VulkanRHI::destroySwapChain()
+    {
+        mSwapChain->destroy();
+    }
+
+    void VulkanRHI::destroyCommandBuffer()
+    {
+        mCommandBuffer->destroy();
+    }
+
+    void VulkanRHI::destroyFrameBuffer()
+    {
+        mSwapChain->destroyFrameBuffer();
     }
 
     void VulkanRHI::destroyRenderPass()
