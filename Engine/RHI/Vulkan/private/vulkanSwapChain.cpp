@@ -15,9 +15,7 @@
 namespace Homura
 {
     VulkanSwapChain::VulkanSwapChain(VulkanDevicePtr device, GLFWwindow* window, VulkanSurfacePtr surface)
-            : mDevice{device}
-            , mSurface{surface}
-            , mWindow(window)
+            : mDevice{device}, mSurface{surface}, mWindow(window)
     {
 
     }
@@ -165,22 +163,36 @@ namespace Homura
 
     void VulkanSwapChain::destroy()
     {
+        destroyImageView();
+        destroyFrameBuffer();
+        destroySwapChain();
+    }
+
+    void VulkanSwapChain::destroyImageView()
+    {
         for (auto &imageView : mSwapChainImageViews)
         {
             vkDestroyImageView(mDevice->getHandle(), imageView, nullptr);
         }
+        mSwapChainImageViews.clear();
+    }
 
+    void VulkanSwapChain::destroyFrameBuffer()
+    {
         for (auto &framebuffer : mSwapChainFrameBuffers)
         {
             vkDestroyFramebuffer(mDevice->getHandle(), framebuffer, nullptr);
         }
+        mSwapChainFrameBuffers.clear();
+    }
 
+    void VulkanSwapChain::destroySwapChain()
+    {
         if (mSwapChain != VK_NULL_HANDLE)
         {
             vkDestroySwapchainKHR(mDevice->getHandle(), mSwapChain, nullptr);
         }
     }
-
     SwapChainSupportInfo VulkanSwapChain::querySwapChainSupportInfo()
     {
         SwapChainSupportInfo info;

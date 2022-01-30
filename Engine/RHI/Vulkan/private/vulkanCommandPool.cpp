@@ -28,6 +28,11 @@ namespace Homura
         VERIFYVULKANRESULT(vkCreateCommandPool(mDevice->getHandle(), &createInfo, nullptr, &mCommandPool));
     }
 
+    void VulkanCommandPool::reset()
+    {
+        VERIFYVULKANRESULT(vkResetCommandPool(mDevice->getHandle(), mCommandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
+    }
+
     void VulkanCommandPool::destroy()
     {
         if (mCommandPool != VK_NULL_HANDLE)

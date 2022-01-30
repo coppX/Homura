@@ -69,7 +69,7 @@ namespace Homura
         mAttachmentDescriptions.push_back(attachment);
     }
 
-    void VulkanRenderPass::buildRenderPass()
+    void VulkanRenderPass::create()
     {
         assert(!mSubPasses.empty() && !mDependencies.empty() && !mAttachmentDescriptions.empty());
 
@@ -92,5 +92,14 @@ namespace Homura
         createInfo.pSubpasses = subPasses.data();
 
         VERIFYVULKANRESULT(vkCreateRenderPass(mDevice->getHandle(), &createInfo, nullptr, &mRenderPass));
+    }
+
+    void VulkanRenderPass::destroy()
+    {
+        if (mRenderPass != VK_NULL_HANDLE)
+        {
+            vkDestroyRenderPass(mDevice->getHandle(), mRenderPass, nullptr);
+            mRenderPass = VK_NULL_HANDLE;
+        }
     }
 }

@@ -47,6 +47,36 @@ namespace Homura
         destroyInstance();
     }
 
+    void VulkanRHI::init()
+    {
+        createInstance();
+        createDevice();
+        createSurface();
+        createSwapChain();
+        createRenderPass();
+        createDescriptorPool();
+        createCommandPool();
+        createFrameBuffer();
+        createCommandBuffer();
+        createFence();
+        createPipeline();
+    }
+
+    void VulkanRHI::exit()
+    {
+        destroyPipeline();
+        destroyFence();
+        destroyCommandBuffer();
+        destroyFrameBuffer();
+        destroyCommandPool();
+        destroyDescriptorPool();
+        destroyRenderPass();
+        destroySwapChain();
+        destroySurface();
+        destroyDevice();
+        destroyInstance();
+    }
+
     VulkanInstancePtr VulkanRHI::getInstance()
     {
         return mInstance;
@@ -109,6 +139,11 @@ namespace Homura
     void VulkanRHI::destroyCommandBuffer()
     {
         mCommandBuffer->destroy();
+    }
+
+    void VulkanRHI::destroyFrameBuffer()
+    {
+        mSwapChain->destroyFrameBuffer();
     }
 
     VulkanTexture2DPtr VulkanRHI::createColorResources()
@@ -191,6 +226,16 @@ namespace Homura
     {
         mPipeline = std::make_shared<VulkanPipeline>(mDevice, mRenderPass);
         return mPipeline;
+    }
+
+    void VulkanRHI::destroyRenderPass()
+    {
+        mRenderPass->destroy();
+    }
+
+    void VulkanRHI::destroyCommandPool()
+    {
+        mCommandPool->destroy();
     }
 
     void VulkanRHI::destroyDescriptorPool()

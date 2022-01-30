@@ -30,6 +30,9 @@ namespace Homura
 
         void create();
         void destroy();
+        void destroyImageView();
+        void destroyFrameBuffer();
+        void destroySwapChain();
 
         VkSwapchainKHR getHandle()
         {

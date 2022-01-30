@@ -126,7 +126,7 @@ namespace Homura
         bool init()
         {
             initWindow();
-            initVulkan();
+            rhi->init();
             update();
             return true;
         }
@@ -145,32 +145,7 @@ namespace Homura
 
         void exit()
         {
-            cleanupSwapChain();
-
-            vkDestroySampler(rhi->getDevice()->getHandle(), textureSampler, nullptr);
-            vkDestroyImageView(rhi->getDevice()->getHandle(), textureImageView, nullptr);
-
-            vkDestroyImage(rhi->getDevice()->getHandle(), textureImage, nullptr);
-            vkFreeMemory(rhi->getDevice()->getHandle(), textureImageMemory, nullptr);
-
-            vkDestroyDescriptorSetLayout(rhi->getDevice()->getHandle(), descriptorSetLayout, nullptr);
-
-            vkDestroyBuffer(rhi->getDevice()->getHandle(), indexBuffer, nullptr);
-            vkFreeMemory(rhi->getDevice()->getHandle(), indexBufferMemory, nullptr);
-
-            vkDestroyBuffer(rhi->getDevice()->getHandle(), vertexBuffer, nullptr);
-            vkFreeMemory(rhi->getDevice()->getHandle(), vertexBufferMemory, nullptr);
-
-            vkDestroyCommandPool(rhi->getDevice()->getHandle(), commandPool, nullptr);
-
-            vkDestroyDevice(rhi->getDevice()->getHandle(), nullptr);
-
-//            if (enableValidationLayers)
-//            {
-//                DestroyDebugUtilsMessengerEXT(rhi->getInstance(), debugMessenger, nullptr);
-//            }
-            rhi->destroyInstance();
-
+            rhi->exit();
             glfwDestroyWindow(mWindow);
             glfwTerminate();
         }

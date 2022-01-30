@@ -15,6 +15,7 @@ namespace Homura
         ~VulkanCommandPool();
 
         void create();
+        void reset();
         void destroy();
 
         VkCommandPool& getHandle()

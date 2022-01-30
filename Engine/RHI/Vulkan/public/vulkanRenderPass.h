@@ -37,6 +37,9 @@ namespace Homura
         VulkanRenderPass(VulkanDevicePtr device);
         ~VulkanRenderPass();
 
+        void create();
+        void destroy();
+
         void addSubPass(const VulkanSubPass &subPass);
 
         void addDependency(const VkSubpassDependency &dependency);
@@ -48,7 +51,6 @@ namespace Homura
             return mRenderPass;
         }
 
-        void buildRenderPass();
     private:
         VulkanDevicePtr                         mDevice;
         VkRenderPass                            mRenderPass;

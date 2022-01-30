@@ -21,6 +21,7 @@ namespace Homura
         virtual ~VulkanRHI();
 
         void init();
+        void exit();
 
         VulkanInstancePtr getInstance();
         VulkanDevicePtr getDevice();
@@ -46,8 +47,11 @@ namespace Homura
         void destroyDevice();
         void destroySurface();
         void destroySwapChain();
+        void destroyRenderPass();
         void destroyDescriptorPool();
+        void destroyFrameBuffer();
         void destroyCommandBuffer();
+        void destroyCommandPool();
         void destroyFence();
         void destroyPipeline();
 
