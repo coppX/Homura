@@ -120,14 +120,14 @@ namespace Homura
         for (int i = 0; i < mImageCount; ++i)
         {
             mDepthImages[i] = std::make_shared<VulkanTextureDepth>(mDevice,
-                                                 mSwapChainExtent.width,
-                                                 mSwapChainExtent.height,
-                                                 1,
-                                                 mDevice->getSampleCount(),
-                                                 findDepthFormat(mDevice),
-                                                 VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                                                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-                                                 );
+                         mSwapChainExtent.width,
+                         mSwapChainExtent.height,
+                         1,
+                         mDevice->getSampleCount(),
+                         findDepthFormat(mDevice),
+                         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+                         );
 
 //            mDepthImages[i]->setImageLayout(
 //                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,

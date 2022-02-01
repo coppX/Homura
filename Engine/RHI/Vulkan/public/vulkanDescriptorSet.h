@@ -58,7 +58,5 @@ namespace Homura
         VulkanDescriptorSetLayoutPtr    mLayout;
         std::vector<VkDescriptorSet>    mDescriptorSets;
     };
-
-
 }
 #endif //HOMURA_VULKANDESCRIPTOR_H
