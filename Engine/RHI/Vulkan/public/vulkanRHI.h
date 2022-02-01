@@ -67,6 +67,7 @@ namespace Homura
 
         void createSampler();
 
+        void idle();
         void addPushConstant(const VkPushConstantRange& constantRange, const char* data);
 
     private:

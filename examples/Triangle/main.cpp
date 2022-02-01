@@ -16,31 +16,15 @@
 
 #include <iostream>
 #include <exception>
-#include <algorithm>
 #include <vector>
-#include <optional>
 #include <array>
-#include <chrono>
 #include <string>
 #include <unordered_map>
 #include <memory>
 
 #include <filesystem.h>
 #include <application.h>
-#include <debugUtils.h>
-#include <vulkanShader.h>
-#include <vulkanSwapChain.h>
-#include <vulkanQueue.h>
-#include <vulkanDevice.h>
 #include <vulkanRHI.h>
-//#include <vulkanTexture.h>
-#include <vulkanRenderPass.h>
-#include <vulkanGfxPipeline.h>
-#include <vulkanFence.h>
-#include <vulkanFrameBuffer.h>
-#include <vulkanDescriptorSet.h>
-#include <vulkanCommandBuffer.h>
-#include <vulkanBuffer.h>
 
 struct Vertex
 {
@@ -140,7 +124,7 @@ namespace Homura
                 glfwPollEvents();
 //                drawFrame();
             }
-            vkDeviceWaitIdle(rhi->getDevice()->getHandle());
+            rhi->idle();
         }
 
         void exit()
@@ -167,11 +151,6 @@ namespace Homura
         {
             if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
                 glfwSetWindowShouldClose(window, true);
-        }
-
-        void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
-        {
-
         }
 
         void loadModel()
