@@ -65,14 +65,11 @@ namespace Homura
         VulkanUniformBufferPtr createUniformBuffer(uint32_t size, void* pData);
         VulkanStagingBufferPtr createStagingBuffer(uint32_t size, void* pData);
 
-        void createSampler();
-
         void idle();
         void addPushConstant(const VkPushConstantRange& constantRange, const char* data);
 
     private:
-        VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-        VkFormat findDepthFormat();
+
     private:
         VulkanInstancePtr                   mInstance;;
         VulkanDevicePtr                     mDevice;

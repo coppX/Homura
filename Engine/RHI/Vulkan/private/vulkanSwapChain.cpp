@@ -9,6 +9,7 @@
 #include <vulkanTexture.h>
 #include <vulkanRenderPass.h>
 #include <vulkanSurface.h>
+#include <pixelFormat.h>
 #include <algorithm>
 #include <array>
 
@@ -118,13 +119,16 @@ namespace Homura
 
         for (int i = 0; i < mImageCount; ++i)
         {
-//            mDepthImages[i] = Image::createDepthImage(
-//                    mDevice,
-//                    mSwapChainExtent.width,
-//                    mSwapChainExtent.height,
-//                    mDevice->getMaxUsableSampleCount()
-//            );
-//
+            mDepthImages[i] = std::make_shared<VulkanTextureDepth>(mDevice,
+                                                 mSwapChainExtent.width,
+                                                 mSwapChainExtent.height,
+                                                 1,
+                                                 mDevice->getSampleCount(),
+                                                 findDepthFormat(mDevice),
+                                                 VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+                                                 );
+
 //            mDepthImages[i]->setImageLayout(
 //                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
 //                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
@@ -144,12 +148,16 @@ namespace Homura
         regionMultiSample.layerCount = 1;
         for (int i = 0; i < mImageCount; ++i)
         {
-//            mMutiSampleImages[i] = Image::createRenderTargetImage(
-//                    mDevice,
-//                    mSwapChainExtent.width,
-//                    mSwapChainExtent.height,
-//                    mSwapChainFormat
-//            );
+            mMultiSampleImages[i] = std::make_shared<VulkanTexture2D>(
+                    mDevice,
+                    mSwapChainExtent.width,
+                    mSwapChainExtent.height,
+                    1,
+                    mDevice->getSampleCount(),
+                    mSwapChainFormat,
+                    VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+            );
 //
 //            mMutiSampleImages[i]->setImageLayout(
 //                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,

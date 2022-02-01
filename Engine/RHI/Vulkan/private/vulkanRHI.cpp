@@ -37,42 +37,21 @@ namespace Homura
 
     VulkanRHI::~VulkanRHI()
     {
-        destroyFence();
-        destroyPipeline();
-        destroyCommandBuffer();
-        destroyDescriptorPool();
-        destroySwapChain();
-        destroySurface();
-        destroyDevice();
-        destroyInstance();
+        exit();
     }
 
     void VulkanRHI::init()
     {
         createInstance();
         createDevice();
-        createSurface();
         createSwapChain();
-        createRenderPass();
-        createDescriptorPool();
         createCommandPool();
-        createFrameBuffer();
-        createCommandBuffer();
-        createFence();
-        createPipeline();
     }
 
     void VulkanRHI::exit()
     {
-        destroyPipeline();
-        destroyFence();
-        destroyCommandBuffer();
-        destroyFrameBuffer();
         destroyCommandPool();
-        destroyDescriptorPool();
-        destroyRenderPass();
         destroySwapChain();
-        destroySurface();
         destroyDevice();
         destroyInstance();
     }
@@ -124,7 +103,7 @@ namespace Homura
 
     VulkanTextureDepthPtr VulkanRHI::createDepthResources()
     {
-        return std::make_shared<VulkanTextureDepth>(mDevice, mWidth, mHeight, 1, mDevice->getSampleCount(), findDepthFormat(),
+        return std::make_shared<VulkanTextureDepth>(mDevice, mWidth, mHeight, 1, mDevice->getSampleCount(), findDepthFormat(mDevice),
                                                     VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     }
 
@@ -169,11 +148,6 @@ namespace Homura
     {
         mCommandBuffer = std::make_shared<VulkanCommandBuffer>(mDevice, mCommandPool);
         return mCommandBuffer;
-    }
-
-    void VulkanRHI::createSampler()
-    {
-
     }
 
     VulkanRenderPassPtr VulkanRHI::createRenderPass()
@@ -250,29 +224,6 @@ namespace Homura
     void VulkanRHI::destroyPipeline()
     {
         mPipeline->destroy();
-    }
-    VkFormat VulkanRHI::findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
-    {
-        for (VkFormat format : candidates)
-        {
-            VkFormatProperties props;
-            vkGetPhysicalDeviceFormatProperties(mDevice->getPhysicalHandle(), format, &props);
-
-            if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
-            {
-                return format;
-            }
-            else if (tiling == VK_IMAGE_TILING_OPTIMAL & (props.optimalTilingFeatures & features) == features)
-            {
-                return format;
-            }
-        }
-        throw std::runtime_error("failed to find supported format!");
-    }
-    VkFormat VulkanRHI::findDepthFormat()
-    {
-        return findSupportedFormat({VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
-                                   VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     }
 
     void VulkanRHI::idle()

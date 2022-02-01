@@ -120,7 +120,6 @@ namespace Homura
             while (!glfwWindowShouldClose(mWindow))
             {
                 processInput(mWindow);
-
                 glfwPollEvents();
 //                drawFrame();
             }

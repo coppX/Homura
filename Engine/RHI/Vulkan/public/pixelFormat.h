@@ -6,6 +6,10 @@
 #define HOMURA_PIXELFORMAT_H
 
 #include <cstdint>
+#include <vulkan/vulkan.h>
+#include <vulkanTypes.h>
+#include <vector>
+
 namespace Homura
 {
     enum EPixelFormat
@@ -95,6 +99,10 @@ namespace Homura
     };
 
     extern PixelFormatInfo PixelFormats[PF_MAX];
+
+    VkFormat findSupportedFormat(VulkanDevicePtr device, const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+
+    VkFormat findDepthFormat(VulkanDevicePtr device);
 }
 
 #endif //HOMURA_PIXELFORMAT_H
