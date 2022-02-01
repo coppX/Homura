@@ -10,6 +10,7 @@
 #include <vulkanBuffer.h>
 #include <vulkanLayout.h>
 #include <vulkanDescriptorSet.h>
+#include <vulkanFence.h>
 #include <debugUtils.h>
 
 namespace Homura
@@ -54,14 +55,7 @@ namespace Homura
     {
         vkEndCommandBuffer(mCommandBuffer);
 
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &mCommandBuffer;
-
-        vkQueueSubmit(mDevice->getGraphicsQueue()->getHandle(), 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(mDevice->getGraphicsQueue()->getHandle());
-
+        submitSync(mDevice->getGraphicsQueue(), VK_NULL_HANDLE);
         vkFreeCommandBuffers(mDevice->getHandle(), mCommandPool->getHandle(), 1, &mCommandBuffer);
     }
 
@@ -134,5 +128,36 @@ namespace Homura
     void VulkanCommandBuffer::end()
     {
         VERIFYVULKANRESULT(vkEndCommandBuffer(mCommandBuffer));
+    }
+
+    void VulkanCommandBuffer::submitSync(VulkanQueuePtr queue, VulkanFencePtr fence)
+    {
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &mCommandBuffer;
+
+        VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, fence->getHandle()));
+        VERIFYVULKANRESULT(vkQueueWaitIdle(queue->getHandle()));
+    }
+
+    void VulkanCommandBuffer::transferImageLayout(const VkImageMemoryBarrier& imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)
+    {
+        vkCmdPipelineBarrier(
+                mCommandBuffer,
+                srcStageMask,
+                dstStageMask,
+                0,
+                0, nullptr,// MemoryBarrier
+                0, nullptr,//BufferMemoryBarrier
+                1, &imageMemoryBarrier//imageMemoryBarrier
+                );
+    }
+
+    void VulkanCommandBuffer::blitImage(VkImage srcImage, VkImageLayout srcImageLayout,
+                   VkImage dstImage, VkImageLayout dstImageLayout,
+                   uint32_t regionCount, VkImageBlit* Regions, VkFilter filter)
+    {
+        vkCmdBlitImage(mCommandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, Regions, filter);
     }
 }

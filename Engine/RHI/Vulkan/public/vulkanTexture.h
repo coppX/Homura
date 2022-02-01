@@ -65,7 +65,13 @@ namespace Homura
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+        void setImageLayout(VkImageLayout newLayout,
+                            VkPipelineStageFlags srcStageMask,
+                            VkPipelineStageFlags dstStageMask,
+                            VkImageSubresourceRange subresourceRange,
+                            VulkanCommandBufferPtr command);
+
+        void generateMipmaps(VulkanCommandBufferPtr commandBuffer, VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
     private:
         VulkanDevicePtr                 mDevice;
 
@@ -75,16 +81,13 @@ namespace Homura
         VkSampler                       mSampler;
         VkFormat                        mFormat;
         VkImageLayout                   mImageLayout;
-
         TextureType                     mType;
 
         uint32_t                        mWidth, mHeight;
         uint32_t                        mMipLevels, mLayerCount;
         uint32_t                        mNumSamples;
-        VkDescriptorImageInfo           mDescriptor;
 
         VkMemoryPropertyFlags           mProperties;
-
     };
 
     class VulkanTexture1D : public VulkanTexture

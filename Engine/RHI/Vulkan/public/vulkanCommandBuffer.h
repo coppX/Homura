@@ -59,6 +59,13 @@ namespace Homura
 
         void end();
 
+        void submitSync(VulkanQueuePtr queue, VulkanFencePtr fence);
+
+        void transferImageLayout(const VkImageMemoryBarrier& imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask);
+
+        void blitImage(VkImage srcImage, VkImageLayout srcImageLayout,
+                       VkImage dstImage, VkImageLayout dstImageLayout,
+                       uint32_t regionCount, VkImageBlit* Regions, VkFilter filter);
         void beginSingleTimeCommands();
 
         void endSingleTimeCommands();
