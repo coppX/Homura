@@ -35,14 +35,17 @@ namespace Homura
         if (mImageView != VK_NULL_HANDLE)
         {
             vkDestroyImageView(mDevice->getHandle(), mImageView, nullptr);
+            mImageView = VK_NULL_HANDLE;
         }
         if (mImage != VK_NULL_HANDLE)
         {
             vkDestroyImage(mDevice->getHandle(), mImage, nullptr);
+            mImage = VK_NULL_HANDLE;
         }
         if (mImageMemory != VK_NULL_HANDLE)
         {
             vkFreeMemory(mDevice->getHandle(), mImageMemory, nullptr);
+            mImageMemory = VK_NULL_HANDLE;
         }
     }
 

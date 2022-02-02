@@ -17,7 +17,7 @@ namespace Homura
 
     VulkanSurface::~VulkanSurface()
     {
-        destroy();
+
     }
 
     void VulkanSurface::create()

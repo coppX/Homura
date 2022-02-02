@@ -37,12 +37,13 @@ namespace Homura
 
     VulkanRHI::~VulkanRHI()
     {
-        exit();
+
     }
 
     void VulkanRHI::init()
     {
         createInstance();
+        createSurface();
         createDevice();
         createSwapChain();
         createCommandPool();

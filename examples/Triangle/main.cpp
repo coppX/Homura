@@ -97,9 +97,9 @@ namespace Homura
     {
     public:
         TriangleApplication()
-            : rhi{std::make_shared<VulkanRHI>(mWindow)}
         {
-
+            initWindow();
+            rhi = std::make_shared<VulkanRHI>(mWindow);
         }
 
         ~TriangleApplication()
@@ -109,7 +109,6 @@ namespace Homura
 
         bool init()
         {
-            initWindow();
             rhi->init();
             update();
             return true;

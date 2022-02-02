@@ -20,7 +20,7 @@ namespace Homura
         , mSurface{surface}
         , mMsaaSamples{VK_SAMPLE_COUNT_1_BIT}
     {
-
+        create();
     }
 
     VulkanDevice::~VulkanDevice()
@@ -122,9 +122,7 @@ namespace Homura
         VkPhysicalDeviceFeatures deviceFeatures;
         vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-        return deviceProp.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
-               deviceFeatures.geometryShader &&
-               deviceFeatures.samplerAnisotropy;
+        return deviceFeatures.samplerAnisotropy;
     }
 
     VkSampleCountFlagBits VulkanDevice::getMaxUsableSampleCount()
@@ -155,7 +153,7 @@ namespace Homura
         int i = 0;
         for (const auto& queueFamily : queueFamilies)
         {
-            if (queueFamily.queueFlags == VK_QUEUE_GRAPHICS_BIT)
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
                 indices.graphicsFamily = i;
             }
