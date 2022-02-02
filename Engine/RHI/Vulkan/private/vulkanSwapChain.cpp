@@ -47,10 +47,7 @@ namespace Homura
 
     VulkanSwapChain::~VulkanSwapChain()
     {
-//        for (auto & multiSampleImage : mMultiSampleImages)
-//        {
-//            mMultiSampleImages->
-//        }
+
     }
 
     void VulkanSwapChain::create()
@@ -120,17 +117,17 @@ namespace Homura
         region.baseArrayLayer = 0;
         region.layerCount = 1;
 
-//        for (int i = 0; i < mImageCount; ++i)
-//        {
-//            mDepthImages[i] = std::make_shared<VulkanTextureDepth>(mDevice,
-//                         mSwapChainExtent.width,
-//                         mSwapChainExtent.height,
-//                         1,
-//                         mDevice->getSampleCount(),
-//                         findDepthFormat(mDevice),
-//                         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-//                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-//                         );
+        for (int i = 0; i < mImageCount; ++i)
+        {
+            mDepthImages[i] = std::make_shared<VulkanTextureDepth>(mDevice,
+                         mSwapChainExtent.width,
+                         mSwapChainExtent.height,
+                         1,
+                         mDevice->getSampleCount(),
+                         findDepthFormat(mDevice),
+                         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+                         );
 
 //            mDepthImages[i]->setImageLayout(
 //                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
@@ -139,7 +136,7 @@ namespace Homura
 //                    region,
 //                    commandPool
 //            );
-//        }
+        }
 
         mMultiSampleImages.resize(mImageCount);
 
@@ -149,18 +146,18 @@ namespace Homura
         regionMultiSample.levelCount = 1;
         regionMultiSample.baseArrayLayer = 0;
         regionMultiSample.layerCount = 1;
-//        for (int i = 0; i < mImageCount; ++i)
-//        {
-//            mMultiSampleImages[i] = std::make_shared<VulkanTexture2D>(
-//                    mDevice,
-//                    mSwapChainExtent.width,
-//                    mSwapChainExtent.height,
-//                    1,
-//                    mDevice->getSampleCount(),
-//                    mSwapChainFormat,
-//                    VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-//                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-//            );
+        for (int i = 0; i < mImageCount; ++i)
+        {
+            mMultiSampleImages[i] = std::make_shared<VulkanTexture2D>(
+                    mDevice,
+                    mSwapChainExtent.width,
+                    mSwapChainExtent.height,
+                    1,
+                    mDevice->getSampleCount(),
+                    mSwapChainFormat,
+                    VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+            );
 //
 //            mMutiSampleImages[i]->setImageLayout(
 //                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
@@ -169,11 +166,23 @@ namespace Homura
 //                    regionMutiSample,
 //                    commandPool
 //            );
-//        }
+        }
     }
 
     void VulkanSwapChain::destroy()
     {
+        for (auto& multiSampleImage : mMultiSampleImages)
+        {
+            multiSampleImage->destroy();
+        }
+
+        for (auto& depthImage : mDepthImages)
+        {
+            depthImage->destroy();
+        }
+        mMultiSampleImages.clear();
+        mDepthImages.clear();
+
         destroyImageView();
         destroyFrameBuffer();
         destroySwapChain();

@@ -39,6 +39,7 @@ namespace Homura
                       uint32_t mipLevels, uint32_t arraySize, uint32_t numSamples, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
         ~VulkanTexture();
 
+        void destroy();
 //        void fromBuffer(VulkanBufferPtr buffer, uint32_t width, uint32_t height);
 
         VkImage& getImage()

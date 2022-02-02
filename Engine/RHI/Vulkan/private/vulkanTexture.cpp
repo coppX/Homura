@@ -32,6 +32,11 @@ namespace Homura
 
     VulkanTexture::~VulkanTexture()
     {
+
+    }
+
+    void VulkanTexture::destroy()
+    {
         if (mImageView != VK_NULL_HANDLE)
         {
             vkDestroyImageView(mDevice->getHandle(), mImageView, nullptr);
