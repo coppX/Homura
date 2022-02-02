@@ -15,7 +15,6 @@ namespace Homura
         : mDevice{VK_NULL_HANDLE}
         , mPhysicalDevice{VK_NULL_HANDLE}
         , mGfxQueue{nullptr}
-        , mPresentQueue{nullptr}
         , mInstance{instance}
         , mSurface{surface}
         , mMsaaSamples{VK_SAMPLE_COUNT_1_BIT}
@@ -46,23 +45,30 @@ namespace Homura
     void VulkanDevice::pickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
-        VERIFYVULKANRESULT(vkEnumeratePhysicalDevices(mInstance->getHandle(), &deviceCount, nullptr));
-        if (deviceCount != 0)
-        {
-            std::vector<VkPhysicalDevice> devices(deviceCount);
-            VERIFYVULKANRESULT(vkEnumeratePhysicalDevices(mInstance->getHandle(), &deviceCount, devices.data()));
+        vkEnumeratePhysicalDevices(mInstance->getHandle(), &deviceCount, nullptr);
 
-            for (const auto& device : devices)
+        if (deviceCount == 0)
+        {
+            throw std::runtime_error("failed to find GPUs with Vulkan support!");
+        }
+
+        std::vector<VkPhysicalDevice> devices(deviceCount);
+        vkEnumeratePhysicalDevices(mInstance->getHandle(), &deviceCount, devices.data());
+
+        for (const auto &device : devices)
+        {
+            if (isDeviceSuitable(device))
             {
-                if (isDeviceSuitable(device))
-                {
-                    mPhysicalDevice = device;
-                    mMsaaSamples = getMaxUsableSampleCount();
-                    break;
-                }
+                mPhysicalDevice = device;
+                mMsaaSamples = getMaxUsableSampleCount();
+                break;
             }
         }
-        assert(mPhysicalDevice != VK_NULL_HANDLE);
+
+        if (mPhysicalDevice == VK_NULL_HANDLE)
+        {
+            throw std::runtime_error("failed to find a suitable GPU!");
+        }
     }
 
     void VulkanDevice::createLogicalDevice()
@@ -70,7 +76,7 @@ namespace Homura
         QueueFamilyIndices indices = findQueueFamilies(mPhysicalDevice);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-        std::vector<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+        std::vector<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value()};
 
         float queuePriority = 1.0f;
         for (uint32_t queueFamily : uniqueQueueFamilies)
@@ -111,7 +117,6 @@ namespace Homura
         VERIFYVULKANRESULT(vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice));
 
         mGfxQueue = std::make_shared<VulkanQueue>(std::make_shared<VkDevice>(mDevice), indices.graphicsFamily.value());
-        mPresentQueue = std::make_shared<VulkanQueue>(std::make_shared<VkDevice>(mDevice), indices.presentFamily.value());
     }
 
     bool VulkanDevice::isDeviceSuitable(VkPhysicalDevice device)
@@ -144,6 +149,7 @@ namespace Homura
     QueueFamilyIndices VulkanDevice::findQueueFamilies(VkPhysicalDevice device)
     {
         QueueFamilyIndices indices;
+
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
@@ -151,27 +157,21 @@ namespace Homura
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
         int i = 0;
-        for (const auto& queueFamily : queueFamilies)
+        for (const auto &queueFamily : queueFamilies)
         {
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            if (queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT))
             {
                 indices.graphicsFamily = i;
-            }
-
-            VkBool32 presentSupport = false;
-            VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfaceSupportKHR(device, i, mSurface->getHandle(), &presentSupport));
-
-            if (presentSupport)
-            {
-                indices.presentFamily = i;
             }
 
             if (indices.isComplete())
             {
                 break;
             }
+
             i++;
         }
+
         return indices;
     }
 }

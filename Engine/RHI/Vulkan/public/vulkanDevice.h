@@ -16,7 +16,7 @@ namespace Homura
 {
     const std::vector<const char*> deviceRequiredExtensions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-            VK_KHR_MAINTENANCE1_EXTENSION_NAME
+            "VK_KHR_portability_subset"
     };
 
     const std::vector<const char*> validationLayers = {
@@ -26,11 +26,10 @@ namespace Homura
     struct QueueFamilyIndices
     {
         std::optional<uint32_t> graphicsFamily;
-        std::optional<uint32_t> presentFamily;
 
         bool isComplete()
         {
-            return graphicsFamily.has_value() && presentFamily.has_value();
+            return graphicsFamily.has_value();
         }
     };
 
@@ -60,11 +59,6 @@ namespace Homura
             return mGfxQueue;
         }
 
-        VulkanQueuePtr getPresentQueue()
-        {
-            return mPresentQueue;
-        }
-
         const VkSampleCountFlagBits& getSampleCount() const
         {
             return mMsaaSamples;
@@ -85,7 +79,6 @@ namespace Homura
         VulkanSurfacePtr                mSurface;
 
         VulkanQueuePtr                  mGfxQueue;
-        VulkanQueuePtr                  mPresentQueue;
 
         VkSampleCountFlagBits           mMsaaSamples;
     };

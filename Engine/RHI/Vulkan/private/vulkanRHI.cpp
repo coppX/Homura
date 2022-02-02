@@ -54,6 +54,7 @@ namespace Homura
         destroyCommandPool();
         destroySwapChain();
         destroyDevice();
+        destroySurface();
         destroyInstance();
     }
 
