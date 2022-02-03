@@ -11,6 +11,7 @@ include_directories("libs/glm")
 include_directories("libs/glfw/include")
 include_directories("Engine/platform")
 include_directories("Engine/RHI/Vulkan/public")
+include_directories("Engine/Component/public")
 include_directories("Engine/Application")
 
 link_directories("libs/libs")
