@@ -57,8 +57,33 @@ namespace Homura
         bool init()
         {
             rhi->init();
+            rhi->createRenderPass();
+            rhi->createDescriptorPool();
+            rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
+            rhi->createPipeline();
+            rhi->createColorResources();
+            rhi->createDepthResources();
+
             update();
             return true;
+        }
+
+        std::vector<VkDescriptorSetLayoutBinding> getDescriptorSetLayoutBinding()
+        {
+            VkDescriptorSetLayoutBinding uboLayoutBinding{};
+            uboLayoutBinding.binding = 0;
+            uboLayoutBinding.descriptorCount = 1;
+            uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            uboLayoutBinding.pImmutableSamplers = nullptr;
+            uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+            VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+            samplerLayoutBinding.binding = 1;
+            samplerLayoutBinding.descriptorCount = 1;
+            samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            samplerLayoutBinding.pImmutableSamplers = nullptr;
+            samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            return {uboLayoutBinding, samplerLayoutBinding};
         }
 
         void update()
@@ -74,6 +99,12 @@ namespace Homura
 
         void exit()
         {
+            rhi->destroyDepthResources();
+            rhi->destroyColorResources();
+            rhi->destroyPipeline();
+            rhi->destroyDescriptorSet();
+            rhi->destroyDescriptorPool();
+            rhi->destroyRenderPass();
             rhi->exit();
             glfwDestroyWindow(mWindow);
             glfwTerminate();

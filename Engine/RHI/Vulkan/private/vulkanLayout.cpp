@@ -17,10 +17,10 @@ namespace Homura
 
     VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
     {
-        destroy();
+
     }
 
-    void VulkanDescriptorSetLayout::create(std::vector<VkDescriptorSetLayoutBinding> bindings)
+    void VulkanDescriptorSetLayout::create(const std::vector<VkDescriptorSetLayoutBinding>& bindings)
     {
         VkDescriptorSetLayoutCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;

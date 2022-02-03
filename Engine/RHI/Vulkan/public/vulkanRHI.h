@@ -34,6 +34,7 @@ namespace Homura
         VulkanSwapChainPtr createSwapChain();
         VulkanRenderPassPtr createRenderPass();
         VulkanDescriptorPoolPtr createDescriptorPool();
+        VulkanDescriptorSetPtr createDescriptorSet(const std::vector<VkDescriptorSetLayoutBinding>& bindings);
         VulkanCommandPoolPtr createCommandPool();
         void createFrameBuffer();
         VulkanCommandBufferPtr createCommandBuffer();
@@ -48,6 +49,7 @@ namespace Homura
         void destroySurface();
         void destroySwapChain();
         void destroyRenderPass();
+        void destroyDescriptorSet();
         void destroyDescriptorPool();
         void destroyFrameBuffer();
         void destroyCommandBuffer();
@@ -59,6 +61,8 @@ namespace Homura
 
         VulkanTexture2DPtr createColorResources();
         VulkanTextureDepthPtr createDepthResources();
+        void destroyColorResources();
+        void destroyDepthResources();
 
         VulkanVertexBufferPtr createVertexBuffer(uint32_t size, void* pData);
         VulkanIndexBufferPtr createIndexBuffer(uint32_t size, void* pData);
@@ -77,10 +81,13 @@ namespace Homura
         VulkanSwapChainPtr                  mSwapChain;
         VulkanRenderPassPtr                 mRenderPass;
         VulkanDescriptorPoolPtr             mDescriptorPool;
+        VulkanDescriptorSetPtr              mDescriptorSet;
         VulkanCommandPoolPtr                mCommandPool;
         VulkanCommandBufferPtr              mCommandBuffer;
         VulkanFencePtr                      mFence;
         VulkanPipelinePtr                   mPipeline;
+        VulkanTexture2DPtr                  mRenderTarget;
+        VulkanTextureDepthPtr               mRenderTargetDepth;
 
         GLFWwindow*                         mWindow;
         uint32_t                            mWidth;

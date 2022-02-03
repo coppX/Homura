@@ -43,6 +43,7 @@ namespace Homura
         createInfo.poolSizeCount = static_cast<uint32_t>(poolSize.size());
         createInfo.pPoolSizes = poolSize.data();
         createInfo.maxSets = mFrameCount;
+        createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
         VERIFYVULKANRESULT(vkCreateDescriptorPool(mDevice->getHandle(), &createInfo, nullptr, &mDescriptorPool));
     }
@@ -62,6 +63,16 @@ namespace Homura
         , mLayout{layout}
         , mDescriptorSets{0}
     {
+        create();
+    }
+
+    VulkanDescriptorSet::~VulkanDescriptorSet()
+    {
+        destroy();
+    }
+
+    void VulkanDescriptorSet::create()
+    {
         std::vector<VkDescriptorSetLayout> layouts(mPool->getFrameCount(), mLayout->getHandle());
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -73,11 +84,12 @@ namespace Homura
         VERIFYVULKANRESULT(vkAllocateDescriptorSets(mDevice->getHandle(), &allocInfo, mDescriptorSets.data()));
     }
 
-    VulkanDescriptorSet::~VulkanDescriptorSet()
+    void VulkanDescriptorSet::destroy()
     {
         if (!mDescriptorSets.empty())
         {
             vkFreeDescriptorSets(mDevice->getHandle(), mPool->getHandle(), mDescriptorSets.size(), mDescriptorSets.data());
+            mDescriptorSets.clear();
         }
     }
 }

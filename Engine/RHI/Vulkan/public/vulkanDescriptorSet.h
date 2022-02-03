@@ -42,6 +42,9 @@ namespace Homura
         VulkanDescriptorSet(VulkanDevicePtr device, VulkanDescriptorPoolPtr pool, VulkanDescriptorSetLayoutPtr layout);
         ~VulkanDescriptorSet();
 
+        void create();
+        void destroy();
+
         const uint32_t getCount()
         {
             return (uint32_t )mDescriptorSets.size();

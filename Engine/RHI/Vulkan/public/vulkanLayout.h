@@ -17,7 +17,7 @@ namespace Homura
         explicit VulkanDescriptorSetLayout(VulkanDevicePtr device);
         ~VulkanDescriptorSetLayout();
 
-        void create(std::vector<VkDescriptorSetLayoutBinding> bindings);
+        void create(const std::vector<VkDescriptorSetLayoutBinding>& bindings);
         void destroy();
         VkDescriptorSetLayout& getHandle()
         {

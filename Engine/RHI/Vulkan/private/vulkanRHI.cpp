@@ -16,6 +16,7 @@
 #include <vulkanFence.h>
 #include <vulkanBuffer.h>
 #include <vulkanTexture.h>
+#include <vulkanLayout.h>
 
 namespace Homura
 {
@@ -99,14 +100,26 @@ namespace Homura
 
     VulkanTexture2DPtr VulkanRHI::createColorResources()
     {
-        return std::make_shared<VulkanTexture2D>(mDevice, mWidth, mHeight, 1, mDevice->getSampleCount(), mSwapChain->getFormat(),
+        mRenderTarget =  std::make_shared<VulkanTexture2D>(mDevice, mWidth, mHeight, 1, mDevice->getSampleCount(), mSwapChain->getFormat(),
                                           VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        return  mRenderTarget;
     }
 
     VulkanTextureDepthPtr VulkanRHI::createDepthResources()
     {
-        return std::make_shared<VulkanTextureDepth>(mDevice, mWidth, mHeight, 1, mDevice->getSampleCount(), findDepthFormat(mDevice),
+        mRenderTargetDepth =  std::make_shared<VulkanTextureDepth>(mDevice, mWidth, mHeight, 1, mDevice->getSampleCount(), findDepthFormat(mDevice),
                                                     VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        return mRenderTargetDepth;
+    }
+
+    void VulkanRHI::destroyColorResources()
+    {
+        mRenderTarget->destroy();
+    }
+
+    void VulkanRHI::destroyDepthResources()
+    {
+        mRenderTargetDepth->destroy();
     }
 
     void VulkanRHI::createFrameBuffer()
@@ -168,11 +181,21 @@ namespace Homura
         return mDescriptorPool;
     }
 
+    VulkanDescriptorSetPtr VulkanRHI::createDescriptorSet(const std::vector<VkDescriptorSetLayoutBinding>& bindings)
+    {
+        auto layout = std::make_shared<VulkanDescriptorSetLayout>(mDevice);
+        layout->create(bindings);
+        mDescriptorSet = std::make_shared<VulkanDescriptorSet>(mDevice, mDescriptorPool, layout);
+        layout->destroy();
+        return mDescriptorSet;
+    }
+
     VulkanPipelinePtr VulkanRHI::createPipeline()
     {
         mPipeline = std::make_shared<VulkanPipeline>(mDevice, mRenderPass);
         return mPipeline;
     }
+
     void VulkanRHI::destroyInstance()
     {
         mInstance->destroy();
@@ -211,6 +234,11 @@ namespace Homura
     void VulkanRHI::destroyCommandPool()
     {
         mCommandPool->destroy();
+    }
+
+    void VulkanRHI::destroyDescriptorSet()
+    {
+        mDescriptorSet->destroy();
     }
 
     void VulkanRHI::destroyDescriptorPool()
