@@ -49,10 +49,7 @@ namespace Homura
             return mImageCount;
         }
 
-        VkFramebuffer& getFrameBuffer(const int index)
-        {
-            return mSwapChainFrameBuffers[index];
-        }
+        VkFramebuffer& getFrameBuffer(const int index);
 
         VkExtent2D& getExtent()
         {
@@ -84,7 +81,7 @@ namespace Homura
 
         std::vector<VkImage>            mSwapChainImages;
         std::vector<VkImageView>        mSwapChainImageViews;
-        std::vector<VkFramebuffer>      mSwapChainFrameBuffers;
+        VulkanFramebuffersPtr           mSwapChainFramebuffers;
 
         std::vector<VulkanTextureDepthPtr>  mDepthImages;
         std::vector<VulkanTexture2DPtr>     mMultiSampleImages;

@@ -35,6 +35,7 @@ namespace Homura
     class VulkanPipeline;
     class VulkanPipelineLayout;
     class VulkanSampler;
+    class VulkanFramebuffers;
 
     using VulkanDevicePtr = std::shared_ptr<VulkanDevice>;
     using VulkanInstancePtr = std::shared_ptr<VulkanInstance>;
@@ -61,5 +62,6 @@ namespace Homura
     using VulkanPipelinePtr = std::shared_ptr<VulkanPipeline>;
     using VulkanPipelineLayoutPtr = std::shared_ptr<VulkanPipelineLayout>;
     using VulkanSamplerPtr = std::shared_ptr<VulkanSampler>;
+    using VulkanFramebuffersPtr = std::shared_ptr<VulkanFramebuffers>;
 }
 #endif //HOMURA_VULKANTYPES_H

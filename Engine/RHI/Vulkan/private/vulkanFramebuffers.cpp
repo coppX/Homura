@@ -1,7 +1,7 @@
 //
 // Created by 最上川 on 2022/1/13.
 //
-#include <vulkanFrameBuffer.h>
+#include <vulkanFramebuffers.h>
 #include <vulkanRenderPass.h>
 #include <vulkanTexture.h>
 #include <vulkanDevice.h>
@@ -11,33 +11,36 @@
 
 namespace Homura
 {
-    VulkanFrameBuffer::VulkanFrameBuffer(VulkanDevicePtr device,
-                                         VulkanRenderPassPtr renderPass,
-                                         uint32_t imageCount,
-                                         std::vector<VulkanTexture2DPtr> &images,
-                                         std::vector<VulkanTexture2DPtr> &multiSampleImages,
-                                         std::vector<VulkanTextureDepthPtr> &depthImages)
+    VulkanFramebuffers::VulkanFramebuffers(VulkanDevicePtr device)
         : mDevice{device}
-        , mRenderPass{renderPass}
-        , mImageCount{imageCount}
-        , mImages{images}
-        , mMultiSampleImages{multiSampleImages}
-        , mDepthImages{depthImages}
+    {
+
+    }
+
+    VulkanFramebuffers::~VulkanFramebuffers()
+    {
+        destroy();
+    }
+
+    void VulkanFramebuffers::create(VulkanRenderPassPtr renderPass, uint32_t imageCount,
+                                    std::vector<VkImageView> &images,
+                                    std::vector<VulkanTexture2DPtr> &multiSampleImages,
+                                    std::vector<VulkanTextureDepthPtr> &depthImages)
     {
         assert(imageCount <= images.size() && imageCount <= multiSampleImages.size() && imageCount <= depthImages.size());
 
-        mFrameBuffer.resize(mImageCount);
-        for (uint32_t i = 0; i < mImageCount; ++i)
+        mFrameBuffer.resize(imageCount);
+        for (uint32_t i = 0; i < imageCount; ++i)
         {
             std::array<VkImageView, 3> attachments = {
-                mImages[i]->getImageView(),
-                mMultiSampleImages[i]->getImageView(),
-                mDepthImages[i]->getImageView()
+                    images[i],
+                    multiSampleImages[i]->getImageView(),
+                    depthImages[i]->getImageView()
             };
 
             VkFramebufferCreateInfo frameBufferCreateInfo{};
             frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            frameBufferCreateInfo.renderPass = mRenderPass->getHandle();
+            frameBufferCreateInfo.renderPass = renderPass->getHandle();
             frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
             frameBufferCreateInfo.pAttachments = attachments.data();
             // todo
@@ -49,11 +52,12 @@ namespace Homura
         }
     }
 
-    VulkanFrameBuffer::~VulkanFrameBuffer()
+    void VulkanFramebuffers::destroy()
     {
         for (auto frameBuffer : mFrameBuffer)
         {
             vkDestroyFramebuffer(mDevice->getHandle(), frameBuffer, nullptr);
         }
     }
+
 }

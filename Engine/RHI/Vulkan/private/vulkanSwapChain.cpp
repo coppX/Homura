@@ -12,42 +12,32 @@
 #include <pixelFormat.h>
 #include <algorithm>
 #include <array>
+#include <vulkanFramebuffers.h>
 
 namespace Homura
 {
     VulkanSwapChain::VulkanSwapChain(VulkanDevicePtr device, GLFWwindow* window, VulkanSurfacePtr surface)
-            : mDevice{device}, mSurface{surface}, mWindow(window)
+        : mDevice{device}
+        , mSurface{surface}
+        , mWindow(window)
+        , mSwapChainFramebuffers{make_shared<VulkanFramebuffers>(device)}
     {
         create();
     }
 
     void VulkanSwapChain::createFrameBuffers(const VulkanRenderPassPtr renderPass)
     {
-        mSwapChainFrameBuffers.resize(mImageCount);
-        for (int i = 0; i < mImageCount; ++i)
-        {
-            std::array<VkImageView, 3> attachments = {
-                    mSwapChainImageViews[i],
-                    mMultiSampleImages[i]->getImageView(),
-                    mDepthImages[i]->getImageView()
-            };
-
-            VkFramebufferCreateInfo framebufferCreateInfo{};
-            framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferCreateInfo.renderPass = renderPass->getHandle();
-            framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            framebufferCreateInfo.pAttachments = attachments.data();
-            framebufferCreateInfo.width = mSwapChainExtent.width;
-            framebufferCreateInfo.height = mSwapChainExtent.height;
-            framebufferCreateInfo.layers = 1;
-
-            VERIFYVULKANRESULT(vkCreateFramebuffer(mDevice->getHandle(), &framebufferCreateInfo, nullptr, &mSwapChainFrameBuffers[i]));
-        }
+        mSwapChainFramebuffers->create(renderPass, mImageCount, mSwapChainImageViews, mMultiSampleImages, mDepthImages);
     }
 
     VulkanSwapChain::~VulkanSwapChain()
     {
 
+    }
+
+    VkFramebuffer& VulkanSwapChain::getFrameBuffer(const int index)
+    {
+        return mSwapChainFramebuffers->getFramebuffer(index);
     }
 
     void VulkanSwapChain::create()
@@ -190,11 +180,7 @@ namespace Homura
 
     void VulkanSwapChain::destroyFrameBuffer()
     {
-        for (auto &framebuffer : mSwapChainFrameBuffers)
-        {
-            vkDestroyFramebuffer(mDevice->getHandle(), framebuffer, nullptr);
-        }
-        mSwapChainFrameBuffers.clear();
+        mSwapChainFramebuffers->destroy();
     }
 
     void VulkanSwapChain::destroySwapChain()

@@ -92,6 +92,9 @@ namespace Homura
         GLFWwindow*                         mWindow;
         uint32_t                            mWidth;
         uint32_t                            mHeight;
+
+        VulkanTexture2DPtr                  mDepthStencil;
+        
     };
 
     inline VkFormat PixelFormatToVkFormat(EPixelFormat format, const bool bIsSRGB)
