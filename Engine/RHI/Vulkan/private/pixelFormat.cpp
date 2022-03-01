@@ -4,6 +4,7 @@
 
 #include <pixelFormat.h>
 #include <vulkanDevice.h>
+#include <stdexcept>
 
 namespace Homura
 {
