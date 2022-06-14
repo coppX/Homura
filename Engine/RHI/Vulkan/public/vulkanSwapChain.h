@@ -31,7 +31,6 @@ namespace Homura
         void create();
         void destroy();
         void destroyImageView();
-        void destroyFrameBuffer();
         void destroySwapChain();
 
         VkSwapchainKHR getHandle()
@@ -49,7 +48,6 @@ namespace Homura
             return mImageCount;
         }
 
-        VkFramebuffer& getFrameBuffer(const int index);
 
         VkExtent2D& getExtent()
         {
@@ -57,18 +55,13 @@ namespace Homura
         }
 
         SwapChainSupportInfo querySwapChainSupportInfo();
-
         VkSurfaceFormatKHR chooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
-
         VkPresentModeKHR chooseSurfacePresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
-
         VkExtent2D chooseExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
-        void createFrameBuffers(const VulkanRenderPassPtr renderPass);
-
+        void createSwapChainImageViews();
     private:
-        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels = 1);
-
+        VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageViewType viewType, uint32_t layerCount, uint32_t mipLevels = 1);
     private:
         VulkanDevicePtr                 mDevice;
         VulkanSurfacePtr                mSurface;
@@ -81,10 +74,6 @@ namespace Homura
 
         std::vector<VkImage>            mSwapChainImages;
         std::vector<VkImageView>        mSwapChainImageViews;
-        VulkanFramebuffersPtr           mSwapChainFramebuffers;
-
-        std::vector<VulkanTextureDepthPtr>  mDepthImages;
-        std::vector<VulkanTexture2DPtr>     mMultiSampleImages;
     };
 }
 #endif //HOMURA_VULKANSWAPCHAIN_H

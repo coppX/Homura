@@ -128,7 +128,7 @@ namespace Homura
 
     void VulkanRHI::createFrameBuffer()
     {
-        mSwapChain->createFrameBuffers(mRenderPass);
+//        mSwapChain->createFrameBuffers(mRenderPass);
     }
 
     VulkanFencePtr VulkanRHI::createFence()
@@ -227,7 +227,7 @@ namespace Homura
 
     void VulkanRHI::destroyFrameBuffer()
     {
-        mSwapChain->destroyFrameBuffer();
+//        mSwapChain->destroyFrameBuffer();
     }
 
     void VulkanRHI::destroyRenderPass()
