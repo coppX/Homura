@@ -20,7 +20,7 @@ namespace Homura
         : mDevice{device}
         , mSurface{surface}
         , mWindow(window)
-        , mSwapChainFramebuffers{make_shared<VulkanFramebuffers>(device)}
+        , mSwapChainFramebuffers{std::make_shared<VulkanFramebuffers>(device)}
     {
         create();
     }
@@ -54,25 +54,25 @@ namespace Homura
         }
 
         VkSwapchainCreateInfoKHR createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = mSurface->getHandle();
-        createInfo.minImageCount = mImageCount;
-        createInfo.imageFormat = surfaceFormat.format;
-        createInfo.imageColorSpace = surfaceFormat.colorSpace;
-        createInfo.imageExtent = extent;
+        createInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        createInfo.surface          = mSurface->getHandle();
+        createInfo.minImageCount    = mImageCount;
+        createInfo.imageFormat      = surfaceFormat.format;
+        createInfo.imageColorSpace  = surfaceFormat.colorSpace;
+        createInfo.imageExtent      = extent;
         createInfo.imageArrayLayers = 1;
-        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
         std::vector<uint32_t> queueFamilies = {mDevice->getGraphicsQueue()->getFamilyIndex()};
 
-        createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        createInfo.queueFamilyIndexCount = 0;
-        createInfo.pQueueFamilyIndices = nullptr;
+        createInfo.imageSharingMode         = VK_SHARING_MODE_EXCLUSIVE;
+        createInfo.queueFamilyIndexCount    = 0;
+        createInfo.pQueueFamilyIndices      = nullptr;
 
-        createInfo.preTransform = swapChainSupportInfo.mCapabilities.currentTransform;
-        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        createInfo.presentMode = presentMode;
-        createInfo.clipped = VK_TRUE;
+        createInfo.preTransform     = swapChainSupportInfo.mCapabilities.currentTransform;
+        createInfo.compositeAlpha   = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        createInfo.presentMode      = presentMode;
+        createInfo.clipped          = VK_TRUE;
 
         VERIFYVULKANRESULT(vkCreateSwapchainKHR(mDevice->getHandle(), &createInfo, nullptr, &mSwapChain));
         mSwapChainFormat = surfaceFormat.format;
@@ -92,11 +92,11 @@ namespace Homura
         mDepthImages.resize(mImageCount);
 
         VkImageSubresourceRange region{};
-        region.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-        region.baseMipLevel = 0;
-        region.levelCount = 1;
-        region.baseArrayLayer = 0;
-        region.layerCount = 1;
+        region.aspectMask       = VK_IMAGE_ASPECT_DEPTH_BIT;
+        region.baseMipLevel     = 0;
+        region.levelCount       = 1;
+        region.baseArrayLayer   = 0;
+        region.layerCount       = 1;
 
         for (int i = 0; i < mImageCount; ++i)
         {
@@ -274,16 +274,16 @@ namespace Homura
     VkImageView VulkanSwapChain::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels)
     {
         VkImageViewCreateInfo viewInfo{};
-        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        viewInfo.image = image;
-        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        viewInfo.format = format;
+        viewInfo.sType      = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image      = image;
+        viewInfo.viewType   = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format     = format;
 
-        viewInfo.subresourceRange.aspectMask = aspectFlags;
-        viewInfo.subresourceRange.baseMipLevel = 0;
-        viewInfo.subresourceRange.levelCount = mipLevels;
-        viewInfo.subresourceRange.baseArrayLayer = 0;
-        viewInfo.subresourceRange.layerCount = 1;
+        viewInfo.subresourceRange.aspectMask        = aspectFlags;
+        viewInfo.subresourceRange.baseMipLevel      = 0;
+        viewInfo.subresourceRange.levelCount        = mipLevels;
+        viewInfo.subresourceRange.baseArrayLayer    = 0;
+        viewInfo.subresourceRange.layerCount        = 1;
 
         VkImageView imageView{VK_NULL_HANDLE};
         VERIFYVULKANRESULT(vkCreateImageView(mDevice->getHandle(), &viewInfo, nullptr, &imageView));

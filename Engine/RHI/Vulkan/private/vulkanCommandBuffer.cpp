@@ -18,10 +18,10 @@ namespace Homura
     void VulkanCommandBuffer::create()
     {
         VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandBufferCount = 1;
-        allocInfo.commandPool = mCommandPool->getHandle();
-        allocInfo.level = mAsSecondary ? VK_COMMAND_BUFFER_LEVEL_SECONDARY : VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.sType                 = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.commandBufferCount    = 1;
+        allocInfo.commandPool           = mCommandPool->getHandle();
+        allocInfo.level                 = mAsSecondary ? VK_COMMAND_BUFFER_LEVEL_SECONDARY : VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
         VERIFYVULKANRESULT(vkAllocateCommandBuffers(mDevice->getHandle(), &allocInfo, &mCommandBuffer));
     }
@@ -38,10 +38,10 @@ namespace Homura
     void VulkanCommandBuffer::beginSingleTimeCommands()
     {
         VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = mCommandPool->getHandle();
-        allocInfo.commandBufferCount = 1;
+        allocInfo.sType                 = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.level                 = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandPool           = mCommandPool->getHandle();
+        allocInfo.commandBufferCount    = 1;
         VERIFYVULKANRESULT(vkAllocateCommandBuffers(mDevice->getHandle(), &allocInfo, &mCommandBuffer));
 
         VkCommandBufferBeginInfo beginInfo{};
@@ -62,9 +62,9 @@ namespace Homura
     void VulkanCommandBuffer::begin(const VkCommandBufferUsageFlags flag, const VkCommandBufferInheritanceInfo &inheritance)
     {
         VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = flag;
-        beginInfo.pInheritanceInfo = &inheritance;
+        beginInfo.sType             = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags             = flag;
+        beginInfo.pInheritanceInfo  = &inheritance;
         VERIFYVULKANRESULT(vkBeginCommandBuffer(mCommandBuffer, &beginInfo));
     }
 
@@ -133,9 +133,9 @@ namespace Homura
     void VulkanCommandBuffer::submitSync(VulkanQueuePtr queue, VulkanFencePtr fence)
     {
         VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &mCommandBuffer;
+        submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount   = 1;
+        submitInfo.pCommandBuffers      = &mCommandBuffer;
 
         VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, fence->getHandle()));
         VERIFYVULKANRESULT(vkQueueWaitIdle(queue->getHandle()));

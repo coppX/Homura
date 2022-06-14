@@ -23,7 +23,7 @@ namespace Homura
     void VulkanCommandPool::create()
     {
         VkCommandPoolCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        createInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         createInfo.queueFamilyIndex = mDevice->getGraphicsQueue()->getFamilyIndex();
         VERIFYVULKANRESULT(vkCreateCommandPool(mDevice->getHandle(), &createInfo, nullptr, &mCommandPool));
     }

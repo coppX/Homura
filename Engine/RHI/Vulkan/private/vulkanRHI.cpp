@@ -48,10 +48,14 @@ namespace Homura
         createDevice();
         createSwapChain();
         createCommandPool();
+        createCommandBuffer();
+        createDescriptorPool();
     }
 
     void VulkanRHI::exit()
     {
+        destroyDescriptorPool();
+        destroyCommandBuffer();
         destroyCommandPool();
         destroySwapChain();
         destroyDevice();
