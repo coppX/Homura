@@ -37,7 +37,7 @@ namespace Homura
 
         void begin(const VkCommandBufferUsageFlags flag, const VkCommandBufferInheritanceInfo& inheritance);
 
-        void beginRenderPass(const VkRenderPassBeginInfo& renderPassBeginInfo, const VkSubpassContents& subPassContents);
+        void beginRenderPass(VulkanRenderPassPtr renderPass, VulkanFramebuffersPtr framebuffer);
 
         void bindGraphicPipeline(VulkanPipelinePtr pipeline);
 

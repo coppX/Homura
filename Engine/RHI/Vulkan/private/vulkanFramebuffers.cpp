@@ -3,18 +3,20 @@
 //
 #include <vulkanFramebuffers.h>
 #include <vulkanRenderPass.h>
+#include <vulkanSwapChain.h>
 #include <vulkanTexture.h>
 #include <vulkanDevice.h>
 #include <debugUtils.h>
-#include <cassert>
 #include <array>
 
 namespace Homura
 {
-    VulkanFramebuffers::VulkanFramebuffers(VulkanDevicePtr device)
+    VulkanFramebuffers::VulkanFramebuffers(VulkanDevicePtr device, VulkanSwapChainPtr swapChain, VulkanRenderPassPtr renderPass)
         : mDevice{device}
+        , mImageCount{swapChain->getImageCount()}
+        , mExtent(swapChain->getExtent())
     {
-
+        create(renderPass);
     }
 
     VulkanFramebuffers::~VulkanFramebuffers()
@@ -22,41 +24,31 @@ namespace Homura
         destroy();
     }
 
-    void VulkanFramebuffers::create(VulkanRenderPassPtr renderPass, uint32_t imageCount,
-                                    std::vector<VkImageView> &images,
-                                    std::vector<VulkanTexture2DPtr> &multiSampleImages,
-                                    std::vector<VulkanTextureDepthPtr> &depthImages)
+    void VulkanFramebuffers::create(VulkanRenderPassPtr renderPass)
     {
-        assert(imageCount <= images.size() && imageCount <= multiSampleImages.size() && imageCount <= depthImages.size());
+        std::array<VkImageView, 3> attachments = {
+                mImages,
+                mMultiSampleImages->getImageView(),
+                mDepthImages->getImageView()
+        };
 
-        mFrameBuffer.resize(imageCount);
-        for (uint32_t i = 0; i < imageCount; ++i)
-        {
-            std::array<VkImageView, 3> attachments = {
-                    images[i],
-                    multiSampleImages[i]->getImageView(),
-                    depthImages[i]->getImageView()
-            };
+        VkFramebufferCreateInfo frameBufferCreateInfo{};
+        frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        frameBufferCreateInfo.renderPass = renderPass->getHandle();
+        frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        frameBufferCreateInfo.pAttachments = attachments.data();
+        frameBufferCreateInfo.width = mExtent.width;
+        frameBufferCreateInfo.height = mExtent.height;
+        frameBufferCreateInfo.layers = 1;
 
-            VkFramebufferCreateInfo frameBufferCreateInfo{};
-            frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            frameBufferCreateInfo.renderPass = renderPass->getHandle();
-            frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-            frameBufferCreateInfo.pAttachments = attachments.data();
-            // todo
-            frameBufferCreateInfo.width = 960;
-            frameBufferCreateInfo.height = 540;
-            frameBufferCreateInfo.layers = 1;
-
-            VERIFYVULKANRESULT(vkCreateFramebuffer(mDevice->getHandle(), &frameBufferCreateInfo, nullptr, &mFrameBuffer[i]));
-        }
+        VERIFYVULKANRESULT(vkCreateFramebuffer(mDevice->getHandle(), &frameBufferCreateInfo, nullptr, &mFrameBuffer));
     }
 
     void VulkanFramebuffers::destroy()
     {
-        for (auto frameBuffer : mFrameBuffer)
+        if (mFrameBuffer != VK_NULL_HANDLE)
         {
-            vkDestroyFramebuffer(mDevice->getHandle(), frameBuffer, nullptr);
+            vkDestroyFramebuffer(mDevice->getHandle(), mFrameBuffer, nullptr);
         }
     }
 

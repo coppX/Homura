@@ -36,7 +36,7 @@ namespace Homura
         VulkanDescriptorPoolPtr createDescriptorPool();
         VulkanDescriptorSetPtr createDescriptorSet(const std::vector<VkDescriptorSetLayoutBinding>& bindings);
         VulkanCommandPoolPtr createCommandPool();
-        void createFrameBuffer();
+        VulkanFramebuffersPtr createFrameBuffer();
         VulkanCommandBufferPtr createCommandBuffer();
         VulkanFencePtr createFence();
         VulkanPipelinePtr createPipeline();
@@ -84,14 +84,13 @@ namespace Homura
         VulkanDescriptorSetPtr              mDescriptorSet;
         VulkanCommandPoolPtr                mCommandPool;
         VulkanCommandBufferPtr              mCommandBuffer;
+        VulkanFramebuffersPtr               mFramebuffer;
         VulkanFencePtr                      mFence;
         VulkanPipelinePtr                   mPipeline;
         VulkanTexture2DPtr                  mRenderTarget;
         VulkanTextureDepthPtr               mRenderTargetDepth;
 
         GLFWwindow*                         mWindow;
-        uint32_t                            mWidth;
-        uint32_t                            mHeight;
 
         VulkanTexture2DPtr                  mDepthStencil;
         

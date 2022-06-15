@@ -12,6 +12,7 @@
 #include <vulkanDescriptorSet.h>
 #include <vulkanCommandPool.h>
 #include <vulkanCommandBuffer.h>
+#include <vulkanFramebuffers.h>
 #include <vulkanGfxPipeline.h>
 #include <vulkanFence.h>
 #include <vulkanBuffer.h>
@@ -22,16 +23,16 @@ namespace Homura
 {
     VulkanRHI::VulkanRHI(GLFWwindow* window)
         : mInstance{nullptr}
-        , mDevice{nullptr}
         , mSurface{nullptr}
+        , mDevice{nullptr}
         , mSwapChain{nullptr}
-        , mRenderPass{nullptr}
-        , mDescriptorPool{nullptr}
+        , mFramebuffer{nullptr}
+        , mCommandPool{nullptr}
         , mCommandBuffer{nullptr}
+        , mDescriptorPool{nullptr}
+        , mRenderPass{nullptr}
         , mFence{nullptr}
         , mWindow(window)
-        , mWidth(960)
-        , mHeight(540)
     {
 
     }
@@ -47,6 +48,7 @@ namespace Homura
         createSurface();
         createDevice();
         createSwapChain();
+        createFrameBuffer();
         createCommandPool();
         createCommandBuffer();
         createDescriptorPool();
@@ -57,6 +59,7 @@ namespace Homura
         destroyDescriptorPool();
         destroyCommandBuffer();
         destroyCommandPool();
+        destroyFrameBuffer();
         destroySwapChain();
         destroyDevice();
         destroySurface();
@@ -104,14 +107,14 @@ namespace Homura
 
     VulkanTexture2DPtr VulkanRHI::createColorResources()
     {
-        mRenderTarget =  std::make_shared<VulkanTexture2D>(mDevice, mWidth, mHeight, 1, mDevice->getSampleCount(), mSwapChain->getFormat(),
+        mRenderTarget =  std::make_shared<VulkanTexture2D>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, mDevice->getSampleCount(), mSwapChain->getFormat(),
                                           VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         return  mRenderTarget;
     }
 
     VulkanTextureDepthPtr VulkanRHI::createDepthResources()
     {
-        mRenderTargetDepth =  std::make_shared<VulkanTextureDepth>(mDevice, mWidth, mHeight, 1, mDevice->getSampleCount(), findDepthFormat(mDevice),
+        mRenderTargetDepth =  std::make_shared<VulkanTextureDepth>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, mDevice->getSampleCount(), findDepthFormat(mDevice),
                                                     VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         return mRenderTargetDepth;
     }
@@ -126,9 +129,10 @@ namespace Homura
         mRenderTargetDepth->destroy();
     }
 
-    void VulkanRHI::createFrameBuffer()
+    VulkanFramebuffersPtr VulkanRHI::createFrameBuffer()
     {
-//        mSwapChain->createFrameBuffers(mRenderPass);
+        mFramebuffer = std::make_shared<VulkanFramebuffers>(mDevice, mSwapChain, mRenderPass);
+        return mFramebuffer;
     }
 
     VulkanFencePtr VulkanRHI::createFence()
@@ -227,7 +231,7 @@ namespace Homura
 
     void VulkanRHI::destroyFrameBuffer()
     {
-//        mSwapChain->destroyFrameBuffer();
+        mFramebuffer->destroy();
     }
 
     void VulkanRHI::destroyRenderPass()

@@ -13,35 +13,37 @@ namespace Homura
     class VulkanFramebuffers
     {
     public:
-        VulkanFramebuffers(VulkanDevicePtr device);
+        VulkanFramebuffers(VulkanDevicePtr device, VulkanSwapChainPtr swapChain, VulkanRenderPassPtr renderPass);
         ~VulkanFramebuffers();
 
-        void create(VulkanRenderPassPtr renderPass, uint32_t imageCount,
-                    std::vector<VkImageView> &images,
-                    std::vector<VulkanTexture2DPtr> &multiSampleImages,
-                    std::vector<VulkanTextureDepthPtr> &depthImages);
+        void create(VulkanRenderPassPtr renderPass);
         void destroy();
 
         uint32_t getCount() const
         {
-            return (uint32_t)mFrameBuffer.size();
+            return mImageCount;
         }
 
-        VkFramebuffer* getData()
+        VkFramebuffer& getHandle()
         {
-            return mFrameBuffer.data();
+            return mFrameBuffer;
         }
 
-        VkFramebuffer& getFramebuffer(const int index)
+        VkExtent2D& getExtent()
         {
-            assert(index < getCount());
-            return mFrameBuffer[index];
+            return mExtent;
         }
+
     private:
         VulkanDevicePtr                     mDevice;
-        std::vector<VkFramebuffer>          mFrameBuffer;
+        VkFramebuffer                       mFrameBuffer;
+
+        VkImageView                         mImages;
+        VulkanTexture2DPtr                  mMultiSampleImages;
+        VulkanTextureDepthPtr               mDepthImages;
 
         uint32_t                            mImageCount;
+        VkExtent2D                          mExtent;
     };
 }
 #endif //HOMURA_VULKANFRAMEBUFFERS_H
