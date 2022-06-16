@@ -33,7 +33,7 @@ namespace Homura
         }
     };
 
-    class VulkanDevice
+    class VulkanDevice : public std::enable_shared_from_this<VulkanDevice>
     {
     public:
         VulkanDevice(VulkanInstancePtr instance, VulkanSurfacePtr surface);

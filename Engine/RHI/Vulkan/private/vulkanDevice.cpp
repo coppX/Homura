@@ -119,8 +119,8 @@ namespace Homura
 
         VERIFYVULKANRESULT(vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice));
 
-        mGfxQueue   = std::make_shared<VulkanQueue>(std::make_shared<VkDevice>(mDevice), indices.graphicsFamily.value());
-        mPresent    = std::make_shared<VulkanQueue>(std::make_shared<VkDevice>(mDevice), indices.presentFamily.value());
+        mGfxQueue   = std::make_shared<VulkanQueue>(shared_from_this(), indices.graphicsFamily.value());
+        mPresent    = std::make_shared<VulkanQueue>(shared_from_this(), indices.presentFamily.value());
     }
 
     bool VulkanDevice::isDeviceSuitable(VkPhysicalDevice device)
