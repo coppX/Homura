@@ -118,9 +118,6 @@ namespace Homura
         }
 
         VERIFYVULKANRESULT(vkCreateDevice(mPhysicalDevice, &createInfo, nullptr, &mDevice));
-
-        mGfxQueue   = std::make_shared<VulkanQueue>(shared_from_this(), indices.graphicsFamily.value());
-        mPresent    = std::make_shared<VulkanQueue>(shared_from_this(), indices.presentFamily.value());
     }
 
     bool VulkanDevice::isDeviceSuitable(VkPhysicalDevice device)
@@ -159,9 +156,11 @@ namespace Homura
         int i = 0;
         for (const auto &queueFamily : queueFamilies)
         {
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            if (!indices.graphicsFamily.has_value() && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
             {
                 indices.graphicsFamily = i;
+                i++;
+                continue;
             }
 
             VkBool32 isPresentSupport = VK_FALSE;
@@ -178,5 +177,12 @@ namespace Homura
             i++;
         }
         return indices;
+    }
+
+    void VulkanDevice::initializeQueue()
+    {
+        QueueFamilyIndices indices = findQueueFamilies(mPhysicalDevice);
+        mGfxQueue   = std::make_shared<VulkanQueue>(shared_from_this(), indices.graphicsFamily.value());
+        mPresent    = std::make_shared<VulkanQueue>(shared_from_this(), indices.presentFamily.value());
     }
 }

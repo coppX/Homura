@@ -10,7 +10,7 @@
 #include <vulkanSurface.h>
 #include <algorithm>
 #include <array>
-#include <vulkanFramebuffers.h>
+#include <vulkanFramebuffer.h>
 
 namespace Homura
 {

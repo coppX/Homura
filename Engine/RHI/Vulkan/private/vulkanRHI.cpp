@@ -12,7 +12,7 @@
 #include <vulkanDescriptorSet.h>
 #include <vulkanCommandPool.h>
 #include <vulkanCommandBuffer.h>
-#include <vulkanFramebuffers.h>
+#include <vulkanFramebuffer.h>
 #include <vulkanGfxPipeline.h>
 #include <vulkanFence.h>
 #include <vulkanBuffer.h>
@@ -81,6 +81,11 @@ namespace Homura
         return mSwapChain;
     }
 
+    VulkanFramebufferPtr VulkanRHI::getFrameBuffer()
+    {
+        return mFramebuffer;
+    }
+
     VulkanInstancePtr VulkanRHI::createInstance()
     {
         mInstance = std::make_shared<VulkanInstance>();
@@ -96,6 +101,7 @@ namespace Homura
     VulkanDevicePtr VulkanRHI::createDevice()
     {
         mDevice = std::make_shared<VulkanDevice>(mInstance, mSurface);
+        mDevice->initializeQueue();
         return mDevice;
     }
 
@@ -129,9 +135,9 @@ namespace Homura
         mRenderTargetDepth->destroy();
     }
 
-    VulkanFramebuffersPtr VulkanRHI::createFrameBuffer()
+    VulkanFramebufferPtr VulkanRHI::createFrameBuffer()
     {
-        mFramebuffer = std::make_shared<VulkanFramebuffers>(mDevice, mSwapChain, mRenderPass);
+        mFramebuffer = std::make_shared<VulkanFramebuffer>(mDevice, mSwapChain);
         return mFramebuffer;
     }
 

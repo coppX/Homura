@@ -11,7 +11,7 @@
 #include <vulkanLayout.h>
 #include <vulkanDescriptorSet.h>
 #include <vulkanRenderPass.h>
-#include <vulkanFramebuffers.h>
+#include <vulkanFramebuffer.h>
 #include <vulkanFence.h>
 #include <debugUtils.h>
 

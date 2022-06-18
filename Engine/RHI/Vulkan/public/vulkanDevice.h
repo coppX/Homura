@@ -37,11 +37,9 @@ namespace Homura
     {
     public:
         VulkanDevice(VulkanInstancePtr instance, VulkanSurfacePtr surface);
-
         ~VulkanDevice();
 
         void create();
-
         void destroy();
 
         VkDevice getHandle()
@@ -69,6 +67,7 @@ namespace Homura
             return mMsaaSamples;
         }
 
+        void initializeQueue();
     private:
         void pickPhysicalDevice();
         void createLogicalDevice();

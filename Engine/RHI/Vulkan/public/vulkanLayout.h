@@ -26,7 +26,6 @@ namespace Homura
 
     private:
         VulkanDevicePtr         mDevice;
-
         VkDescriptorSetLayout   mSetLayout;
     };
 
@@ -45,7 +44,6 @@ namespace Homura
         }
     private:
         VulkanDevicePtr     mDevice;
-
         VkPipelineLayout    mPipelineLayout;
     };
 }

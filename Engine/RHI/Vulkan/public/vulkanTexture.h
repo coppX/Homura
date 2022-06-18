@@ -87,8 +87,8 @@ namespace Homura
     {
     public:
         VulkanTexture1D(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t layerCount, uint32_t numSamples,
-                        VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
-            : VulkanTexture(device, width, height, TEXTURE_1D, VulkanViewTypeTilingMode[TEXTURE_1D], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, layerCount, numSamples, format, usage, properties)
+                VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
+        : VulkanTexture(device, width, height, TEXTURE_1D, VulkanViewTypeTilingMode[TEXTURE_1D], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, layerCount, numSamples, format, usage, properties)
         {
 
         }
@@ -142,8 +142,8 @@ namespace Homura
     {
     public:
         VulkanTextureCubeArray(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t arraySize, uint32_t numSamples,
-                          VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
-                : VulkanTexture(device, width, height, TEXTURE_CUBE_ARRAY, VulkanViewTypeTilingMode[TEXTURE_CUBE_ARRAY], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, arraySize, numSamples, format, usage, properties)
+                VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
+        : VulkanTexture(device, width, height, TEXTURE_CUBE_ARRAY, VulkanViewTypeTilingMode[TEXTURE_CUBE_ARRAY], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, arraySize, numSamples, format, usage, properties)
         {
 
         }

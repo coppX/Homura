@@ -26,7 +26,7 @@ namespace Homura
         VulkanInstancePtr getInstance();
         VulkanDevicePtr getDevice();
         VulkanSwapChainPtr getSwapChain();
-        VkPipelineCache getPipelineCache();
+        VulkanFramebufferPtr getFrameBuffer();
 
         VulkanInstancePtr createInstance();
         VulkanDevicePtr createDevice();
@@ -36,13 +36,10 @@ namespace Homura
         VulkanDescriptorPoolPtr createDescriptorPool();
         VulkanDescriptorSetPtr createDescriptorSet(const std::vector<VkDescriptorSetLayoutBinding>& bindings);
         VulkanCommandPoolPtr createCommandPool();
-        VulkanFramebuffersPtr createFrameBuffer();
+        VulkanFramebufferPtr createFrameBuffer();
         VulkanCommandBufferPtr createCommandBuffer();
         VulkanFencePtr createFence();
         VulkanPipelinePtr createPipeline();
-
-        void createPipelineCache();
-        void createImageView();
 
         void destroyInstance();
         void destroyDevice();
@@ -57,8 +54,6 @@ namespace Homura
         void destroyFence();
         void destroyPipeline();
 
-        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
-
         VulkanTexture2DPtr createColorResources();
         VulkanTextureDepthPtr createDepthResources();
         void destroyColorResources();
@@ -70,7 +65,7 @@ namespace Homura
         VulkanStagingBufferPtr createStagingBuffer(uint32_t size, void* pData);
 
         void idle();
-        void addPushConstant(const VkPushConstantRange& constantRange, const char* data);
+//        void addPushConstant(const VkPushConstantRange& constantRange, const char* data);
 
     private:
 
@@ -84,7 +79,7 @@ namespace Homura
         VulkanDescriptorSetPtr              mDescriptorSet;
         VulkanCommandPoolPtr                mCommandPool;
         VulkanCommandBufferPtr              mCommandBuffer;
-        VulkanFramebuffersPtr               mFramebuffer;
+        VulkanFramebufferPtr                mFramebuffer;
         VulkanFencePtr                      mFence;
         VulkanPipelinePtr                   mPipeline;
         VulkanTexture2DPtr                  mRenderTarget;
@@ -93,7 +88,6 @@ namespace Homura
         GLFWwindow*                         mWindow;
 
         VulkanTexture2DPtr                  mDepthStencil;
-        
     };
 
     inline VkFormat PixelFormatToVkFormat(EPixelFormat format, const bool bIsSRGB)

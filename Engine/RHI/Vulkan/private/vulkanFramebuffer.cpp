@@ -1,7 +1,7 @@
 //
 // Created by 最上川 on 2022/1/13.
 //
-#include <vulkanFramebuffers.h>
+#include <vulkanFramebuffer.h>
 #include <vulkanRenderPass.h>
 #include <vulkanSwapChain.h>
 #include <vulkanTexture.h>
@@ -11,26 +11,31 @@
 
 namespace Homura
 {
-    VulkanFramebuffers::VulkanFramebuffers(VulkanDevicePtr device, VulkanSwapChainPtr swapChain, VulkanRenderPassPtr renderPass)
+    VulkanFramebuffer::VulkanFramebuffer(VulkanDevicePtr device, VulkanSwapChainPtr swapChain)
         : mDevice{device}
-        , mImageCount{swapChain->getImageCount()}
         , mExtent(swapChain->getExtent())
     {
-        create(renderPass);
+
     }
 
-    VulkanFramebuffers::~VulkanFramebuffers()
+    VulkanFramebuffer::~VulkanFramebuffer()
     {
         destroy();
     }
 
-    void VulkanFramebuffers::create(VulkanRenderPassPtr renderPass)
+    void VulkanFramebuffer::create(VulkanRenderPassPtr renderPass, std::vector<VulkanTexture2DPtr> ColorImages,
+                                                                    std::vector<VulkanTextureDepthPtr> DepthStencilImages)
     {
-        std::array<VkImageView, 3> attachments = {
-                mImages,
-                mMultiSampleImages->getImageView(),
-                mDepthImages->getImageView()
-        };
+        std::vector<VkImageView> attachments;
+        for(auto img : ColorImages)
+        {
+            attachments.push_back(img->getImageView());
+        }
+
+        for(auto img : DepthStencilImages)
+        {
+            attachments.push_back(img->getImageView());
+        }
 
         VkFramebufferCreateInfo frameBufferCreateInfo{};
         frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -44,7 +49,7 @@ namespace Homura
         VERIFYVULKANRESULT(vkCreateFramebuffer(mDevice->getHandle(), &frameBufferCreateInfo, nullptr, &mFrameBuffer));
     }
 
-    void VulkanFramebuffers::destroy()
+    void VulkanFramebuffer::destroy()
     {
         if (mFrameBuffer != VK_NULL_HANDLE)
         {
