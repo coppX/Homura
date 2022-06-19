@@ -77,9 +77,7 @@ namespace Homura
         QueueFamilyIndices indices = findQueueFamilies(mPhysicalDevice);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-        std::vector<uint32_t> queueFamilies = {indices.graphicsFamily.value(),
-                                               indices.presentFamily.value()
-                                                };
+        std::vector<uint32_t> queueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
         float queuePriority = 1.0f;
         for (uint32_t queueFamily : queueFamilies)
@@ -147,7 +145,7 @@ namespace Homura
     QueueFamilyIndices VulkanDevice::findQueueFamilies(VkPhysicalDevice device)
     {
         QueueFamilyIndices  indices;
-        uint32_t            queueFamilyCount = 0;
+        uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);

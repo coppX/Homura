@@ -24,6 +24,9 @@
 #include <application.h>
 #include <vulkanRHI.h>
 #include <vulkanVertex.h>
+#include <vulkanTexture.h>
+#include <vulkanRenderPass.h>
+#include <rhiResources.h>
 
 namespace Homura
 {
@@ -56,17 +59,49 @@ namespace Homura
         bool init()
         {
             rhi->init();
-
-            colorImages.push_back(rhi->createColorResources());
-            depthStencilImages.push_back(rhi->createDepthResources());
+            VulkanTexture2DPtr colorImg = rhi->createColorResources();
+            VulkanTextureDepthPtr depthImg = rhi->createDepthResources();
+            colorImages.push_back(colorImg);
+            depthStencilImages.push_back(depthImg);
 
             mCommandBuffer = rhi->createCommandBuffer();
 //            mVertexBuffer = rhi->createVertexBuffer();
 //            mIndexBuffer = rhi->createIndexBuffer();
 
             RHIRenderPassInfo info;
-            VulkanSubPassPtr subPass;
+            info.mAttachmentDescriptions.resize(2);
+            auto colorAttachmentDescription    = info.mAttachmentDescriptions[0];
+            colorAttachmentDescription.format                       = colorImg->getFormat();
+            colorAttachmentDescription.samples                      = VK_SAMPLE_COUNT_1_BIT;
+            colorAttachmentDescription.loadOp                       = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            colorAttachmentDescription.storeOp                      = VK_ATTACHMENT_STORE_OP_STORE;
+            colorAttachmentDescription.stencilLoadOp                = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            colorAttachmentDescription.stencilStoreOp               = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            colorAttachmentDescription.initialLayout                = VK_IMAGE_LAYOUT_UNDEFINED;
+            colorAttachmentDescription.finalLayout                  = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
+            auto depthAttachmentDescription    = info.mAttachmentDescriptions[1];
+            depthAttachmentDescription.format                       = depthImg->getFormat();
+            depthAttachmentDescription.samples                      = VK_SAMPLE_COUNT_1_BIT;
+            depthAttachmentDescription.loadOp                       = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            depthAttachmentDescription.storeOp                      = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            depthAttachmentDescription.stencilLoadOp                = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            depthAttachmentDescription.stencilStoreOp               = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            depthAttachmentDescription.initialLayout                = VK_IMAGE_LAYOUT_UNDEFINED;
+            depthAttachmentDescription.finalLayout                  = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+            ColorAttachmentReference colorReference(0);
+            DepthAttachmentReference depthReference(1);
+            std::vector<VkAttachmentReference> colorReferences{colorReference.getHandle()};
+            std::vector<VkAttachmentReference> inputReferences{};
+            VkAttachmentReference resolvedReference{};
+
+            VulkanSubPassPtr subPass = std::make_shared<VulkanSubPass>(colorReferences,
+                                                                       inputReferences,
+                                                                       depthReference.getHandle(),
+                                                                       resolvedReference);
+
+            info.addSubPass(subPass);
             rhi->setupRenderPass(info);
 
             rhi->setupFramebuffer(colorImages, depthStencilImages);

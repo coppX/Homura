@@ -52,6 +52,11 @@ namespace Homura
             return mImageView;
         }
 
+        virtual VkFormat& getFormat()
+        {
+            return mFormat;
+        }
+
         void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
                          VkMemoryPropertyFlags properties);
 
