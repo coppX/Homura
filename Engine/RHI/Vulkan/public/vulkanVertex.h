@@ -57,6 +57,7 @@ namespace Homura
         }
     };
 }
+
 template<>
 struct std::hash<Homura::Vertex>
 {

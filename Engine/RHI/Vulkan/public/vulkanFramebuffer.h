@@ -16,8 +16,8 @@ namespace Homura
         VulkanFramebuffer(VulkanDevicePtr device, VulkanSwapChainPtr swapChain);
         ~VulkanFramebuffer();
 
-        void create(VulkanRenderPassPtr renderPass, std::vector<VulkanTexture2DPtr> ColorImages,
-                    std::vector<VulkanTextureDepthPtr> DepthStencilImages);
+        void create(VulkanRenderPassPtr renderPass, std::vector<VulkanTexture2DPtr>& colorImages,
+                    std::vector<VulkanTextureDepthPtr>& depthStencilImages);
         void destroy();
 
         VkFramebuffer& getHandle()

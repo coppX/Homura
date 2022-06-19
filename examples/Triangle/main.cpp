@@ -56,12 +56,22 @@ namespace Homura
         bool init()
         {
             rhi->init();
-            rhi->createRenderPass();
-            rhi->createDescriptorPool();
+
+            colorImages.push_back(rhi->createColorResources());
+            depthStencilImages.push_back(rhi->createDepthResources());
+
+            mCommandBuffer = rhi->createCommandBuffer();
+//            mVertexBuffer = rhi->createVertexBuffer();
+//            mIndexBuffer = rhi->createIndexBuffer();
+
+            RHIRenderPassInfo info;
+            VulkanSubPassPtr subPass;
+
+            rhi->setupRenderPass(info);
+
+            rhi->setupFramebuffer(colorImages, depthStencilImages);
+            rhi->setupPipeline();
             rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
-            rhi->createPipeline();
-            rhi->createColorResources();
-            rhi->createDepthResources();
 
             update();
             return true;
@@ -100,10 +110,7 @@ namespace Homura
         {
             rhi->destroyDepthResources();
             rhi->destroyColorResources();
-            rhi->destroyPipeline();
             rhi->destroyDescriptorSet();
-            rhi->destroyDescriptorPool();
-            rhi->destroyRenderPass();
             rhi->exit();
             glfwDestroyWindow(mWindow);
             glfwTerminate();
@@ -172,9 +179,15 @@ namespace Homura
             }
         }
 
-        std::vector<Vertex> vertices;
-        std::vector<uint32_t> indices;
-        std::shared_ptr<VulkanRHI> rhi;
+        std::vector<Vertex>                 vertices;
+        std::vector<uint32_t>               indices;
+        std::shared_ptr<VulkanRHI>          rhi;
+
+        std::vector<VulkanTexture2DPtr>     colorImages;
+        std::vector<VulkanTextureDepthPtr>  depthStencilImages;
+        VulkanCommandBufferPtr              mCommandBuffer;
+        VulkanVertexBufferPtr               mVertexBuffer;
+        VulkanIndexBufferPtr                mIndexBuffer;
     };
 }
 

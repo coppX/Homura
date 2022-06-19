@@ -7,6 +7,7 @@
 
 #include <vulkan/vulkan.h>
 #include <vulkanTypes.h>
+#include <RHIResources.h>
 #include <pixelFormat.h>
 #include <GLFW/glfw3.h>
 
@@ -39,7 +40,6 @@ namespace Homura
         VulkanFramebufferPtr createFrameBuffer();
         VulkanCommandBufferPtr createCommandBuffer();
         VulkanFencePtr createFence();
-        VulkanPipelinePtr createPipeline();
 
         void destroyInstance();
         void destroyDevice();
@@ -67,6 +67,12 @@ namespace Homura
         void idle();
 //        void addPushConstant(const VkPushConstantRange& constantRange, const char* data);
 
+        void setupAttachments();
+        void setupRenderPass(RHIRenderPassInfo& info);
+        void setupFramebuffer(std::vector<VulkanTexture2DPtr>& colorImages, std::vector<VulkanTextureDepthPtr>& depthStencilImages);
+        void setupDescriptorSetLayout();
+        void setupPipeline();
+        void setupDescriptorSet();
     private:
 
     private:

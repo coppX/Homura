@@ -10,6 +10,8 @@
 
 namespace Homura
 {
+    struct RHIRenderPassInfo;
+
     class VulkanSubPass
     {
     public:
@@ -19,7 +21,7 @@ namespace Homura
                       const VkAttachmentReference &resolveAttachmentRef);
         ~VulkanSubPass();
 
-        VkSubpassDescription& getSubPassHandle()
+        VkSubpassDescription& getHandle()
         {
             return mSubPassDescription;
         }
@@ -37,14 +39,8 @@ namespace Homura
         VulkanRenderPass(VulkanDevicePtr device);
         ~VulkanRenderPass();
 
-        void create();
+        void create(RHIRenderPassInfo& info);
         void destroy();
-
-        void addSubPass(const VulkanSubPass &subPass);
-
-        void addDependency(const VkSubpassDependency &dependency);
-
-        void addAttachment(const VkAttachmentDescription &attachment);
 
         VkRenderPass& getHandle()
         {

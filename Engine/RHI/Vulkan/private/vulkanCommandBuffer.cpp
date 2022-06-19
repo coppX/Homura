@@ -70,7 +70,7 @@ namespace Homura
         VERIFYVULKANRESULT(vkBeginCommandBuffer(mCommandBuffer, &beginInfo));
     }
 
-    void VulkanCommandBuffer::beginRenderPass(VulkanRenderPassPtr renderPass, VulkanFramebuffersPtr framebuffer)
+    void VulkanCommandBuffer::beginRenderPass(VulkanRenderPassPtr renderPass, VulkanFramebufferPtr framebuffer)
     {
         VkRenderPassBeginInfo Info{};
         Info.renderPass = renderPass->getHandle();

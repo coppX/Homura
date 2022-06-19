@@ -100,7 +100,7 @@ namespace Homura
     void VulkanSwapChain::createSwapChainImageViews()
     {
         mSwapChainImageViews.resize(mImageCount);
-        for (int i = 0; i < mImageCount; ++i)
+        for (uint32_t i = 0; i < mImageCount; ++i)
         {
             mSwapChainImageViews[i] = createImageView(mSwapChainImages[i], mSwapChainFormat, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_VIEW_TYPE_2D, 1, 1);
         }

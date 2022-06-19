@@ -23,16 +23,16 @@ namespace Homura
         destroy();
     }
 
-    void VulkanFramebuffer::create(VulkanRenderPassPtr renderPass, std::vector<VulkanTexture2DPtr> ColorImages,
-                                                                    std::vector<VulkanTextureDepthPtr> DepthStencilImages)
+    void VulkanFramebuffer::create(VulkanRenderPassPtr renderPass, std::vector<VulkanTexture2DPtr>& colorImages,
+                                                                    std::vector<VulkanTextureDepthPtr>& depthStencilImages)
     {
         std::vector<VkImageView> attachments;
-        for(auto img : ColorImages)
+        for(auto img : colorImages)
         {
             attachments.push_back(img->getImageView());
         }
 
-        for(auto img : DepthStencilImages)
+        for(auto img : depthStencilImages)
         {
             attachments.push_back(img->getImageView());
         }

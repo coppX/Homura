@@ -50,14 +50,14 @@ namespace Homura
         createSwapChain();
         createFrameBuffer();
         createCommandPool();
-        createCommandBuffer();
         createDescriptorPool();
+        createRenderPass();
     }
 
     void VulkanRHI::exit()
     {
+        destroyRenderPass();
         destroyDescriptorPool();
-        destroyCommandBuffer();
         destroyCommandPool();
         destroyFrameBuffer();
         destroySwapChain();
@@ -204,12 +204,6 @@ namespace Homura
         return mDescriptorSet;
     }
 
-    VulkanPipelinePtr VulkanRHI::createPipeline()
-    {
-        mPipeline = std::make_shared<VulkanPipeline>(mDevice, mRenderPass);
-        return mPipeline;
-    }
-
     void VulkanRHI::destroyInstance()
     {
         mInstance->destroy();
@@ -273,5 +267,35 @@ namespace Homura
     void VulkanRHI::idle()
     {
         vkDeviceWaitIdle(mDevice->getHandle());
+    }
+
+    void VulkanRHI::setupAttachments()
+    {
+
+    }
+
+    void VulkanRHI::setupRenderPass(RHIRenderPassInfo& info)
+    {
+        mRenderPass->create(info);
+    }
+
+    void VulkanRHI::setupFramebuffer(std::vector<VulkanTexture2DPtr> &colorImages, std::vector<VulkanTextureDepthPtr> &depthStencilImages)
+    {
+        mFramebuffer->create(mRenderPass, colorImages, depthStencilImages);
+    }
+
+    void VulkanRHI::setupDescriptorSetLayout()
+    {
+
+    }
+
+    void VulkanRHI::setupPipeline()
+    {
+        mPipeline = std::make_shared<VulkanPipeline>(mDevice, mRenderPass);
+    }
+
+    void VulkanRHI::setupDescriptorSet()
+    {
+
     }
 }
