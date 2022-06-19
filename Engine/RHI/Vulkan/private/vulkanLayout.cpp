@@ -23,9 +23,9 @@ namespace Homura
     void VulkanDescriptorSetLayout::create(const std::vector<VkDescriptorSetLayoutBinding>& bindings)
     {
         VkDescriptorSetLayoutCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        createInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         createInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-        createInfo.pBindings = bindings.data();
+        createInfo.pBindings    = bindings.data();
 
         VERIFYVULKANRESULT(vkCreateDescriptorSetLayout(mDevice->getHandle(), &createInfo, nullptr, &mSetLayout));
     }
@@ -54,9 +54,9 @@ namespace Homura
     void VulkanPipelineLayout::create(VulkanDescriptorSetLayoutPtr descriptorSetLayout)
     {
         VkPipelineLayoutCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        createInfo.setLayoutCount = 1;
-        createInfo.pSetLayouts = &descriptorSetLayout->getHandle();
+        createInfo.sType            = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        createInfo.setLayoutCount   = 1;
+        createInfo.pSetLayouts      = &descriptorSetLayout->getHandle();
 
         VERIFYVULKANRESULT(vkCreatePipelineLayout(mDevice->getHandle(), &createInfo, nullptr, &mPipelineLayout));
     }

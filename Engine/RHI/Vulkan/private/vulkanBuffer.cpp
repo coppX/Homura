@@ -19,10 +19,10 @@ namespace Homura
         , mProperties{props}
     {
         VkBufferCreateInfo bufferInfo{};
-        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        bufferInfo.size = mSize;
-        bufferInfo.usage = mUsage;
-        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        bufferInfo.sType        = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        bufferInfo.size         = mSize;
+        bufferInfo.usage        = mUsage;
+        bufferInfo.sharingMode  = VK_SHARING_MODE_EXCLUSIVE;
 
         VERIFYVULKANRESULT(vkCreateBuffer(mDevice->getHandle(), &bufferInfo, nullptr, &mBuffer));
 
@@ -30,9 +30,9 @@ namespace Homura
         vkGetBufferMemoryRequirements(mDevice->getHandle(), mBuffer, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, props);
+        allocInfo.sType             = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        allocInfo.allocationSize    = memRequirements.size;
+        allocInfo.memoryTypeIndex   = findMemoryType(memRequirements.memoryTypeBits, props);
 
         VERIFYVULKANRESULT(vkAllocateMemory(mDevice->getHandle(), &allocInfo, nullptr, &mBufferMemory));
 
@@ -101,19 +101,15 @@ namespace Homura
         mCommandBuffer->beginSingleTimeCommands();
 
         VkBufferImageCopy region{};
-        region.bufferOffset = 0;
-        region.bufferRowLength = 0;
-        region.bufferImageHeight = 0;
-        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        region.imageSubresource.mipLevel = 0;
-        region.imageSubresource.baseArrayLayer = 0;
-        region.imageSubresource.layerCount = 1;
-        region.imageOffset = {0, 0, 0,};
-        region.imageExtent = {
-                width,
-                height,
-                1
-        };
+        region.bufferOffset                     = 0;
+        region.bufferRowLength                  = 0;
+        region.bufferImageHeight                = 0;
+        region.imageSubresource.aspectMask      = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.mipLevel        = 0;
+        region.imageSubresource.baseArrayLayer  = 0;
+        region.imageSubresource.layerCount      = 1;
+        region.imageOffset                      = {0, 0, 0,};
+        region.imageExtent                      = {width, height,1};
 
         vkCmdCopyBufferToImage(mCommandBuffer->getHandle(), mBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 

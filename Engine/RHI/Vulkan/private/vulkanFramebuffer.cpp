@@ -38,13 +38,13 @@ namespace Homura
         }
 
         VkFramebufferCreateInfo frameBufferCreateInfo{};
-        frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        frameBufferCreateInfo.renderPass = renderPass->getHandle();
-        frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-        frameBufferCreateInfo.pAttachments = attachments.data();
-        frameBufferCreateInfo.width = mExtent.width;
-        frameBufferCreateInfo.height = mExtent.height;
-        frameBufferCreateInfo.layers = 1;
+        frameBufferCreateInfo.sType             = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        frameBufferCreateInfo.renderPass        = renderPass->getHandle();
+        frameBufferCreateInfo.attachmentCount   = static_cast<uint32_t>(attachments.size());
+        frameBufferCreateInfo.pAttachments      = attachments.data();
+        frameBufferCreateInfo.width             = mExtent.width;
+        frameBufferCreateInfo.height            = mExtent.height;
+        frameBufferCreateInfo.layers            = 1;
 
         VERIFYVULKANRESULT(vkCreateFramebuffer(mDevice->getHandle(), &frameBufferCreateInfo, nullptr, &mFrameBuffer));
     }

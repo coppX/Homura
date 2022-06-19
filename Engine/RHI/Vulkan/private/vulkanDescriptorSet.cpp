@@ -29,21 +29,21 @@ namespace Homura
         std::vector<VkDescriptorPoolSize> poolSize{};
 
         VkDescriptorPoolSize uniformBufferSize{};
-        uniformBufferSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        uniformBufferSize.descriptorCount = mUniformCount;
+        uniformBufferSize.type              = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        uniformBufferSize.descriptorCount   = mUniformCount;
         poolSize.push_back(uniformBufferSize);
 
         VkDescriptorPoolSize textureSize{};
-        textureSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        textureSize.type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         textureSize.descriptorCount = mImageCount;
         poolSize.push_back(textureSize);
 
         VkDescriptorPoolCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        createInfo.poolSizeCount = static_cast<uint32_t>(poolSize.size());
-        createInfo.pPoolSizes = poolSize.data();
-        createInfo.maxSets = mFrameCount;
-        createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+        createInfo.sType            = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        createInfo.poolSizeCount    = static_cast<uint32_t>(poolSize.size());
+        createInfo.pPoolSizes       = poolSize.data();
+        createInfo.maxSets          = mFrameCount;
+        createInfo.flags            = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
         VERIFYVULKANRESULT(vkCreateDescriptorPool(mDevice->getHandle(), &createInfo, nullptr, &mDescriptorPool));
     }
@@ -75,10 +75,10 @@ namespace Homura
     {
         std::vector<VkDescriptorSetLayout> layouts(mPool->getFrameCount(), mLayout->getHandle());
         VkDescriptorSetAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorPool = mPool->getHandle();
-        allocInfo.descriptorSetCount = mPool->getFrameCount();
-        allocInfo.pSetLayouts = layouts.data();
+        allocInfo.sType                 = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocInfo.descriptorPool        = mPool->getHandle();
+        allocInfo.descriptorSetCount    = mPool->getFrameCount();
+        allocInfo.pSetLayouts           = layouts.data();
 
         mDescriptorSets.resize(mPool->getFrameCount());
         VERIFYVULKANRESULT(vkAllocateDescriptorSets(mDevice->getHandle(), &allocInfo, mDescriptorSets.data()));

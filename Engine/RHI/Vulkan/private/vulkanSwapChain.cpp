@@ -56,11 +56,11 @@ namespace Homura
         createInfo.queueFamilyIndexCount    = 2;
         createInfo.pQueueFamilyIndices      = queueFamilies.data();
 
-        createInfo.preTransform     = swapChainSupportInfo.mCapabilities.currentTransform;
-        createInfo.compositeAlpha   = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        createInfo.presentMode      = presentMode;
-        createInfo.clipped          = VK_TRUE;
-        createInfo.oldSwapchain     = VK_NULL_HANDLE;
+        createInfo.preTransform             = swapChainSupportInfo.mCapabilities.currentTransform;
+        createInfo.compositeAlpha           = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        createInfo.presentMode              = presentMode;
+        createInfo.clipped                  = VK_TRUE;
+        createInfo.oldSwapchain             = VK_NULL_HANDLE;
 
         VERIFYVULKANRESULT(vkCreateSwapchainKHR(mDevice->getHandle(), &createInfo, nullptr, &mSwapChain));
         mSwapChainFormat = surfaceFormat.format;
@@ -185,10 +185,10 @@ namespace Homura
     VkImageView VulkanSwapChain::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageViewType viewType, uint32_t layerCount, uint32_t mipLevels)
     {
         VkImageViewCreateInfo viewInfo{};
-        viewInfo.sType      = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        viewInfo.image      = image;
-        viewInfo.viewType   = viewType;
-        viewInfo.format     = format;
+        viewInfo.sType                              = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image                              = image;
+        viewInfo.viewType                           = viewType;
+        viewInfo.format                             = format;
 
         viewInfo.subresourceRange.aspectMask        = aspectFlags;
         viewInfo.subresourceRange.baseMipLevel      = 0;

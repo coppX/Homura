@@ -28,9 +28,9 @@ namespace Homura
         std::vector<char> shaderCode = readFile(filename);
 
         VkShaderModuleCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+        createInfo.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = shaderCode.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.data());
+        createInfo.pCode    = reinterpret_cast<const uint32_t*>(shaderCode.data());
         VERIFYVULKANRESULT(vkCreateShaderModule(mDevice->getHandle(), &createInfo, nullptr, &mModule));
     }
 

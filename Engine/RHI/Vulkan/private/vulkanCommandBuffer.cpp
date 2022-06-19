@@ -73,15 +73,15 @@ namespace Homura
     void VulkanCommandBuffer::beginRenderPass(VulkanRenderPassPtr renderPass, VulkanFramebufferPtr framebuffer)
     {
         VkRenderPassBeginInfo Info{};
-        Info.renderPass = renderPass->getHandle();
-        Info.framebuffer = framebuffer->getHandle();
-        Info.renderArea.offset.x = 0;
-        Info.renderArea.offset.y = 0;
-        Info.renderArea.extent.width = framebuffer->getExtent().width;
-        Info.renderArea.extent.height = framebuffer->getExtent().height;
+        Info.renderPass                 = renderPass->getHandle();
+        Info.framebuffer                = framebuffer->getHandle();
+        Info.renderArea.offset.x        = 0;
+        Info.renderArea.offset.y        = 0;
+        Info.renderArea.extent.width    = framebuffer->getExtent().width;
+        Info.renderArea.extent.height   = framebuffer->getExtent().height;
         // todo
-        Info.clearValueCount = 0;
-        Info.pClearValues = nullptr;
+        Info.clearValueCount            = 0;
+        Info.pClearValues               = nullptr;
 
         vkCmdBeginRenderPass(mCommandBuffer, &Info, VK_SUBPASS_CONTENTS_INLINE);
     }

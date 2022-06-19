@@ -4,7 +4,7 @@
 
 #include <vulkanRenderPass.h>
 #include <vulkanDevice.h>
-#include <RHIResources.h>
+#include <rhiResources.h>
 #include <debugUtils.h>
 
 namespace Homura
