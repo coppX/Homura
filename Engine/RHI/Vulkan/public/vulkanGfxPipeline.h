@@ -13,10 +13,10 @@ namespace Homura
     class VulkanPipeline
     {
     public:
-        VulkanPipeline(VulkanDevicePtr device, VulkanRenderPassPtr renderPass);
+        VulkanPipeline(VulkanDevicePtr device);
         ~VulkanPipeline();
 
-        void create();
+        void create(VulkanRenderPassPtr renderPass);
         void destroy();
 
         void setShaders(const std::vector<VulkanShaderPtr>& shaders);

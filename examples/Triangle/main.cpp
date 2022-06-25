@@ -102,11 +102,21 @@ namespace Homura
                                                                        resolvedReference);
 
             info.addSubPass(subPass);
-            rhi->setupRenderPass(info);
 
+            VkSubpassDependency dependency{};
+            dependency.srcSubpass       = 0;
+            dependency.dstSubpass       = VK_SUBPASS_EXTERNAL;
+            dependency.srcStageMask     = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependency.dstStageMask     = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+            dependency.srcAccessMask    = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            dependency.dstAccessMask    = 0;
+            dependency.dependencyFlags  = 0;
+            info.addDependency(dependency);
+
+            rhi->setupRenderPass(info);
             rhi->setupFramebuffer(colorImages, depthStencilImages);
-            rhi->setupPipeline();
-            rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
+            std::shared_ptr<VulkanDescriptorSet> descriptorSet = rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
+            rhi->setupPipeline(descriptorSet);
 
             update();
             return true;

@@ -41,14 +41,14 @@ namespace Homura
         }
 
         VkSwapchainCreateInfoKHR createInfo{};
-        createInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface          = mSurface->getHandle();
-        createInfo.minImageCount    = mImageCount;
-        createInfo.imageFormat      = surfaceFormat.format;
-        createInfo.imageColorSpace  = surfaceFormat.colorSpace;
-        createInfo.imageExtent      = extent;
-        createInfo.imageArrayLayers = 1;
-        createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        createInfo.sType                    = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        createInfo.surface                  = mSurface->getHandle();
+        createInfo.minImageCount            = mImageCount;
+        createInfo.imageFormat              = surfaceFormat.format;
+        createInfo.imageColorSpace          = surfaceFormat.colorSpace;
+        createInfo.imageExtent              = extent;
+        createInfo.imageArrayLayers         = 1;
+        createInfo.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
         std::vector<uint32_t> queueFamilies = {mDevice->getGraphicsQueue()->getFamilyIndex(), mDevice->GetPresentQueue()->getFamilyIndex()};
 
@@ -176,8 +176,8 @@ namespace Homura
             static_cast<uint32_t>(height)
         };
 
-        actualExtent.width  = std::clamp(capabilities.minImageExtent.width, capabilities.maxImageExtent.width, actualExtent.width);
-        actualExtent.height = std::clamp(capabilities.minImageExtent.height, capabilities.maxImageExtent.height, actualExtent.height);
+        actualExtent.width  = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+        actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 
         return actualExtent;
     }
@@ -196,7 +196,7 @@ namespace Homura
         viewInfo.subresourceRange.baseArrayLayer    = 0;
         viewInfo.subresourceRange.layerCount        = layerCount;
 
-        VkImageView imageView{VK_NULL_HANDLE};
+        VkImageView imageView{};
         VERIFYVULKANRESULT(vkCreateImageView(mDevice->getHandle(), &viewInfo, nullptr, &imageView));
 
         return imageView;

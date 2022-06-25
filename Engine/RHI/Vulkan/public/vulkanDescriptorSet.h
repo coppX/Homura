@@ -55,6 +55,10 @@ namespace Homura
             return mDescriptorSets.data();
         }
 
+        VulkanDescriptorSetLayoutPtr getLayout()
+        {
+            return mLayout;
+        }
     private:
         VulkanDevicePtr                 mDevice;
         VulkanDescriptorPoolPtr         mPool;

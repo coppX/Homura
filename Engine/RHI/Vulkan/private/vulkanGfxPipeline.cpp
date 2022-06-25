@@ -11,9 +11,8 @@
 
 namespace Homura
 {
-    VulkanPipeline::VulkanPipeline(VulkanDevicePtr device, VulkanRenderPassPtr renderPass)
+    VulkanPipeline::VulkanPipeline(VulkanDevicePtr device)
         : mDevice{device}
-        , mRenderPass{renderPass}
         , mVertexInputState{}
         , mInputAssemblyState{}
         , mTessellationState{}
@@ -29,7 +28,7 @@ namespace Homura
         , mViewports{}
         , mScissors{}
     {
-        create();
+
     }
 
     VulkanPipeline::~VulkanPipeline()
@@ -37,8 +36,9 @@ namespace Homura
         destroy();
     }
 
-    void VulkanPipeline::create()
+    void VulkanPipeline::create(VulkanRenderPassPtr renderPass)
     {
+        mRenderPass = renderPass;
         mVertexInputState.sType     = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         mInputAssemblyState.sType   = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         mTessellationState.sType    = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;

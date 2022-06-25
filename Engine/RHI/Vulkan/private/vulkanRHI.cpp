@@ -10,7 +10,6 @@
 #include <vulkanSurface.h>
 #include <vulkanRenderPass.h>
 #include <vulkanDescriptorSet.h>
-#include <vulkanCommandPool.h>
 #include <vulkanCommandBuffer.h>
 #include <vulkanFramebuffer.h>
 #include <vulkanGfxPipeline.h>
@@ -52,6 +51,7 @@ namespace Homura
         createCommandPool();
         createDescriptorPool();
         createRenderPass();
+        createPipeline();
     }
 
     void VulkanRHI::exit()
@@ -289,13 +289,20 @@ namespace Homura
 
     }
 
-    void VulkanRHI::setupPipeline()
+    void VulkanRHI::setupPipeline(VulkanDescriptorSetPtr descriptorSet)
     {
-        mPipeline = std::make_shared<VulkanPipeline>(mDevice, mRenderPass);
+        mPipeline->create(mRenderPass);
+        mPipeline->build(descriptorSet->getLayout());
     }
 
     void VulkanRHI::setupDescriptorSet()
     {
 
+    }
+
+    VulkanPipelinePtr VulkanRHI::createPipeline()
+    {
+        mPipeline = std::make_shared<VulkanPipeline>(mDevice);
+        return mPipeline;
     }
 }

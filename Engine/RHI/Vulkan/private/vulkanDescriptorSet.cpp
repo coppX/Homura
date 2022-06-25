@@ -88,7 +88,7 @@ namespace Homura
     {
         if (!mDescriptorSets.empty())
         {
-            vkFreeDescriptorSets(mDevice->getHandle(), mPool->getHandle(), mDescriptorSets.size(), mDescriptorSets.data());
+            vkFreeDescriptorSets(mDevice->getHandle(), mPool->getHandle(), static_cast<uint32_t >(mDescriptorSets.size()), mDescriptorSets.data());
             mDescriptorSets.clear();
         }
     }

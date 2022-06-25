@@ -10,6 +10,25 @@
 
 namespace Homura
 {
+    class VulkanCommandPool
+    {
+    public:
+        VulkanCommandPool(VulkanDevicePtr device);
+        ~VulkanCommandPool();
+
+        void create();
+        void reset();
+        void destroy();
+
+        VkCommandPool& getHandle()
+        {
+            return mCommandPool;
+        }
+    private:
+        VulkanDevicePtr             mDevice;
+        VkCommandPool               mCommandPool;
+    };
+
     class VulkanCommandBuffer
     {
     public:
