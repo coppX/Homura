@@ -284,20 +284,10 @@ namespace Homura
         mFramebuffer->create(mRenderPass, colorImages, depthStencilImages);
     }
 
-    void VulkanRHI::setupDescriptorSetLayout()
-    {
-
-    }
-
     void VulkanRHI::setupPipeline(VulkanDescriptorSetPtr descriptorSet)
     {
         mPipeline->create(mRenderPass);
         mPipeline->build(descriptorSet->getLayout());
-    }
-
-    void VulkanRHI::setupDescriptorSet()
-    {
-
     }
 
     VulkanPipelinePtr VulkanRHI::createPipeline()
