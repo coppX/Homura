@@ -69,8 +69,8 @@ namespace Homura
 //            mIndexBuffer = rhi->createIndexBuffer();
 
             RHIRenderPassInfo info;
-            info.mAttachmentDescriptions.resize(2);
-            auto colorAttachmentDescription    = info.mAttachmentDescriptions[0];
+
+            VkAttachmentDescription colorAttachmentDescription{};
             colorAttachmentDescription.format                       = colorImg->getFormat();
             colorAttachmentDescription.samples                      = VK_SAMPLE_COUNT_1_BIT;
             colorAttachmentDescription.loadOp                       = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -78,9 +78,9 @@ namespace Homura
             colorAttachmentDescription.stencilLoadOp                = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             colorAttachmentDescription.stencilStoreOp               = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             colorAttachmentDescription.initialLayout                = VK_IMAGE_LAYOUT_UNDEFINED;
-            colorAttachmentDescription.finalLayout                  = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            colorAttachmentDescription.finalLayout                  = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-            auto depthAttachmentDescription    = info.mAttachmentDescriptions[1];
+            VkAttachmentDescription depthAttachmentDescription{};
             depthAttachmentDescription.format                       = depthImg->getFormat();
             depthAttachmentDescription.samples                      = VK_SAMPLE_COUNT_1_BIT;
             depthAttachmentDescription.loadOp                       = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -90,16 +90,11 @@ namespace Homura
             depthAttachmentDescription.initialLayout                = VK_IMAGE_LAYOUT_UNDEFINED;
             depthAttachmentDescription.finalLayout                  = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-            ColorAttachmentReference colorReference(0);
-            DepthAttachmentReference depthReference(1);
-            std::vector<VkAttachmentReference> colorReferences{colorReference.getHandle()};
-            std::vector<VkAttachmentReference> inputReferences{};
-            VkAttachmentReference resolvedReference{};
+            info.addAttachment(colorAttachmentDescription);
+            info.addAttachment(depthAttachmentDescription);
 
-            VulkanSubPassPtr subPass = std::make_shared<VulkanSubPass>(colorReferences,
-                                                                       inputReferences,
-                                                                       depthReference.getHandle(),
-                                                                       resolvedReference);
+            AttachmentReference reference({colorAttachmentDescription, depthAttachmentDescription});
+            VulkanSubPassPtr subPass = std::make_shared<VulkanSubPass>(reference);
 
             info.addSubPass(subPass);
 

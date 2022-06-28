@@ -9,15 +9,12 @@
 
 namespace Homura
 {
-    VulkanSubPass::VulkanSubPass(std::vector<VkAttachmentReference> &colorAttachmentRef,
-                                 std::vector<VkAttachmentReference> &inputAttachmentRef,
-                                 const VkAttachmentReference &depthStencilAttachmentRef,
-                                 const VkAttachmentReference &resolveAttachmentRef)
+    VulkanSubPass::VulkanSubPass(AttachmentReference references)
         : mSubPassDescription{}
-        , mColorAttachmentReferences{colorAttachmentRef}
-        , mInputAttachmentReferences{inputAttachmentRef}
-        , mDepthStencilAttachmentReference{depthStencilAttachmentRef}
-        , mResolvedAttachmentReference{resolveAttachmentRef}
+        , mColorAttachmentReferences{references.ColorReference}
+        , mInputAttachmentReferences{references.InputReference}
+        , mDepthStencilAttachmentReference{references.DepthReference}
+        , mResolvedAttachmentReference{references.ResolveReference}
     {
         assert(!mColorAttachmentReferences.empty());
 

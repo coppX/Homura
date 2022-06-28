@@ -7,6 +7,7 @@
 #include <vulkan/vulkan.h>
 #include <vulkanTypes.h>
 #include <vector>
+#include <rhiResources.h>
 
 namespace Homura
 {
@@ -15,10 +16,7 @@ namespace Homura
     class VulkanSubPass
     {
     public:
-        VulkanSubPass(std::vector<VkAttachmentReference> &colorAttachmentRef,
-                      std::vector<VkAttachmentReference> &inputAttachmentRef,
-                      const VkAttachmentReference &depthStencilAttachmentRef,
-                      const VkAttachmentReference &resolveAttachmentRef);
+        VulkanSubPass(AttachmentReference references);
         ~VulkanSubPass();
 
         VkSubpassDescription& getHandle()
