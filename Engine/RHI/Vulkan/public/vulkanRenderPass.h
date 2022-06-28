@@ -25,10 +25,6 @@ namespace Homura
         }
     private:
         VkSubpassDescription                mSubPassDescription;
-        std::vector<VkAttachmentReference>  mColorAttachmentReferences;
-        std::vector<VkAttachmentReference>  mInputAttachmentReferences;
-        VkAttachmentReference               mDepthStencilAttachmentReference;
-        VkAttachmentReference               mResolvedAttachmentReference;
     };
 
     class VulkanRenderPass

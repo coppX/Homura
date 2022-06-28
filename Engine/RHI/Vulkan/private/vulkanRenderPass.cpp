@@ -11,20 +11,15 @@ namespace Homura
 {
     VulkanSubPass::VulkanSubPass(AttachmentReference references)
         : mSubPassDescription{}
-        , mColorAttachmentReferences{references.ColorReference}
-        , mInputAttachmentReferences{references.InputReference}
-        , mDepthStencilAttachmentReference{references.DepthReference}
-        , mResolvedAttachmentReference{references.ResolveReference}
     {
-        assert(!mColorAttachmentReferences.empty());
-
+        assert(!references.ColorReference.empty());
         mSubPassDescription.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        mSubPassDescription.colorAttachmentCount    = static_cast<uint32_t>(mColorAttachmentReferences.size());
-        mSubPassDescription.pColorAttachments       = mColorAttachmentReferences.data();
-        mSubPassDescription.inputAttachmentCount    = static_cast<uint32_t>(mInputAttachmentReferences.size());
-        mSubPassDescription.pInputAttachments       = mInputAttachmentReferences.data();
-        mSubPassDescription.pResolveAttachments     = &mResolvedAttachmentReference;
-        mSubPassDescription.pDepthStencilAttachment = mDepthStencilAttachmentReference.layout == VK_IMAGE_LAYOUT_UNDEFINED ? nullptr : &mDepthStencilAttachmentReference;
+        mSubPassDescription.colorAttachmentCount    = static_cast<uint32_t>(references.ColorReference.size());
+        mSubPassDescription.pColorAttachments       = references.ColorReference.data();
+        mSubPassDescription.inputAttachmentCount    = static_cast<uint32_t>(references.InputReference.size());
+        mSubPassDescription.pInputAttachments       = references.InputReference.data();
+        mSubPassDescription.pResolveAttachments     = &references.ResolveReference;
+        mSubPassDescription.pDepthStencilAttachment = references.DepthReference.layout == VK_IMAGE_LAYOUT_UNDEFINED ? nullptr : &references.DepthReference;
     }
 
     VulkanSubPass::~VulkanSubPass()
