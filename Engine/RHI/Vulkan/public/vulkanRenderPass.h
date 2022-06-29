@@ -16,7 +16,7 @@ namespace Homura
     class VulkanSubPass
     {
     public:
-        VulkanSubPass(AttachmentReference references);
+        VulkanSubPass(AttachmentReference& references);
         ~VulkanSubPass();
 
         VkSubpassDescription& getHandle()

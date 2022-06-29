@@ -82,7 +82,8 @@ namespace Homura {
             {
                 VkAttachmentDescription description = descriptions[i];
                 VkAttachmentReference reference{};
-                if (description.finalLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) // color description
+                if (description.finalLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR ||
+                    description.finalLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL ) // color description
                 {
                     reference.attachment = i;
                     reference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;

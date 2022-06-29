@@ -113,14 +113,14 @@ namespace Homura
 
     VulkanTexture2DPtr VulkanRHI::createColorResources()
     {
-        mRenderTarget =  std::make_shared<VulkanTexture2D>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, mDevice->getSampleCount(), mSwapChain->getFormat(),
+        mRenderTarget =  std::make_shared<VulkanTexture2D>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, VK_SAMPLE_COUNT_1_BIT, mSwapChain->getFormat(),
                                           VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         return  mRenderTarget;
     }
 
     VulkanTextureDepthPtr VulkanRHI::createDepthResources()
     {
-        mRenderTargetDepth =  std::make_shared<VulkanTextureDepth>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, mDevice->getSampleCount(), findDepthFormat(mDevice),
+        mRenderTargetDepth =  std::make_shared<VulkanTextureDepth>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, VK_SAMPLE_COUNT_1_BIT, findDepthFormat(mDevice),
                                                     VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         return mRenderTargetDepth;
     }
@@ -200,7 +200,7 @@ namespace Homura
         auto layout = std::make_shared<VulkanDescriptorSetLayout>(mDevice);
         layout->create(bindings);
         mDescriptorSet = std::make_shared<VulkanDescriptorSet>(mDevice, mDescriptorPool, layout);
-        layout->destroy();
+//        layout->destroy(); todo
         return mDescriptorSet;
     }
 

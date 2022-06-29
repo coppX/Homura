@@ -9,7 +9,7 @@
 
 namespace Homura
 {
-    VulkanSubPass::VulkanSubPass(AttachmentReference references)
+    VulkanSubPass::VulkanSubPass(AttachmentReference& references)
         : mSubPassDescription{}
     {
         assert(!references.ColorReference.empty());
@@ -18,7 +18,7 @@ namespace Homura
         mSubPassDescription.pColorAttachments       = references.ColorReference.data();
         mSubPassDescription.inputAttachmentCount    = static_cast<uint32_t>(references.InputReference.size());
         mSubPassDescription.pInputAttachments       = references.InputReference.data();
-        mSubPassDescription.pResolveAttachments     = &references.ResolveReference;
+        mSubPassDescription.pResolveAttachments     = references.ResolveReference.layout == VK_IMAGE_LAYOUT_UNDEFINED ? nullptr : &references.ResolveReference;
         mSubPassDescription.pDepthStencilAttachment = references.DepthReference.layout == VK_IMAGE_LAYOUT_UNDEFINED ? nullptr : &references.DepthReference;
     }
 
