@@ -86,6 +86,7 @@ namespace Homura
 
     void VulkanDescriptorSet::destroy()
     {
+        mLayout->destroy();
         if (!mDescriptorSets.empty())
         {
             vkFreeDescriptorSets(mDevice->getHandle(), mPool->getHandle(), static_cast<uint32_t >(mDescriptorSets.size()), mDescriptorSets.data());

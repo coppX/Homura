@@ -295,4 +295,20 @@ namespace Homura
         mPipeline = std::make_shared<VulkanPipeline>(mDevice);
         return mPipeline;
     }
+
+    void VulkanRHI::setupShaders(std::vector<VulkanShaderPtr> shaders)
+    {
+        mPipeline->setShaders(shaders);
+    }
+
+    void VulkanRHI::setupViewports(std::vector<VkViewport> viewports)
+    {
+        mPipeline->setViewports(viewports);
+    }
+
+    void VulkanRHI::setupScissors(std::vector<VkRect2D> scissors)
+    {
+        mPipeline->setScissors(scissors);
+    }
+
 }

@@ -71,6 +71,9 @@ namespace Homura
         void setupAttachments();
         void setupRenderPass(RHIRenderPassInfo& info);
         void setupFramebuffer(std::vector<VulkanTexture2DPtr>& colorImages, std::vector<VulkanTextureDepthPtr>& depthStencilImages);
+        void setupShaders(std::vector<VulkanShaderPtr> shaders);
+        void setupViewports(std::vector<VkViewport> viewports);
+        void setupScissors(std::vector<VkRect2D> scissors);
         void setupPipeline(VulkanDescriptorSetPtr descriptorSet);
 
     private:

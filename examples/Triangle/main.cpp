@@ -27,6 +27,7 @@
 #include <vulkanTexture.h>
 #include <vulkanRenderPass.h>
 #include <rhiResources.h>
+#include <vulkanShader.h>
 
 namespace Homura
 {
@@ -111,6 +112,17 @@ namespace Homura
             rhi->setupRenderPass(info);
             rhi->setupFramebuffer(colorImages, depthStencilImages);
             std::shared_ptr<VulkanDescriptorSet> descriptorSet = rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
+
+            VulkanShaderPtr vertShader = std::make_shared<VulkanShader>(rhi->getDevice(), VK_SHADER_STAGE_VERTEX_BIT, std::string("main"));
+            VulkanShaderPtr fragShader = std::make_shared<VulkanShader>(rhi->getDevice(), VK_SHADER_STAGE_FRAGMENT_BIT, std::string("main"));
+            vertShader->createShaderModule(FileSystem::getPath("resources/shader/triangle/triangle.vert.spv"));
+            fragShader->createShaderModule(FileSystem::getPath("resources/shader/triangle/triangle.frag.spv"));
+            rhi->setupShaders({vertShader, fragShader});
+            VkViewport viewport{0.0, 0.0, (float)getWidth(), (float)getHeight(), 0.0, 1.0};
+            VkRect2D scissor{{0, 0}, {getWidth(), getHeight()}};
+            rhi->setupViewports({viewport});
+            rhi->setupScissors({scissor});
+
             rhi->setupPipeline(descriptorSet);
 
             update();
