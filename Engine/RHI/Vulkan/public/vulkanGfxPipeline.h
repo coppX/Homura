@@ -19,7 +19,7 @@ namespace Homura
         void create(VulkanRenderPassPtr renderPass);
         void destroy();
 
-        void setShaders(const std::vector<VulkanShaderPtr>& shaders);
+        void setShaders(VulkanShaderPtr shaders);
         void setViewports(const std::vector<VkViewport>& viewports);
         void setScissors(const std::vector<VkRect2D>& scissors);
 
@@ -40,12 +40,13 @@ namespace Homura
         VkPipelineMultisampleStateCreateInfo                mMultisampleState;
         VkPipelineDepthStencilStateCreateInfo               mDepthStencilState;
         VkPipelineColorBlendStateCreateInfo                 mColorBlendState;
+        VkPipelineDynamicStateCreateInfo                    mDynamicState;
 
         VkPipeline                                          mPipeline;
         VulkanPipelineLayoutPtr                             mPipelineLayout;
 
         std::vector<VkPipelineColorBlendAttachmentState>    mBlendAttachmentStates{};
-        std::vector<VulkanShaderPtr>                        mShaders;
+        VulkanShaderPtr                                     mShaders;
         std::vector<VkViewport>                             mViewports;
         std::vector<VkRect2D>                               mScissors;
     };

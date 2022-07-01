@@ -17,10 +17,11 @@
 #include <vulkanBuffer.h>
 #include <vulkanTexture.h>
 #include <vulkanLayout.h>
+#include <vulkanShader.h>
 
 namespace Homura
 {
-    VulkanRHI::VulkanRHI(GLFWwindow* window)
+    VulkanRHI::VulkanRHI(GLFWwindow* window, uint32_t width, uint32_t height)
         : mInstance{nullptr}
         , mSurface{nullptr}
         , mDevice{nullptr}
@@ -31,7 +32,9 @@ namespace Homura
         , mDescriptorPool{nullptr}
         , mRenderPass{nullptr}
         , mFence{nullptr}
-        , mWindow(window)
+        , mWindow{window}
+        , mWidth{width}
+        , mHeight{height}
     {
 
     }
@@ -51,11 +54,14 @@ namespace Homura
         createCommandPool();
         createDescriptorPool();
         createRenderPass();
+        createShader();
         createPipeline();
     }
 
     void VulkanRHI::exit()
     {
+        destroyPipeline();
+        destroyShader();
         destroyRenderPass();
         destroyDescriptorPool();
         destroyCommandPool();
@@ -204,6 +210,12 @@ namespace Homura
         return mDescriptorSet;
     }
 
+    VulkanPipelinePtr VulkanRHI::createPipeline()
+    {
+        mPipeline = std::make_shared<VulkanPipeline>(mDevice);
+        return mPipeline;
+    }
+
     void VulkanRHI::destroyInstance()
     {
         mInstance->destroy();
@@ -287,28 +299,26 @@ namespace Homura
     void VulkanRHI::setupPipeline(VulkanDescriptorSetPtr descriptorSet)
     {
         mPipeline->create(mRenderPass);
+        VkViewport viewport{0.0, 0.0, (float)mWidth, (float)mHeight, 0.0, 1.0};
+        VkRect2D scissor{{0, 0}, {mWidth, mHeight}};
+        mPipeline->setViewports({viewport});
+        mPipeline->setScissors({scissor});
         mPipeline->build(descriptorSet->getLayout());
     }
 
-    VulkanPipelinePtr VulkanRHI::createPipeline()
+    void VulkanRHI::setupShaders(std::string filename, ShaderType type)
     {
-        mPipeline = std::make_shared<VulkanPipeline>(mDevice);
-        return mPipeline;
+        mShader->setupShader(filename, type);
     }
 
-    void VulkanRHI::setupShaders(std::vector<VulkanShaderPtr> shaders)
+    VulkanShaderPtr VulkanRHI::createShader()
     {
-        mPipeline->setShaders(shaders);
+        mShader = std::make_shared<VulkanShader>(mDevice);
+        return mShader;
     }
 
-    void VulkanRHI::setupViewports(std::vector<VkViewport> viewports)
+    void VulkanRHI::destroyShader()
     {
-        mPipeline->setViewports(viewports);
+        mShader->destroy();
     }
-
-    void VulkanRHI::setupScissors(std::vector<VkRect2D> scissors)
-    {
-        mPipeline->setScissors(scissors);
-    }
-
 }

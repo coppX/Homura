@@ -12,13 +12,14 @@
 #include <GLFW/glfw3.h>
 
 #include <vector>
+#include <string>
 
 namespace Homura
 {
     class VulkanRHI
     {
     public:
-        VulkanRHI(GLFWwindow* window);
+        VulkanRHI(GLFWwindow* window, uint32_t width, uint32_t height);
         virtual ~VulkanRHI();
 
         void init();
@@ -40,6 +41,7 @@ namespace Homura
         VulkanFramebufferPtr createFrameBuffer();
         VulkanCommandBufferPtr createCommandBuffer();
         VulkanFencePtr createFence();
+        VulkanShaderPtr createShader();
         VulkanPipelinePtr createPipeline();
 
         void destroyInstance();
@@ -53,6 +55,7 @@ namespace Homura
         void destroyCommandBuffer();
         void destroyCommandPool();
         void destroyFence();
+        void destroyShader();
         void destroyPipeline();
 
         VulkanTexture2DPtr createColorResources();
@@ -71,9 +74,7 @@ namespace Homura
         void setupAttachments();
         void setupRenderPass(RHIRenderPassInfo& info);
         void setupFramebuffer(std::vector<VulkanTexture2DPtr>& colorImages, std::vector<VulkanTextureDepthPtr>& depthStencilImages);
-        void setupShaders(std::vector<VulkanShaderPtr> shaders);
-        void setupViewports(std::vector<VkViewport> viewports);
-        void setupScissors(std::vector<VkRect2D> scissors);
+        void setupShaders(std::string filename, ShaderType type);
         void setupPipeline(VulkanDescriptorSetPtr descriptorSet);
 
     private:
@@ -91,8 +92,11 @@ namespace Homura
         VulkanPipelinePtr                   mPipeline;
         VulkanTexture2DPtr                  mRenderTarget;
         VulkanTextureDepthPtr               mRenderTargetDepth;
+        VulkanShaderPtr                     mShader;
 
         GLFWwindow*                         mWindow;
+        uint32_t                            mWidth;
+        uint32_t                            mHeight;
 
         VulkanTexture2DPtr                  mDepthStencil;
     };

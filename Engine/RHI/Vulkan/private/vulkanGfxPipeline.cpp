@@ -21,6 +21,7 @@ namespace Homura
         , mMultisampleState{}
         , mDepthStencilState{}
         , mColorBlendState{}
+        , mDynamicState{}
         , mPipeline{VK_NULL_HANDLE}
         , mPipelineLayout{std::make_shared<VulkanPipelineLayout>(device)}
         , mBlendAttachmentStates{}
@@ -39,14 +40,63 @@ namespace Homura
     void VulkanPipeline::create(VulkanRenderPassPtr renderPass)
     {
         mRenderPass = renderPass;
-        mVertexInputState.sType     = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        mInputAssemblyState.sType   = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        mTessellationState.sType    = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
-        mViewportState.sType        = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        mRasterizationState.sType   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-        mMultisampleState.sType     = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-        mDepthStencilState.sType    = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-        mColorBlendState.sType      = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+
+        mVertexInputState.sType                             = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        mVertexInputState.vertexBindingDescriptionCount     = 0;
+        mVertexInputState.pVertexBindingDescriptions        = VK_NULL_HANDLE;
+        mVertexInputState.vertexAttributeDescriptionCount   = 0;
+        mVertexInputState.pVertexAttributeDescriptions      = VK_NULL_HANDLE;
+
+        mInputAssemblyState.sType                           = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+        mInputAssemblyState.topology                        = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+        mInputAssemblyState.primitiveRestartEnable          = VK_FALSE;
+
+        mTessellationState.sType                            = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
+
+        mViewportState.sType                                = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+
+        mRasterizationState.sType                           = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+        mRasterizationState.depthBiasClamp                  = VK_FALSE;
+        mRasterizationState.rasterizerDiscardEnable         = VK_FALSE;
+        mRasterizationState.polygonMode                     = VK_POLYGON_MODE_FILL;
+        mRasterizationState.lineWidth                       = 1.0f;
+        mRasterizationState.cullMode                        = VK_CULL_MODE_BACK_BIT;
+        mRasterizationState.frontFace                       = VK_FRONT_FACE_CLOCKWISE;
+        mRasterizationState.depthBiasEnable                 = VK_FALSE;
+        mRasterizationState.depthBiasConstantFactor         = 0.0f;
+        mRasterizationState.depthBiasClamp                  = 0.0f;
+        mRasterizationState.depthBiasSlopeFactor            = 0.0f;
+
+        mMultisampleState.sType                             = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+        mMultisampleState.sampleShadingEnable               = VK_FALSE;
+        mMultisampleState.rasterizationSamples              = VK_SAMPLE_COUNT_1_BIT;
+
+        mDepthStencilState.sType                            = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+        mDepthStencilState.depthTestEnable                  = VK_TRUE;
+        mDepthStencilState.depthWriteEnable                 = VK_TRUE;
+        mDepthStencilState.depthCompareOp                   = VK_COMPARE_OP_LESS;
+        mDepthStencilState.depthBoundsTestEnable            = VK_FALSE;
+        mDepthStencilState.stencilTestEnable                = VK_FALSE;
+        mColorBlendState.sType                              = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+
+        std::vector<VkDynamicState> dynamicState{VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+        mDynamicState.sType                                 = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        mDynamicState.dynamicStateCount                     = static_cast<uint32_t >(dynamicState.size());
+        mDynamicState.pDynamicStates                        = dynamicState.data();
+
+        VkPipelineColorBlendAttachmentState colorBlendState{};
+        colorBlendState.colorWriteMask                      = VK_COLOR_COMPONENT_R_BIT
+                                                            | VK_COLOR_COMPONENT_G_BIT
+                                                            | VK_COLOR_COMPONENT_B_BIT
+                                                            | VK_COLOR_COMPONENT_A_BIT;
+        colorBlendState.blendEnable                         = VK_FALSE;
+        colorBlendState.srcColorBlendFactor                 = VK_BLEND_FACTOR_ONE;
+        colorBlendState.dstColorBlendFactor                 = VK_BLEND_FACTOR_ZERO;
+        colorBlendState.colorBlendOp                        = VK_BLEND_OP_ADD;
+        colorBlendState.srcAlphaBlendFactor                 = VK_BLEND_FACTOR_ONE;
+        colorBlendState.dstAlphaBlendFactor                 = VK_BLEND_FACTOR_ZERO;
+        colorBlendState.alphaBlendOp                        = VK_BLEND_OP_ADD;
+        mBlendAttachmentStates.push_back(colorBlendState);
     }
 
     void VulkanPipeline::destroy()
@@ -60,7 +110,7 @@ namespace Homura
         }
     }
 
-    void VulkanPipeline::setShaders(const std::vector<VulkanShaderPtr>& shaders)
+    void VulkanPipeline::setShaders(VulkanShaderPtr shaders)
     {
         mShaders = shaders;
     }
@@ -77,15 +127,16 @@ namespace Homura
 
     void VulkanPipeline::build(VulkanDescriptorSetLayoutPtr descriptorSetLayout)
     {
+        mPipelineLayout->create(descriptorSetLayout);
         std::vector<VkPipelineShaderStageCreateInfo> shaderCreateInfos{};
-        for (const auto& shader : mShaders)
+        std::vector<VulkanShaderEntity>& shaders = mShaders->getShaders();
+        for (auto& shader : shaders)
         {
             VkPipelineShaderStageCreateInfo shaderCreateInfo{};
             shaderCreateInfo.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-            shaderCreateInfo.stage  = shader->getStage();
-            shaderCreateInfo.pName  = shader->getEntryPointName();
-            shaderCreateInfo.module = shader->getHandle();
-
+            shaderCreateInfo.stage  = shader.getStage();
+            shaderCreateInfo.pName  = shader.getName().c_str();
+            shaderCreateInfo.module = shader.getHandle();
             shaderCreateInfos.push_back(shaderCreateInfo);
         }
         mViewportState.viewportCount        = static_cast<uint32_t>(mViewports.size());
@@ -95,8 +146,6 @@ namespace Homura
 
         mColorBlendState.attachmentCount    = static_cast<uint32_t>(mBlendAttachmentStates.size());
         mColorBlendState.pAttachments       = mBlendAttachmentStates.data();
-
-        mPipelineLayout->create(descriptorSetLayout);
 
         VkGraphicsPipelineCreateInfo  gfxPipelineInfo{};
         gfxPipelineInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -111,6 +160,7 @@ namespace Homura
         gfxPipelineInfo.pMultisampleState   = &mMultisampleState;
         gfxPipelineInfo.pDepthStencilState  = &mDepthStencilState;
         gfxPipelineInfo.pColorBlendState    = &mColorBlendState;
+        gfxPipelineInfo.pDynamicState       = nullptr;
         gfxPipelineInfo.layout              = mPipelineLayout->getHandle();
         gfxPipelineInfo.renderPass          = mRenderPass->getHandle();
         gfxPipelineInfo.subpass             = 0;

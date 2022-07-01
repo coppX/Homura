@@ -9,24 +9,22 @@
 
 namespace Homura
 {
-    VulkanShader::VulkanShader(VulkanDevicePtr device, VkShaderStageFlagBits stage, std::string entryPoint)
+    VulkanShaderEntity::VulkanShaderEntity(VulkanDevicePtr device, VkShaderStageFlagBits stage, std::string entryPoint)
         : mDevice{device}
-        , mModule{VK_NULL_HANDLE}
         , mStage{stage}
         , mEntryPoint{entryPoint}
+        , mModule{VK_NULL_HANDLE}
     {
 
     }
 
-    VulkanShader::~VulkanShader()
+    VulkanShaderEntity::~VulkanShaderEntity()
     {
-        destroyShaderModule();
+
     }
 
-    void VulkanShader::createShaderModule(std::string filename)
+    void VulkanShaderEntity::create(std::vector<char> shaderCode)
     {
-        std::vector<char> shaderCode = readFile(filename);
-
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = shaderCode.size();
@@ -34,12 +32,24 @@ namespace Homura
         VERIFYVULKANRESULT(vkCreateShaderModule(mDevice->getHandle(), &createInfo, nullptr, &mModule));
     }
 
-    void VulkanShader::destroyShaderModule()
+    void VulkanShaderEntity::destroy()
     {
         if (mModule != VK_NULL_HANDLE)
         {
             vkDestroyShaderModule(mDevice->getHandle(), mModule, nullptr);
+            mModule = VK_NULL_HANDLE;
         }
+    }
+
+    VulkanShader::VulkanShader(VulkanDevicePtr device)
+        : mDevice{device}
+    {
+
+    }
+
+    VulkanShader::~VulkanShader()
+    {
+
     }
 
     std::vector<char> VulkanShader::readFile(const std::string &filename)
@@ -58,7 +68,37 @@ namespace Homura
         file.read(buffer.data(), fileSize);
 
         file.close();
-
         return buffer;
+    }
+
+    void VulkanShader::setupShader(std::string filename, ShaderType type)
+    {
+        VkShaderStageFlagBits stage;
+        if (type == VERTEX)
+            stage = VK_SHADER_STAGE_VERTEX_BIT;
+        else if (type == TESSELLATION_CONTROL)
+            stage = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+        else if (type == TESSELLATION_EVALUATION)
+            stage = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+        else if (type == GEOMETRY)
+            stage = VK_SHADER_STAGE_GEOMETRY_BIT;
+        else if (type == FRAGMENT)
+            stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+        else if (type == COMPUTE)
+            stage = VK_SHADER_STAGE_COMPUTE_BIT;
+        else
+            stage = VK_SHADER_STAGE_ALL_GRAPHICS;
+
+        VulkanShaderEntity shader(mDevice, stage, std::string("main"));
+        shader.create(readFile(filename));
+        mShaders.push_back(shader);
+    }
+
+    void VulkanShader::destroy()
+    {
+        for (auto& shader : mShaders)
+        {
+            shader.destroy();
+        }
     }
 }

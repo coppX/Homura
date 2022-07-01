@@ -8,40 +8,58 @@
 #include <vulkanTypes.h>
 #include <vector>
 #include <string>
+#include <rhiResources.h>
 
 namespace Homura
 {
-    class VulkanShader
+    class VulkanShaderEntity
     {
     public:
-        VulkanShader(VulkanDevicePtr device, VkShaderStageFlagBits stage, std::string entryPoint);
-        ~VulkanShader();
+        VulkanShaderEntity(VulkanDevicePtr device, VkShaderStageFlagBits stage, std::string entryPoint);
+        ~VulkanShaderEntity();
 
-        void createShaderModule(std::string filename);
-        const VkShaderModule& getHandle() const
-        {
-            return mModule;
-        }
+        void create(std::vector<char> shaderCode);
+        void destroy();
 
-        const VkShaderStageFlagBits& getStage() const
+        VkShaderStageFlagBits getStage()
         {
             return mStage;
         }
 
-        const char* getEntryPointName() const
+        VkShaderModule getHandle()
         {
-            return mEntryPoint.c_str();
+            return mModule;
+        }
+
+        std::string getName()
+        {
+            return mEntryPoint;
         }
     private:
-        std::vector<char> readFile(const std::string &filename);
-        void destroyShaderModule();
-
-    private:
         VulkanDevicePtr             mDevice;
-
         VkShaderModule              mModule;
         VkShaderStageFlagBits       mStage;
         std::string                 mEntryPoint;
+    };
+
+    class VulkanShader
+    {
+    public:
+        explicit VulkanShader(VulkanDevicePtr device);
+        ~VulkanShader();
+
+        void setupShader(std::string filename, ShaderType type);
+        void destroy();
+
+        std::vector<VulkanShaderEntity>& getShaders()
+        {
+            return mShaders;
+        }
+    private:
+        std::vector<char> readFile(const std::string &filename);
+    private:
+        VulkanDevicePtr                 mDevice;
+        std::vector<VulkanShaderEntity> mShaders;
     };
 }
 
