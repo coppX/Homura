@@ -100,5 +100,6 @@ namespace Homura
         {
             shader.destroy();
         }
+        mShaders.clear();
     }
 }

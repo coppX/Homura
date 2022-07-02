@@ -176,14 +176,14 @@ namespace Homura
         VERIFYVULKANRESULT(vkEndCommandBuffer(mCommandBuffer));
     }
 
-    void VulkanCommandBuffer::submitSync(VulkanQueuePtr queue, VulkanFencePtr fence)
+    void VulkanCommandBuffer::submitSync(VulkanQueuePtr queue, VulkanFencesPtr fence)
     {
         VkSubmitInfo submitInfo{};
         submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount   = 1;
         submitInfo.pCommandBuffers      = &mCommandBuffer;
 
-        VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, fence->getHandle()));
+//        VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, fence->getHandle()));
         VERIFYVULKANRESULT(vkQueueWaitIdle(queue->getHandle()));
     }
 

@@ -6,19 +6,21 @@
 #define HOMURA_VULKANFENCE_H
 #include <vulkan/vulkan.h>
 #include <vulkanTypes.h>
+#include <vector>
 
 namespace Homura
 {
-    class VulkanFence
+    class VulkanFenceEntity
     {
     public:
-        VulkanFence(VulkanDevicePtr device, bool signaled);
-        ~VulkanFence();
+        VulkanFenceEntity(VulkanDevicePtr device);
+        ~VulkanFenceEntity();
 
         void create(bool signaled);
         void destroy();
 
         void reset();
+        void wait();
         VkResult getResult();
 
         VkFence& getHandle()
@@ -28,6 +30,22 @@ namespace Homura
     private:
         VulkanDevicePtr mDevice;
         VkFence         mFence;
+    };
+
+    class VulkanFences
+    {
+    public:
+        VulkanFences(VulkanDevicePtr device);
+        ~VulkanFences();
+
+        void create(uint32_t num);
+        void destroy();
+
+        void wait(uint32_t index);
+        void waitAll();
+    private:
+        VulkanDevicePtr                 mDevice;
+        std::vector<VulkanFenceEntity>  mFences;
     };
 }
 #endif //HOMURA_VULKANFENCE_H

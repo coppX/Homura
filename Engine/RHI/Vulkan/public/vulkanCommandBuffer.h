@@ -78,7 +78,7 @@ namespace Homura
 
         void end();
 
-        void submitSync(VulkanQueuePtr queue, VulkanFencePtr fence);
+        void submitSync(VulkanQueuePtr queue, VulkanFencesPtr fence);
 
         void transferImageLayout(const VkImageMemoryBarrier& imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask);
 

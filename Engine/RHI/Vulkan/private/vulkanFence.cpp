@@ -8,18 +8,18 @@
 
 namespace Homura
 {
-    VulkanFence::VulkanFence(VulkanDevicePtr device, bool signaled)
+    VulkanFenceEntity::VulkanFenceEntity(VulkanDevicePtr device)
         : mDevice{device}
     {
-        create(signaled);
+
     }
 
-    VulkanFence::~VulkanFence()
+    VulkanFenceEntity::~VulkanFenceEntity()
     {
         destroy();
     }
 
-    void VulkanFence::create(bool signaled)
+    void VulkanFenceEntity::create(bool signaled)
     {
         VkFenceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -28,7 +28,7 @@ namespace Homura
         VERIFYVULKANRESULT(vkCreateFence(mDevice->getHandle(), &createInfo, nullptr, &mFence));
     }
 
-    void VulkanFence::destroy()
+    void VulkanFenceEntity::destroy()
     {
         if (mFence != VK_NULL_HANDLE)
         {
@@ -37,16 +37,69 @@ namespace Homura
         }
     }
 
-    void VulkanFence::reset()
+    void VulkanFenceEntity::reset()
     {
         if (mFence != VK_NULL_HANDLE)
         {
-            vkResetFences(mDevice->getHandle(), 1, &mFence);
+            VERIFYVULKANRESULT(vkResetFences(mDevice->getHandle(), 1, &mFence));
         }
     }
 
-    VkResult VulkanFence::getResult()
+    void VulkanFenceEntity::wait()
+    {
+        VERIFYVULKANRESULT(vkWaitForFences(mDevice->getHandle(), 1, &mFence, VK_TRUE, UINT64_MAX));
+    }
+
+    VkResult VulkanFenceEntity::getResult()
     {
         return vkGetFenceStatus(mDevice->getHandle(), mFence);
+    }
+
+    VulkanFences::VulkanFences(VulkanDevicePtr device)
+        : mDevice{device}
+        , mFences{}
+    {
+
+    }
+
+    VulkanFences::~VulkanFences()
+    {
+
+    }
+
+    void VulkanFences::create(uint32_t num)
+    {
+        for (uint32_t i = 0; i < num; i++)
+        {
+            VulkanFenceEntity entity(mDevice);
+            entity.create(false);
+            mFences.push_back(entity);
+        }
+    }
+
+    void VulkanFences::destroy()
+    {
+        for (auto& entity : mFences)
+        {
+            entity.destroy();
+        }
+        mFences.clear();
+    }
+
+    void VulkanFences::wait(uint32_t index)
+    {
+        assert(index < mFences.size());
+        VulkanFenceEntity entity = mFences[index];
+        entity.wait();
+    }
+
+    void VulkanFences::waitAll()
+    {
+        std::vector<VkFence> fences;
+        for (auto& entity : mFences)
+        {
+            fences.push_back(entity.getHandle());
+        }
+        VERIFYVULKANRESULT(vkWaitForFences(mDevice->getHandle(), fences.size(), fences.data(), VK_TRUE, UINT64_MAX));
     }
 }

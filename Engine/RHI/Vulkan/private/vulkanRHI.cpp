@@ -31,7 +31,7 @@ namespace Homura
         , mCommandBuffer{nullptr}
         , mDescriptorPool{nullptr}
         , mRenderPass{nullptr}
-        , mFence{nullptr}
+        , mFences{nullptr}
         , mWindow{window}
         , mWidth{width}
         , mHeight{height}
@@ -147,10 +147,11 @@ namespace Homura
         return mFramebuffer;
     }
 
-    VulkanFencePtr VulkanRHI::createFence()
+    VulkanFencesPtr VulkanRHI::createFences()
     {
-        mFence = std::make_shared<VulkanFence>(mDevice, false);
-        return mFence;
+        mFences = std::make_shared<VulkanFences>(mDevice);
+        mFences->create(mSwapChain->getImageCount());
+        return mFences;
     }
 
     VulkanVertexBufferPtr VulkanRHI::createVertexBuffer(uint32_t size, void* pData)
@@ -268,7 +269,7 @@ namespace Homura
 
     void VulkanRHI::destroyFence()
     {
-        mFence->destroy();
+        mFences->destroy();
     }
 
     void VulkanRHI::destroyPipeline()
