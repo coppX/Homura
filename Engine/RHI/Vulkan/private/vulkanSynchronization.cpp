@@ -2,7 +2,7 @@
 // Created by FDC on 2022/1/14.
 //
 
-#include <vulkanFence.h>
+#include <vulkanSynchronization.h>
 #include <vulkanDevice.h>
 #include <debugUtils.h>
 
@@ -101,5 +101,44 @@ namespace Homura
             fences.push_back(entity.getHandle());
         }
         VERIFYVULKANRESULT(vkWaitForFences(mDevice->getHandle(), fences.size(), fences.data(), VK_TRUE, UINT64_MAX));
+    }
+
+    VkFence VulkanFences::getFence(uint32_t index)
+    {
+        assert(index < mFences.size());
+        return mFences[index].getHandle();
+    }
+
+    VulkanSemaphores::VulkanSemaphores(VulkanDevicePtr device)
+        : mDevice{device}
+        , mSemaphores{}
+    {
+
+    }
+
+    VulkanSemaphores::~VulkanSemaphores()
+    {
+
+    }
+
+    void VulkanSemaphores::create(uint32_t size)
+    {
+        mSemaphores.resize(size);
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        semaphoreInfo.sType   = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        for(auto& semaphore : mSemaphores)
+        {
+            VERIFYVULKANRESULT(vkCreateSemaphore(mDevice->getHandle(), &semaphoreInfo, nullptr, &semaphore));
+        }
+    }
+
+    void VulkanSemaphores::destroy()
+    {
+        for (auto& semaphore : mSemaphores)
+        {
+            vkDestroySemaphore(mDevice->getHandle(), semaphore, nullptr);
+        }
+        mSemaphores.clear();
     }
 }

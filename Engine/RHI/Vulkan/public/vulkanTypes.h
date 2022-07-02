@@ -33,6 +33,7 @@ namespace Homura
     class VulkanShader;
     class VulkanSurface;
     class VulkanFences;
+    class VulkanSemaphores;
     class VulkanPipeline;
     class VulkanPipelineLayout;
     class VulkanSampler;
@@ -61,6 +62,7 @@ namespace Homura
     using VulkanTextureDepthPtr = std::shared_ptr<VulkanTextureDepth>;
     using VulkanSurfacePtr = std::shared_ptr<VulkanSurface>;
     using VulkanFencesPtr = std::shared_ptr<VulkanFences>;
+    using VulkanSemaphoresPtr = std::shared_ptr<VulkanSemaphores>;
     using VulkanPipelinePtr = std::shared_ptr<VulkanPipeline>;
     using VulkanPipelineLayoutPtr = std::shared_ptr<VulkanPipelineLayout>;
     using VulkanSamplerPtr = std::shared_ptr<VulkanSampler>;

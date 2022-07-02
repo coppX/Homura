@@ -41,6 +41,7 @@ namespace Homura
         VulkanFramebufferPtr createFrameBuffer();
         VulkanCommandBufferPtr createCommandBuffer();
         VulkanFencesPtr createFences();
+        VulkanSemaphoresPtr createSemaphores(uint32_t size);
         VulkanShaderPtr createShader();
         VulkanPipelinePtr createPipeline();
 

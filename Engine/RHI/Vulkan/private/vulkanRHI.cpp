@@ -13,7 +13,7 @@
 #include <vulkanCommandBuffer.h>
 #include <vulkanFramebuffer.h>
 #include <vulkanGfxPipeline.h>
-#include <vulkanFence.h>
+#include <vulkanSynchronization.h>
 #include <vulkanBuffer.h>
 #include <vulkanTexture.h>
 #include <vulkanLayout.h>
@@ -154,6 +154,19 @@ namespace Homura
         return mFences;
     }
 
+    VulkanSemaphoresPtr VulkanRHI::createSemaphores(uint32_t size)
+    {
+        VulkanSemaphoresPtr semaphores = std::make_shared<VulkanSemaphores>(mDevice);
+        semaphores->create(size);
+        return semaphores;
+    }
+
+    VulkanShaderPtr VulkanRHI::createShader()
+    {
+        mShader = std::make_shared<VulkanShader>(mDevice);
+        return mShader;
+    }
+
     VulkanVertexBufferPtr VulkanRHI::createVertexBuffer(uint32_t size, void* pData)
     {
         return std::make_shared<VulkanVertexBuffer>(mDevice, static_cast<VkDeviceSize>(size), pData);
@@ -182,7 +195,7 @@ namespace Homura
 
     VulkanCommandBufferPtr VulkanRHI::createCommandBuffer()
     {
-        mCommandBuffer = std::make_shared<VulkanCommandBuffer>(mDevice, mCommandPool);
+        mCommandBuffer = std::make_shared<VulkanCommandBuffer>(mDevice, mSwapChain, mFences, mCommandPool);
         return mCommandBuffer;
     }
 
@@ -207,7 +220,6 @@ namespace Homura
         auto layout = std::make_shared<VulkanDescriptorSetLayout>(mDevice);
         layout->create(bindings);
         mDescriptorSet = std::make_shared<VulkanDescriptorSet>(mDevice, mDescriptorPool, layout);
-//        layout->destroy(); todo
         return mDescriptorSet;
     }
 
@@ -272,6 +284,11 @@ namespace Homura
         mFences->destroy();
     }
 
+    void VulkanRHI::destroyShader()
+    {
+        mShader->destroy();
+    }
+
     void VulkanRHI::destroyPipeline()
     {
         mPipeline->destroy();
@@ -310,16 +327,5 @@ namespace Homura
     void VulkanRHI::setupShaders(std::string filename, ShaderType type)
     {
         mShader->setupShader(filename, type);
-    }
-
-    VulkanShaderPtr VulkanRHI::createShader()
-    {
-        mShader = std::make_shared<VulkanShader>(mDevice);
-        return mShader;
-    }
-
-    void VulkanRHI::destroyShader()
-    {
-        mShader->destroy();
     }
 }

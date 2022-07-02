@@ -32,19 +32,8 @@ namespace Homura
     class VulkanCommandBuffer
     {
     public:
-        VulkanCommandBuffer(VulkanDevicePtr device, VulkanCommandPoolPtr commandPool, bool asSecondary = false)
-            : mCommandBuffer{VK_NULL_HANDLE}
-            , mDevice{device}
-            , mCommandPool{commandPool}
-            , mAsSecondary(asSecondary)
-        {
-            create();
-        }
-
-        ~VulkanCommandBuffer()
-        {
-            destroy();
-        }
+        VulkanCommandBuffer(VulkanDevicePtr device, VulkanSwapChainPtr swapChain, VulkanFencesPtr fences, VulkanCommandPoolPtr commandPool, bool asSecondary = false);
+        ~VulkanCommandBuffer();
 
         void create();
         void destroy();
@@ -78,7 +67,9 @@ namespace Homura
 
         void end();
 
-        void submitSync(VulkanQueuePtr queue, VulkanFencesPtr fence);
+        void submitSync(VulkanQueuePtr queue, bool isSync);
+
+        void drawFrame();
 
         void transferImageLayout(const VkImageMemoryBarrier& imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask);
 
@@ -90,9 +81,13 @@ namespace Homura
         void endSingleTimeCommands();
     private:
         VulkanDevicePtr         mDevice;
+        VulkanSwapChainPtr      mSwapChain;
+        VulkanFencesPtr         mFences;
         VulkanCommandPoolPtr    mCommandPool;
         VkCommandBuffer         mCommandBuffer;
         bool                    mAsSecondary;
+        uint32_t                mCurrentFrameIndex;
+        uint32_t                mMaxFrameCount;
     };
 }
 #endif //HOMURA_VULKANCOMMANDBUFFER_H

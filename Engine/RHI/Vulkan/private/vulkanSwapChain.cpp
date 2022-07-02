@@ -17,7 +17,7 @@ namespace Homura
     VulkanSwapChain::VulkanSwapChain(VulkanDevicePtr device, GLFWwindow* window, VulkanSurfacePtr surface)
         : mDevice{device}
         , mSurface{surface}
-        , mWindow(window)
+        , mWindow{window}
     {
         create();
     }

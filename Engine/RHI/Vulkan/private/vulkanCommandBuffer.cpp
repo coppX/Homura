@@ -11,7 +11,8 @@
 #include <vulkanDescriptorSet.h>
 #include <vulkanRenderPass.h>
 #include <vulkanFramebuffer.h>
-#include <vulkanFence.h>
+#include <vulkanSwapChain.h>
+#include <vulkanSynchronization.h>
 #include <debugUtils.h>
 
 namespace Homura
@@ -48,6 +49,24 @@ namespace Homura
             vkDestroyCommandPool(mDevice->getHandle(), mCommandPool, nullptr);
             mCommandPool = VK_NULL_HANDLE;
         }
+    }
+
+    VulkanCommandBuffer::VulkanCommandBuffer(VulkanDevicePtr device, VulkanSwapChainPtr swapChain, VulkanFencesPtr fences, VulkanCommandPoolPtr commandPool, bool asSecondary)
+        : mDevice{device}
+        , mSwapChain{swapChain}
+        , mFences{fences}
+        , mCommandPool{commandPool}
+        , mAsSecondary{asSecondary}
+        , mCurrentFrameIndex{0}
+        , mMaxFrameCount{swapChain->getImageCount()}
+        , mCommandBuffer{VK_NULL_HANDLE}
+    {
+        create();
+    }
+
+    VulkanCommandBuffer::~VulkanCommandBuffer()
+    {
+
     }
 
     void VulkanCommandBuffer::create()
@@ -90,7 +109,7 @@ namespace Homura
     {
         vkEndCommandBuffer(mCommandBuffer);
 
-        submitSync(mDevice->getGraphicsQueue(), VK_NULL_HANDLE);
+        submitSync(mDevice->getGraphicsQueue(), false);
         vkFreeCommandBuffers(mDevice->getHandle(), mCommandPool->getHandle(), 1, &mCommandBuffer);
     }
 
@@ -176,15 +195,15 @@ namespace Homura
         VERIFYVULKANRESULT(vkEndCommandBuffer(mCommandBuffer));
     }
 
-    void VulkanCommandBuffer::submitSync(VulkanQueuePtr queue, VulkanFencesPtr fence)
+    void VulkanCommandBuffer::submitSync(VulkanQueuePtr queue, bool isSync)
     {
         VkSubmitInfo submitInfo{};
         submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount   = 1;
         submitInfo.pCommandBuffers      = &mCommandBuffer;
 
-//        VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, fence->getHandle()));
-        VERIFYVULKANRESULT(vkQueueWaitIdle(queue->getHandle()));
+        VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, isSync ? mFences->getFence(mCurrentFrameIndex) : VK_NULL_HANDLE));
+//        VERIFYVULKANRESULT(vkQueueWaitIdle(queue->getHandle()));
     }
 
     void VulkanCommandBuffer::transferImageLayout(const VkImageMemoryBarrier& imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)
@@ -205,5 +224,10 @@ namespace Homura
                    uint32_t regionCount, VkImageBlit* Regions, VkFilter filter)
     {
         vkCmdBlitImage(mCommandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, Regions, filter);
+    }
+
+    void VulkanCommandBuffer::drawFrame()
+    {
+
     }
 }
