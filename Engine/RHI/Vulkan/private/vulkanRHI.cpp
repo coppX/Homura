@@ -192,11 +192,7 @@ namespace Homura
 
     VulkanDescriptorPoolPtr VulkanRHI::createDescriptorPool()
     {
-        // todo
-        uint32_t uniformCount = 1;
-        uint32_t imageCount = 1;
-        uint32_t frameCount = 1;
-        mDescriptorPool = std::make_shared<VulkanDescriptorPool>(mDevice, uniformCount, imageCount, frameCount);
+        mDescriptorPool = std::make_shared<VulkanDescriptorPool>(mDevice, mSwapChain->getImageCount());
         return mDescriptorPool;
     }
 

@@ -5,15 +5,14 @@
 #include <vulkanDescriptorSet.h>
 #include <vulkanLayout.h>
 #include <vulkanDevice.h>
+#include <vulkanSwapChain.h>
 #include <debugUtils.h>
 
 namespace Homura
 {
-    VulkanDescriptorPool::VulkanDescriptorPool(VulkanDevicePtr device, uint32_t uniformCount, uint32_t imageCount, uint32_t frameCount)
+    VulkanDescriptorPool::VulkanDescriptorPool(VulkanDevicePtr device, uint32_t frameCount)
         : mDevice{device}
         , mDescriptorPool{VK_NULL_HANDLE}
-        , mUniformCount{uniformCount}
-        , mImageCount{imageCount}
         , mFrameCount{frameCount}
     {
         create();
@@ -30,12 +29,12 @@ namespace Homura
 
         VkDescriptorPoolSize uniformBufferSize{};
         uniformBufferSize.type              = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        uniformBufferSize.descriptorCount   = mUniformCount;
+        uniformBufferSize.descriptorCount   = mFrameCount;
         poolSize.push_back(uniformBufferSize);
 
         VkDescriptorPoolSize textureSize{};
         textureSize.type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        textureSize.descriptorCount = mImageCount;
+        textureSize.descriptorCount = mFrameCount;
         poolSize.push_back(textureSize);
 
         VkDescriptorPoolCreateInfo createInfo{};

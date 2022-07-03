@@ -13,7 +13,7 @@ namespace Homura
     class VulkanDescriptorPool
     {
     public:
-        VulkanDescriptorPool(VulkanDevicePtr device, uint32_t uniformCount, uint32_t imageCount, uint32_t frameCount);
+        VulkanDescriptorPool(VulkanDevicePtr device, uint32_t frameCount);
         ~VulkanDescriptorPool();
 
         VkDescriptorPool& getHandle()
@@ -24,15 +24,13 @@ namespace Homura
         void create();
         void destroy();
 
-        uint32_t& getFrameCount()
+        uint32_t getFrameCount()
         {
             return mFrameCount;
         }
     private:
         VulkanDevicePtr     mDevice;
         VkDescriptorPool    mDescriptorPool;
-        uint32_t            mUniformCount;
-        uint32_t            mImageCount;
         uint32_t            mFrameCount;
     };
 
