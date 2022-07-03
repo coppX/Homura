@@ -16,7 +16,7 @@ namespace Homura
 
     VulkanFenceEntity::~VulkanFenceEntity()
     {
-        destroy();
+
     }
 
     void VulkanFenceEntity::create(bool signaled)

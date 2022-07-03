@@ -297,6 +297,7 @@ namespace Homura
         VkRect2D scissor{{0, 0}, {mWidth, mHeight}};
         mPipeline->setViewports({viewport});
         mPipeline->setScissors({scissor});
+        mPipeline->setShaders(mShader);
         mPipeline->build(descriptorSet->getLayout());
     }
 
