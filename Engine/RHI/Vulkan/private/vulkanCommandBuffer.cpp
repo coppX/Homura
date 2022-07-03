@@ -62,16 +62,15 @@ namespace Homura
         , inFlightFences{}
         , mImageAvailableSemaphores{}
         , mRenderFinishedSemaphores{}
-        , mMaxFrameCount{swapChain->getImageCount()}
+        , mMaxFrameCount{2}
         , mCommandBuffers{}
     {
         imageInFlight = std::make_shared<VulkanFences>(mDevice);
         imageInFlight->create(swapChain->getImageCount());
         inFlightFences = std::make_shared<VulkanFences>(mDevice);
-        inFlightFences->create(swapChain->getImageCount());
-        // todo semaphores size
-        mImageAvailableSemaphores.resize(swapChain->getImageCount());
-        mRenderFinishedSemaphores.resize(swapChain->getImageCount());
+        inFlightFences->create(mMaxFrameCount);
+        mImageAvailableSemaphores.resize(mMaxFrameCount);
+        mRenderFinishedSemaphores.resize(mMaxFrameCount);
         create();
     }
 
@@ -145,7 +144,7 @@ namespace Homura
     {
         vkEndCommandBuffer(commandBuffer);
 
-        submitSync(mDevice->getGraphicsQueue(), false);
+        submitSync(mDevice->getGraphicsQueue(), commandBuffer, false);
         vkFreeCommandBuffers(mDevice->getHandle(), mCommandPool->getHandle(), 1, &commandBuffer);
     }
 
@@ -246,15 +245,15 @@ namespace Homura
         VERIFYVULKANRESULT(vkEndCommandBuffer(mCommandBuffers[index]));
     }
 
-    void VulkanCommandBuffer::submitSync(VulkanQueuePtr queue, bool isSync)
+    void VulkanCommandBuffer::submitSync(VulkanQueuePtr queue, VkCommandBuffer commandBuffer, bool isSync)
     {
         VkSubmitInfo submitInfo{};
         submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount   = 1;
-        submitInfo.pCommandBuffers      = &mCommandBuffers[mImageIndex];
+        submitInfo.pCommandBuffers      = &commandBuffer;
 
         VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, isSync ? inFlightFences->getFence(mCurrentFrameIndex) : VK_NULL_HANDLE));
-//        VERIFYVULKANRESULT(vkQueueWaitIdle(queue->getHandle()));
+        VERIFYVULKANRESULT(vkQueueWaitIdle(queue->getHandle()));
     }
 
     void VulkanCommandBuffer::transferImageLayout(VkCommandBuffer commandBuffer, const VkImageMemoryBarrier& imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)

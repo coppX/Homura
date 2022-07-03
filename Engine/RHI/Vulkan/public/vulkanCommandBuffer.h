@@ -55,7 +55,7 @@ namespace Homura
         void drawIndexIndirect(VulkanStagingBufferPtr buffer, uint32_t index);
         void endRenderPass(uint32_t index);
         void end(uint32_t index);
-        void submitSync(VulkanQueuePtr queue, bool isSync);
+        void submitSync(VulkanQueuePtr queue, VkCommandBuffer commandBuffer, bool isSync);
 
         void beginFrame();
         void endFrame();
