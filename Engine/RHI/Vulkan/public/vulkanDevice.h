@@ -57,7 +57,7 @@ namespace Homura
             return mGfxQueue;
         }
 
-        VulkanQueuePtr GetPresentQueue()
+        VulkanQueuePtr getPresentQueue()
         {
             return mPresent;
         }

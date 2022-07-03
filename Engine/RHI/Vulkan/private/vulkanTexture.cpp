@@ -261,9 +261,9 @@ namespace Homura
         }
 
         mImageLayout = newLayout;
-        command->beginSingleTimeCommands();
-        command->transferImageLayout(imageMemoryBarrier, srcStageMask, dstStageMask);
-        command->endSingleTimeCommands();
+        VkCommandBuffer commandBuffer = command->beginSingleTimeCommands();
+        command->transferImageLayout(commandBuffer, imageMemoryBarrier, srcStageMask, dstStageMask);
+        command->endSingleTimeCommands(commandBuffer);
     }
 
     void VulkanTexture::generateMipmaps(VulkanCommandBufferPtr commandBuffer, VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
@@ -276,7 +276,7 @@ namespace Homura
             throw std::runtime_error("texture image format does not support linear blitting!");
         }
 
-        commandBuffer->beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer1 = commandBuffer->beginSingleTimeCommands();
 
         VkImageMemoryBarrier barrier{};
         barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -299,7 +299,7 @@ namespace Homura
             barrier.srcAccessMask                   = VK_ACCESS_TRANSFER_WRITE_BIT;
             barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
 
-            commandBuffer->transferImageLayout(barrier, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+            commandBuffer->transferImageLayout(commandBuffer1, barrier, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
 
             VkImageBlit blit{};
             blit.srcOffsets[0]                      = {0, 0, 0};
@@ -315,7 +315,7 @@ namespace Homura
             blit.dstSubresource.baseArrayLayer      = 0;
             blit.dstSubresource.layerCount          = 1;
 
-            commandBuffer->blitImage(image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            commandBuffer->blitImage(commandBuffer1, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                            image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            1, &blit,
                            VK_FILTER_LINEAR);
@@ -325,7 +325,7 @@ namespace Homura
             barrier.srcAccessMask   = VK_ACCESS_TRANSFER_READ_BIT;
             barrier.dstAccessMask   = VK_ACCESS_SHADER_READ_BIT;
 
-            commandBuffer->transferImageLayout(barrier, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+            commandBuffer->transferImageLayout(commandBuffer1, barrier, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 
             if (mipWidth > 1) mipWidth /= 2;
             if (mipHeight > 1) mipHeight /= 2;
@@ -337,7 +337,7 @@ namespace Homura
         barrier.srcAccessMask                   = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask                   = VK_ACCESS_SHADER_READ_BIT;
 
-        commandBuffer->transferImageLayout(barrier, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
-        commandBuffer->endSingleTimeCommands();
+        commandBuffer->transferImageLayout(commandBuffer1, barrier, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+        commandBuffer->endSingleTimeCommands(commandBuffer1);
     }
 }

@@ -31,7 +31,6 @@ namespace Homura
         , mCommandBuffer{nullptr}
         , mDescriptorPool{nullptr}
         , mRenderPass{nullptr}
-        , mFences{nullptr}
         , mWindow{window}
         , mWidth{width}
         , mHeight{height}
@@ -147,20 +146,6 @@ namespace Homura
         return mFramebuffer;
     }
 
-    VulkanFencesPtr VulkanRHI::createFences()
-    {
-        mFences = std::make_shared<VulkanFences>(mDevice);
-        mFences->create(mSwapChain->getImageCount());
-        return mFences;
-    }
-
-    VulkanSemaphoresPtr VulkanRHI::createSemaphores(uint32_t size)
-    {
-        VulkanSemaphoresPtr semaphores = std::make_shared<VulkanSemaphores>(mDevice);
-        semaphores->create(size);
-        return semaphores;
-    }
-
     VulkanShaderPtr VulkanRHI::createShader()
     {
         mShader = std::make_shared<VulkanShader>(mDevice);
@@ -195,7 +180,7 @@ namespace Homura
 
     VulkanCommandBufferPtr VulkanRHI::createCommandBuffer()
     {
-        mCommandBuffer = std::make_shared<VulkanCommandBuffer>(mDevice, mSwapChain, mFences, mCommandPool);
+        mCommandBuffer = std::make_shared<VulkanCommandBuffer>(mDevice, mSwapChain, mCommandPool, mFramebuffer);
         return mCommandBuffer;
     }
 
@@ -277,11 +262,6 @@ namespace Homura
     void VulkanRHI::destroyDescriptorPool()
     {
         mDescriptorPool->destroy();
-    }
-
-    void VulkanRHI::destroyFence()
-    {
-        mFences->destroy();
     }
 
     void VulkanRHI::destroyShader()

@@ -55,6 +55,13 @@ namespace Homura
         return vkGetFenceStatus(mDevice->getHandle(), mFence);
     }
 
+    VulkanFenceEntity& VulkanFenceEntity::operator=(VulkanFenceEntity &r)
+    {
+        mDevice = r.mDevice;
+        mFence = r.mFence;
+        return *this;
+    }
+
     VulkanFences::VulkanFences(VulkanDevicePtr device)
         : mDevice{device}
         , mFences{}
@@ -109,36 +116,15 @@ namespace Homura
         return mFences[index].getHandle();
     }
 
-    VulkanSemaphores::VulkanSemaphores(VulkanDevicePtr device)
-        : mDevice{device}
-        , mSemaphores{}
+    void VulkanFences::setValue(VulkanFenceEntity &value, uint32_t index)
     {
-
+        assert(index < mFences.size());
+        mFences[index] = value;
     }
 
-    VulkanSemaphores::~VulkanSemaphores()
+    VulkanFenceEntity& VulkanFences::getEntity(uint32_t index)
     {
-
-    }
-
-    void VulkanSemaphores::create(uint32_t size)
-    {
-        mSemaphores.resize(size);
-        VkSemaphoreCreateInfo semaphoreInfo{};
-        semaphoreInfo.sType   = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-        for(auto& semaphore : mSemaphores)
-        {
-            VERIFYVULKANRESULT(vkCreateSemaphore(mDevice->getHandle(), &semaphoreInfo, nullptr, &semaphore));
-        }
-    }
-
-    void VulkanSemaphores::destroy()
-    {
-        for (auto& semaphore : mSemaphores)
-        {
-            vkDestroySemaphore(mDevice->getHandle(), semaphore, nullptr);
-        }
-        mSemaphores.clear();
+        assert(index < mFences.size());
+        return mFences[index];
     }
 }

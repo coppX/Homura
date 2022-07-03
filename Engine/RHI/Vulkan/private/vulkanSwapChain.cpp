@@ -50,7 +50,7 @@ namespace Homura
         createInfo.imageArrayLayers         = 1;
         createInfo.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-        std::vector<uint32_t> queueFamilies = {mDevice->getGraphicsQueue()->getFamilyIndex(), mDevice->GetPresentQueue()->getFamilyIndex()};
+        std::vector<uint32_t> queueFamilies = {mDevice->getGraphicsQueue()->getFamilyIndex(), mDevice->getPresentQueue()->getFamilyIndex()};
 
         createInfo.imageSharingMode         = VK_SHARING_MODE_EXCLUSIVE;
         createInfo.queueFamilyIndexCount    = 2;
@@ -200,5 +200,10 @@ namespace Homura
         VERIFYVULKANRESULT(vkCreateImageView(mDevice->getHandle(), &viewInfo, nullptr, &imageView));
 
         return imageView;
+    }
+
+    void VulkanSwapChain::recreateSwapChain()
+    {
+
     }
 }

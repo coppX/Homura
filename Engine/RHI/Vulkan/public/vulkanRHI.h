@@ -40,8 +40,6 @@ namespace Homura
         VulkanCommandPoolPtr createCommandPool();
         VulkanFramebufferPtr createFrameBuffer();
         VulkanCommandBufferPtr createCommandBuffer();
-        VulkanFencesPtr createFences();
-        VulkanSemaphoresPtr createSemaphores(uint32_t size);
         VulkanShaderPtr createShader();
         VulkanPipelinePtr createPipeline();
 
@@ -55,7 +53,6 @@ namespace Homura
         void destroyFrameBuffer();
         void destroyCommandBuffer();
         void destroyCommandPool();
-        void destroyFence();
         void destroyShader();
         void destroyPipeline();
 
@@ -89,7 +86,6 @@ namespace Homura
         VulkanCommandPoolPtr                mCommandPool;
         VulkanCommandBufferPtr              mCommandBuffer;
         VulkanFramebufferPtr                mFramebuffer;
-        VulkanFencesPtr                     mFences;
         VulkanPipelinePtr                   mPipeline;
         VulkanTexture2DPtr                  mRenderTarget;
         VulkanTextureDepthPtr               mRenderTargetDepth;

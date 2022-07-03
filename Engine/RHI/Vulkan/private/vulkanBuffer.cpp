@@ -87,18 +87,18 @@ namespace Homura
 
     void VulkanBuffer::copyBuffer(VulkanBuffer& srcBuffer, VulkanBuffer& dstBuffer, VkDeviceSize size)
     {
-        mCommandBuffer->beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = mCommandBuffer->beginSingleTimeCommands();
 
         VkBufferCopy copyRegion{};
         copyRegion.size = size;
         vkCmdCopyBuffer(mCommandBuffer->getHandle(), srcBuffer.getHandle(), dstBuffer.getHandle(), 1, &copyRegion);
 
-        mCommandBuffer->endSingleTimeCommands();
+        mCommandBuffer->endSingleTimeCommands(commandBuffer);
     }
 
     void VulkanBuffer::copyToImage(VkImage image, uint32_t width, uint32_t height)
     {
-        mCommandBuffer->beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = mCommandBuffer->beginSingleTimeCommands();
 
         VkBufferImageCopy region{};
         region.bufferOffset                     = 0;
@@ -113,7 +113,7 @@ namespace Homura
 
         vkCmdCopyBufferToImage(mCommandBuffer->getHandle(), mBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-        mCommandBuffer->endSingleTimeCommands();
+        mCommandBuffer->endSingleTimeCommands(commandBuffer);
     }
 
 }

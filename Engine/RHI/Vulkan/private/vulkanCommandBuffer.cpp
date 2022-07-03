@@ -18,8 +18,8 @@
 namespace Homura
 {
     VulkanCommandPool::VulkanCommandPool(VulkanDevicePtr device)
-            : mDevice{device}
-            , mCommandPool{VK_NULL_HANDLE}
+        : mDevice{device}
+        , mCommandPool{VK_NULL_HANDLE}
     {
         create();
     }
@@ -51,16 +51,27 @@ namespace Homura
         }
     }
 
-    VulkanCommandBuffer::VulkanCommandBuffer(VulkanDevicePtr device, VulkanSwapChainPtr swapChain, VulkanFencesPtr fences, VulkanCommandPoolPtr commandPool, bool asSecondary)
+    VulkanCommandBuffer::VulkanCommandBuffer(VulkanDevicePtr device, VulkanSwapChainPtr swapChain, VulkanCommandPoolPtr commandPool, VulkanFramebufferPtr framebuffer)
         : mDevice{device}
         , mSwapChain{swapChain}
-        , mFences{fences}
         , mCommandPool{commandPool}
-        , mAsSecondary{asSecondary}
+        , mFramebuffrer{framebuffer}
         , mCurrentFrameIndex{0}
+        , mImageIndex{0}
+        , imageInFlight{}
+        , inFlightFences{}
+        , mImageAvailableSemaphores{}
+        , mRenderFinishedSemaphores{}
         , mMaxFrameCount{swapChain->getImageCount()}
-        , mCommandBuffer{VK_NULL_HANDLE}
+        , mCommandBuffers{}
     {
+        imageInFlight = std::make_shared<VulkanFences>(mDevice);
+        imageInFlight->create(swapChain->getImageCount());
+        inFlightFences = std::make_shared<VulkanFences>(mDevice);
+        inFlightFences->create(swapChain->getImageCount());
+        // todo semaphores size
+        mImageAvailableSemaphores.resize(swapChain->getImageCount());
+        mRenderFinishedSemaphores.resize(swapChain->getImageCount());
         create();
     }
 
@@ -71,80 +82,112 @@ namespace Homura
 
     void VulkanCommandBuffer::create()
     {
+        mCommandBuffers.resize(mSwapChain->getImageCount());
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType                 = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandBufferCount    = 1;
+        allocInfo.commandBufferCount    = (uint32_t)mCommandBuffers.size();
         allocInfo.commandPool           = mCommandPool->getHandle();
-        allocInfo.level                 = mAsSecondary ? VK_COMMAND_BUFFER_LEVEL_SECONDARY : VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.level                 = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
-        VERIFYVULKANRESULT(vkAllocateCommandBuffers(mDevice->getHandle(), &allocInfo, &mCommandBuffer));
+        VERIFYVULKANRESULT(vkAllocateCommandBuffers(mDevice->getHandle(), &allocInfo, mCommandBuffers.data()));
     }
 
     void VulkanCommandBuffer::destroy()
     {
-        if (mCommandBuffer != VK_NULL_HANDLE)
+        for (auto& commandBuffer : mCommandBuffers)
         {
-            vkFreeCommandBuffers(mDevice->getHandle(), mCommandPool->getHandle(), 1, &mCommandBuffer);
-            mCommandBuffer = VK_NULL_HANDLE;
+            vkFreeCommandBuffers(mDevice->getHandle(), mCommandPool->getHandle(), 1, &commandBuffer);
         }
+        mCommandBuffers.clear();
+
+        if (imageInFlight != nullptr)
+        {
+            imageInFlight->destroy();
+            imageInFlight.reset();
+        }
+        if (inFlightFences != nullptr)
+        {
+            inFlightFences->destroy();
+            inFlightFences.reset();
+        }
+        for (auto& semaphore : mImageAvailableSemaphores)
+        {
+            vkDestroySemaphore(mDevice->getHandle(), semaphore, nullptr);
+        }
+        mImageAvailableSemaphores.clear();
+        for (auto& semaphore : mRenderFinishedSemaphores)
+        {
+            vkDestroySemaphore(mDevice->getHandle(), semaphore, nullptr);
+        }
+        mRenderFinishedSemaphores.clear();
     }
 
-    void VulkanCommandBuffer::beginSingleTimeCommands()
+    VkCommandBuffer VulkanCommandBuffer::beginSingleTimeCommands()
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType                 = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level                 = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandPool           = mCommandPool->getHandle();
         allocInfo.commandBufferCount    = 1;
-        VERIFYVULKANRESULT(vkAllocateCommandBuffers(mDevice->getHandle(), &allocInfo, &mCommandBuffer));
+
+        VkCommandBuffer commandBuffer;
+        VERIFYVULKANRESULT(vkAllocateCommandBuffers(mDevice->getHandle(), &allocInfo, &commandBuffer));
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-        VERIFYVULKANRESULT(vkBeginCommandBuffer(mCommandBuffer, &beginInfo));
+        VERIFYVULKANRESULT(vkBeginCommandBuffer(commandBuffer, &beginInfo));
+        return commandBuffer;
     }
 
-    void VulkanCommandBuffer::endSingleTimeCommands()
+    void VulkanCommandBuffer::endSingleTimeCommands(VkCommandBuffer commandBuffer)
     {
-        vkEndCommandBuffer(mCommandBuffer);
+        vkEndCommandBuffer(commandBuffer);
 
         submitSync(mDevice->getGraphicsQueue(), false);
-        vkFreeCommandBuffers(mDevice->getHandle(), mCommandPool->getHandle(), 1, &mCommandBuffer);
+        vkFreeCommandBuffers(mDevice->getHandle(), mCommandPool->getHandle(), 1, &commandBuffer);
     }
 
-    void VulkanCommandBuffer::begin(const VkCommandBufferUsageFlags flag, const VkCommandBufferInheritanceInfo &inheritance)
+    void VulkanCommandBuffer::begin(uint32_t index)
     {
+        assert(index < mCommandBuffers.size());
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType             = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags             = flag;
-        beginInfo.pInheritanceInfo  = &inheritance;
-        VERIFYVULKANRESULT(vkBeginCommandBuffer(mCommandBuffer, &beginInfo));
+
+        VERIFYVULKANRESULT(vkBeginCommandBuffer(mCommandBuffers[index], &beginInfo));
     }
 
-    void VulkanCommandBuffer::beginRenderPass(VulkanRenderPassPtr renderPass, VulkanFramebufferPtr framebuffer)
+    void VulkanCommandBuffer::beginRenderPass(VulkanRenderPassPtr renderPass, uint32_t index)
     {
+        assert(index < mCommandBuffers.size());
         VkRenderPassBeginInfo Info{};
         Info.renderPass                 = renderPass->getHandle();
-        Info.framebuffer                = framebuffer->getHandle();
+        Info.framebuffer                = mFramebuffrer->getHandle();
         Info.renderArea.offset.x        = 0;
         Info.renderArea.offset.y        = 0;
-        Info.renderArea.extent.width    = framebuffer->getExtent().width;
-        Info.renderArea.extent.height   = framebuffer->getExtent().height;
-        // todo
-        Info.clearValueCount            = 0;
-        Info.pClearValues               = nullptr;
+        Info.renderArea.extent.width    = mFramebuffrer->getExtent().width;
+        Info.renderArea.extent.height   = mFramebuffrer->getExtent().height;
 
-        vkCmdBeginRenderPass(mCommandBuffer, &Info, VK_SUBPASS_CONTENTS_INLINE);
+        std::vector<VkClearValue> clearValues{2};
+        clearValues[0].color            = {{0.0f, 0.0f, 0.0f, 1.0f}};
+        clearValues[1].depthStencil     = {1.0f, 0};
+
+        Info.clearValueCount            = static_cast<uint32_t>(clearValues.size());
+        Info.pClearValues               = clearValues.data();
+
+        vkCmdBeginRenderPass(mCommandBuffers[index], &Info, VK_SUBPASS_CONTENTS_INLINE);
     }
 
-    void VulkanCommandBuffer::bindGraphicPipeline(VulkanPipelinePtr pipeline)
+    void VulkanCommandBuffer::bindGraphicPipeline(VulkanPipelinePtr pipeline, uint32_t index)
     {
-        vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getHandle());
+        assert(index < mCommandBuffers.size());
+        vkCmdBindPipeline(mCommandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getHandle());
     }
 
-    void VulkanCommandBuffer::bindVertexBuffer(std::vector<VulkanVertexBufferPtr>& buffers)
+    void VulkanCommandBuffer::bindVertexBuffer(std::vector<VulkanVertexBufferPtr>& buffers, uint32_t index)
     {
+        assert(index < mCommandBuffers.size());
         std::vector<VkDeviceSize> offsets(buffers.size(), 0);
         std::vector<VkBuffer> nativeBuffers;
         for (const auto& buffer : buffers)
@@ -152,47 +195,55 @@ namespace Homura
             nativeBuffers.push_back(buffer->getHandle());
         }
 
-        vkCmdBindVertexBuffers(mCommandBuffer, 0, static_cast<uint32_t>(nativeBuffers.size()), nativeBuffers.data(), offsets.data());
+        vkCmdBindVertexBuffers(mCommandBuffers[index], 0, static_cast<uint32_t>(nativeBuffers.size()), nativeBuffers.data(), offsets.data());
     }
 
-    void VulkanCommandBuffer::bindIndexBuffer(VulkanIndexBufferPtr buffer)
+    void VulkanCommandBuffer::bindIndexBuffer(VulkanIndexBufferPtr buffer, uint32_t index)
     {
-        vkCmdBindIndexBuffer(mCommandBuffer, buffer->getHandle(), 0, VK_INDEX_TYPE_UINT32);
+        assert(index < mCommandBuffers.size());
+        vkCmdBindIndexBuffer(mCommandBuffers[index], buffer->getHandle(), 0, VK_INDEX_TYPE_UINT32);
     }
 
-    void VulkanCommandBuffer::bindDescriptorSet(const VulkanPipelineLayoutPtr layout, const VulkanDescriptorSetPtr descriptorSet)
+    void VulkanCommandBuffer::bindDescriptorSet(const VulkanPipelineLayoutPtr layout, const VulkanDescriptorSetPtr descriptorSet, uint32_t index)
     {
-        vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout->getHandle(), 0, descriptorSet->getCount(), descriptorSet->getData(), 0, nullptr);
+        assert(index < mCommandBuffers.size());
+        vkCmdBindDescriptorSets(mCommandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, layout->getHandle(), 0, descriptorSet->getCount(), descriptorSet->getData(), 0, nullptr);
     }
 
-    void VulkanCommandBuffer::draw(uint32_t vertexCount)
+    void VulkanCommandBuffer::draw(uint32_t vertexCount, uint32_t index)
     {
-        vkCmdDraw(mCommandBuffer, vertexCount, 1, 0, 0);
+        assert(index < mCommandBuffers.size());
+        vkCmdDraw(mCommandBuffers[index], vertexCount, 1, 0, 0);
     }
 
-    void VulkanCommandBuffer::drawIndex(uint32_t indexCount)
+    void VulkanCommandBuffer::drawIndex(uint32_t indexCount, uint32_t index)
     {
-        vkCmdDrawIndexed(mCommandBuffer, indexCount, 1, 0, 0, 0);
+        assert(index < mCommandBuffers.size());
+        vkCmdDrawIndexed(mCommandBuffers[index], indexCount, 1, 0, 0, 0);
     }
 
-    void VulkanCommandBuffer::drawIndirect(VulkanVertexBufferPtr buffer)
+    void VulkanCommandBuffer::drawIndirect(VulkanVertexBufferPtr buffer, uint32_t index)
     {
-        vkCmdDrawIndirect(mCommandBuffer, buffer->getHandle(), 0, 1, sizeof(VkDrawIndirectCommand));
+        assert(index < mCommandBuffers.size());
+        vkCmdDrawIndirect(mCommandBuffers[index], buffer->getHandle(), 0, 1, sizeof(VkDrawIndirectCommand));
     }
 
-    void VulkanCommandBuffer::drawIndexIndirect(VulkanStagingBufferPtr buffer)
+    void VulkanCommandBuffer::drawIndexIndirect(VulkanStagingBufferPtr buffer, uint32_t index)
     {
-        vkCmdDrawIndexedIndirect(mCommandBuffer, buffer->getHandle(), 0, 1, sizeof(VkDrawIndexedIndirectCommand));
+        assert(index < mCommandBuffers.size());
+        vkCmdDrawIndexedIndirect(mCommandBuffers[index], buffer->getHandle(), 0, 1, sizeof(VkDrawIndexedIndirectCommand));
     }
 
-    void VulkanCommandBuffer::endRenderPass()
+    void VulkanCommandBuffer::endRenderPass(uint32_t index)
     {
-        vkCmdEndRenderPass(mCommandBuffer);
+        assert(index < mCommandBuffers.size());
+        vkCmdEndRenderPass(mCommandBuffers[index]);
     }
 
-    void VulkanCommandBuffer::end()
+    void VulkanCommandBuffer::end(uint32_t index)
     {
-        VERIFYVULKANRESULT(vkEndCommandBuffer(mCommandBuffer));
+        assert(index < mCommandBuffers.size());
+        VERIFYVULKANRESULT(vkEndCommandBuffer(mCommandBuffers[index]));
     }
 
     void VulkanCommandBuffer::submitSync(VulkanQueuePtr queue, bool isSync)
@@ -200,16 +251,16 @@ namespace Homura
         VkSubmitInfo submitInfo{};
         submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount   = 1;
-        submitInfo.pCommandBuffers      = &mCommandBuffer;
+        submitInfo.pCommandBuffers      = &mCommandBuffers[mImageIndex];
 
-        VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, isSync ? mFences->getFence(mCurrentFrameIndex) : VK_NULL_HANDLE));
+        VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, isSync ? inFlightFences->getFence(mCurrentFrameIndex) : VK_NULL_HANDLE));
 //        VERIFYVULKANRESULT(vkQueueWaitIdle(queue->getHandle()));
     }
 
-    void VulkanCommandBuffer::transferImageLayout(const VkImageMemoryBarrier& imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)
+    void VulkanCommandBuffer::transferImageLayout(VkCommandBuffer commandBuffer, const VkImageMemoryBarrier& imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask)
     {
         vkCmdPipelineBarrier(
-                mCommandBuffer,
+                commandBuffer,
                 srcStageMask,
                 dstStageMask,
                 0,
@@ -219,15 +270,71 @@ namespace Homura
                 );
     }
 
-    void VulkanCommandBuffer::blitImage(VkImage srcImage, VkImageLayout srcImageLayout,
+    void VulkanCommandBuffer::blitImage(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout,
                    VkImage dstImage, VkImageLayout dstImageLayout,
                    uint32_t regionCount, VkImageBlit* Regions, VkFilter filter)
     {
-        vkCmdBlitImage(mCommandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, Regions, filter);
+        vkCmdBlitImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, Regions, filter);
     }
 
-    void VulkanCommandBuffer::drawFrame()
+    void VulkanCommandBuffer::beginFrame()
     {
+        inFlightFences->wait(mImageIndex);
 
+        VkResult result = vkAcquireNextImageKHR(mDevice->getHandle(), mSwapChain->getHandle(), UINT64_MAX, mImageAvailableSemaphores[mCurrentFrameIndex], VK_NULL_HANDLE, &mImageIndex);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR)
+        {
+            mSwapChain->recreateSwapChain();
+            return;
+        }
+        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+        {
+            throw std::runtime_error("failed to acquire swapchain image");
+        }
+    }
+
+    void VulkanCommandBuffer::endFrame()
+    {
+        if (imageInFlight->getFence(mImageIndex) != VK_NULL_HANDLE)
+        {
+            imageInFlight->wait(mImageIndex);
+        }
+        imageInFlight->setValue(inFlightFences->getEntity(mCurrentFrameIndex), mImageIndex);
+        VkSemaphore waitSemaphores[] = {mImageAvailableSemaphores[mCurrentFrameIndex]};
+        VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.waitSemaphoreCount   = 1;
+        submitInfo.pWaitSemaphores      = waitSemaphores;
+        submitInfo.pWaitDstStageMask    = waitStages;
+        submitInfo.commandBufferCount   = 1;
+        submitInfo.pCommandBuffers      = &mCommandBuffers[mImageIndex];
+
+        VkSemaphore signalSemaphores[]  = {mRenderFinishedSemaphores[mCurrentFrameIndex]};
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores    = signalSemaphores;
+        inFlightFences->getEntity(mCurrentFrameIndex).reset();
+        VERIFYVULKANRESULT(vkQueueSubmit(mDevice->getGraphicsQueue()->getHandle(), 1, &submitInfo, inFlightFences->getFence(mCurrentFrameIndex)));
+
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType               = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount  = 1;
+        presentInfo.pWaitSemaphores     = signalSemaphores;
+
+        VkSwapchainKHR swapchain[]      = {mSwapChain->getHandle()};
+        presentInfo.swapchainCount      = 1;
+        presentInfo.pSwapchains         = swapchain;
+        presentInfo.pImageIndices       = &mImageIndex;
+
+        VkResult result = vkQueuePresentKHR(mDevice->getPresentQueue()->getHandle(), &presentInfo);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+        {
+            mSwapChain->recreateSwapChain();
+        }
+        else if (result != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to present swap chain image!");
+        }
+        mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mMaxFrameCount;
     }
 }

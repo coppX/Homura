@@ -13,8 +13,10 @@ namespace Homura
     class VulkanFenceEntity
     {
     public:
-        VulkanFenceEntity(VulkanDevicePtr device);
+        explicit VulkanFenceEntity(VulkanDevicePtr device);
         ~VulkanFenceEntity();
+
+        VulkanFenceEntity& operator=(VulkanFenceEntity& r);
 
         void create(bool signaled);
         void destroy();
@@ -43,24 +45,12 @@ namespace Homura
 
         void wait(uint32_t index);
         void waitAll();
+        void setValue(VulkanFenceEntity& value, uint32_t index);
         VkFence getFence(uint32_t index);
+        VulkanFenceEntity& getEntity(uint32_t index);
     private:
         VulkanDevicePtr                 mDevice;
         std::vector<VulkanFenceEntity>  mFences;
-    };
-
-    // semaphore : signal an image is ready for rendering // ready for presentation
-    class VulkanSemaphores
-    {
-    public:
-        VulkanSemaphores(VulkanDevicePtr device);
-        ~VulkanSemaphores();
-
-        void create(uint32_t size);
-        void destroy();
-    private:
-        VulkanDevicePtr                 mDevice;
-        std::vector<VkSemaphore>        mSemaphores;
     };
 }
 #endif //HOMURA_VULKANSYNCHRONIZATION_H
