@@ -31,7 +31,7 @@ namespace Homura
             return mModule;
         }
 
-        std::string getName()
+        std::string& getName()
         {
             return mEntryPoint;
         }
