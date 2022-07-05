@@ -20,7 +20,7 @@ namespace Homura
 
     VulkanFramebuffer::~VulkanFramebuffer()
     {
-        destroy();
+
     }
 
     void VulkanFramebuffer::create(VulkanRenderPassPtr renderPass, std::vector<VulkanTexture2DPtr>& colorImages,
@@ -54,6 +54,7 @@ namespace Homura
         if (mFrameBuffer != VK_NULL_HANDLE)
         {
             vkDestroyFramebuffer(mDevice->getHandle(), mFrameBuffer, nullptr);
+            mFrameBuffer = VK_NULL_HANDLE;
         }
     }
 

@@ -34,7 +34,7 @@ namespace Homura
 
     VulkanPipeline::~VulkanPipeline()
     {
-        destroy();
+
     }
 
     void VulkanPipeline::create(VulkanRenderPassPtr renderPass)

@@ -48,7 +48,7 @@ namespace Homura
 
     VulkanPipelineLayout::~VulkanPipelineLayout()
     {
-        destroy();
+
     }
 
     void VulkanPipelineLayout::create(VulkanDescriptorSetLayoutPtr descriptorSetLayout)
@@ -66,6 +66,7 @@ namespace Homura
         if (mPipelineLayout != VK_NULL_HANDLE)
         {
             vkDestroyPipelineLayout(mDevice->getHandle(), mPipelineLayout, nullptr);
+            mPipelineLayout = VK_NULL_HANDLE;
         }
     }
 }
