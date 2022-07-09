@@ -301,8 +301,33 @@ namespace Homura
         mPipeline->build(descriptorSet->getLayout());
     }
 
-    void VulkanRHI::setupShaders(std::string filename, ShaderType type)
+    VulkanShaderEntityPtr VulkanRHI::setupShaders(std::string filename, ShaderType type)
     {
-        mShader->setupShader(filename, type);
+        return mShader->setupShader(filename, type);
+    }
+
+    void VulkanRHI::beginCommandBuffer()
+    {
+        mCommandBuffer->begin();
+    }
+
+    void VulkanRHI::createBuffer(void* bufferData, uint32_t bufferSize, BufferType type)
+    {
+        if (type == BufferType::VERTEX)
+        {
+            VulkanVertexBufferPtr buffer = std::make_shared<VulkanVertexBuffer>(mDevice, bufferSize, bufferData);
+            std::vector<VulkanVertexBufferPtr> buffers = { buffer };
+            mCommandBuffer->bindVertexBuffer(buffers);
+        }
+        else if (type == BufferType::INDEX)
+        {
+            VulkanIndexBufferPtr buffer = std::make_shared<VulkanIndexBuffer>(mDevice, bufferSize, bufferData);
+            mCommandBuffer->bindIndexBuffer(buffer);
+        }
+    }
+
+    void VulkanRHI::endCommandBuffer()
+    {
+        mCommandBuffer->end();
     }
 }

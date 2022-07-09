@@ -148,18 +148,19 @@ namespace Homura
         vkFreeCommandBuffers(mDevice->getHandle(), mCommandPool->getHandle(), 1, &commandBuffer);
     }
 
-    void VulkanCommandBuffer::begin(uint32_t index)
+    void VulkanCommandBuffer::begin()
     {
-        assert(index < mCommandBuffers.size());
         VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType             = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        VERIFYVULKANRESULT(vkBeginCommandBuffer(mCommandBuffers[index], &beginInfo));
+        for (const auto& commandBuffer : mCommandBuffers)
+        {            
+            VERIFYVULKANRESULT(vkBeginCommandBuffer(commandBuffer, &beginInfo));
+        }
     }
 
-    void VulkanCommandBuffer::beginRenderPass(VulkanRenderPassPtr renderPass, uint32_t index)
+    void VulkanCommandBuffer::beginRenderPass(VulkanRenderPassPtr renderPass)
     {
-        assert(index < mCommandBuffers.size());
         VkRenderPassBeginInfo Info{};
         Info.renderPass                 = renderPass->getHandle();
         Info.framebuffer                = mFramebuffrer->getHandle();
@@ -175,18 +176,22 @@ namespace Homura
         Info.clearValueCount            = static_cast<uint32_t>(clearValues.size());
         Info.pClearValues               = clearValues.data();
 
-        vkCmdBeginRenderPass(mCommandBuffers[index], &Info, VK_SUBPASS_CONTENTS_INLINE);
+        for (const auto& commandBuffer : mCommandBuffers)
+        {
+            vkCmdBeginRenderPass(commandBuffer, &Info, VK_SUBPASS_CONTENTS_INLINE);
+        }
     }
 
-    void VulkanCommandBuffer::bindGraphicPipeline(VulkanPipelinePtr pipeline, uint32_t index)
+    void VulkanCommandBuffer::bindGraphicPipeline(VulkanPipelinePtr pipeline)
     {
-        assert(index < mCommandBuffers.size());
-        vkCmdBindPipeline(mCommandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getHandle());
+        for (const auto& commandBuffer : mCommandBuffers)
+        {
+            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getHandle());
+        }
     }
 
-    void VulkanCommandBuffer::bindVertexBuffer(std::vector<VulkanVertexBufferPtr>& buffers, uint32_t index)
+    void VulkanCommandBuffer::bindVertexBuffer(std::vector<VulkanVertexBufferPtr>& buffers)
     {
-        assert(index < mCommandBuffers.size());
         std::vector<VkDeviceSize> offsets(buffers.size(), 0);
         std::vector<VkBuffer> nativeBuffers;
         for (const auto& buffer : buffers)
@@ -194,55 +199,74 @@ namespace Homura
             nativeBuffers.push_back(buffer->getHandle());
         }
 
-        vkCmdBindVertexBuffers(mCommandBuffers[index], 0, static_cast<uint32_t>(nativeBuffers.size()), nativeBuffers.data(), offsets.data());
+        for (const auto& commandBuffer : mCommandBuffers)
+        {
+            vkCmdBindVertexBuffers(commandBuffer, 0, static_cast<uint32_t>(nativeBuffers.size()), nativeBuffers.data(), offsets.data());
+        }
     }
 
-    void VulkanCommandBuffer::bindIndexBuffer(VulkanIndexBufferPtr buffer, uint32_t index)
+    void VulkanCommandBuffer::bindIndexBuffer(VulkanIndexBufferPtr buffer)
     {
-        assert(index < mCommandBuffers.size());
-        vkCmdBindIndexBuffer(mCommandBuffers[index], buffer->getHandle(), 0, VK_INDEX_TYPE_UINT32);
+        for (const auto& commandBuffer : mCommandBuffers)
+        {
+            vkCmdBindIndexBuffer(commandBuffer, buffer->getHandle(), 0, VK_INDEX_TYPE_UINT32);
+        }
     }
 
-    void VulkanCommandBuffer::bindDescriptorSet(const VulkanPipelineLayoutPtr layout, const VulkanDescriptorSetPtr descriptorSet, uint32_t index)
+    void VulkanCommandBuffer::bindDescriptorSet(const VulkanPipelineLayoutPtr layout, const VulkanDescriptorSetPtr descriptorSet)
     {
-        assert(index < mCommandBuffers.size());
-        vkCmdBindDescriptorSets(mCommandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, layout->getHandle(), 0, descriptorSet->getCount(), descriptorSet->getData(), 0, nullptr);
+        for (const auto& commandBuffer : mCommandBuffers)
+        {
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout->getHandle(), 0, descriptorSet->getCount(), descriptorSet->getData(), 0, nullptr);
+        }
     }
 
-    void VulkanCommandBuffer::draw(uint32_t vertexCount, uint32_t index)
+    void VulkanCommandBuffer::draw(uint32_t vertexCount)
     {
-        assert(index < mCommandBuffers.size());
-        vkCmdDraw(mCommandBuffers[index], vertexCount, 1, 0, 0);
+        for (const auto& commandBuffer : mCommandBuffers)
+        {
+            vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
+        }
     }
 
-    void VulkanCommandBuffer::drawIndex(uint32_t indexCount, uint32_t index)
+    void VulkanCommandBuffer::drawIndex(uint32_t indexCount)
     {
-        assert(index < mCommandBuffers.size());
-        vkCmdDrawIndexed(mCommandBuffers[index], indexCount, 1, 0, 0, 0);
+        for (const auto& commandBuffer : mCommandBuffers)
+        {
+            vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+        }
     }
 
-    void VulkanCommandBuffer::drawIndirect(VulkanVertexBufferPtr buffer, uint32_t index)
+    void VulkanCommandBuffer::drawIndirect(VulkanVertexBufferPtr buffer)
     {
-        assert(index < mCommandBuffers.size());
-        vkCmdDrawIndirect(mCommandBuffers[index], buffer->getHandle(), 0, 1, sizeof(VkDrawIndirectCommand));
+        for (const auto& commandBuffer : mCommandBuffers)
+        {
+            vkCmdDrawIndirect(commandBuffer, buffer->getHandle(), 0, 1, sizeof(VkDrawIndirectCommand));
+        }
     }
 
-    void VulkanCommandBuffer::drawIndexIndirect(VulkanStagingBufferPtr buffer, uint32_t index)
+    void VulkanCommandBuffer::drawIndexIndirect(VulkanStagingBufferPtr buffer)
     {
-        assert(index < mCommandBuffers.size());
-        vkCmdDrawIndexedIndirect(mCommandBuffers[index], buffer->getHandle(), 0, 1, sizeof(VkDrawIndexedIndirectCommand));
+        for (const auto& commandBuffer : mCommandBuffers)
+        {
+            vkCmdDrawIndexedIndirect(commandBuffer, buffer->getHandle(), 0, 1, sizeof(VkDrawIndexedIndirectCommand));
+        }
     }
 
-    void VulkanCommandBuffer::endRenderPass(uint32_t index)
+    void VulkanCommandBuffer::endRenderPass()
     {
-        assert(index < mCommandBuffers.size());
-        vkCmdEndRenderPass(mCommandBuffers[index]);
+        for (const auto& commandBuffer : mCommandBuffers)
+        {
+            vkCmdEndRenderPass(commandBuffer);
+        }
     }
 
-    void VulkanCommandBuffer::end(uint32_t index)
+    void VulkanCommandBuffer::end()
     {
-        assert(index < mCommandBuffers.size());
-        VERIFYVULKANRESULT(vkEndCommandBuffer(mCommandBuffers[index]));
+        for (const auto& commandBuffer : mCommandBuffers)
+        {
+            VERIFYVULKANRESULT(vkEndCommandBuffer(commandBuffer));
+        }
     }
 
     void VulkanCommandBuffer::submitSync(VulkanQueuePtr queue, VkCommandBuffer commandBuffer, bool isSync)

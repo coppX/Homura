@@ -13,6 +13,7 @@ namespace Homura
     class VulkanInstance;
     class VulkanRenderPass;
     class VulkanSubPass;
+    class VulkanBuffer;
     class VulkanVertexBuffer;
     class VulkanIndexBuffer;
     class VulkanUniformBuffer;
@@ -31,6 +32,7 @@ namespace Homura
     class VulkanTextureDepth;
     class VulkanTextureCube;
     class VulkanShader;
+    class VulkanShaderEntity;
     class VulkanSurface;
     class VulkanFences;
     class VulkanSemaphores;
@@ -43,6 +45,7 @@ namespace Homura
     using VulkanInstancePtr = std::shared_ptr<VulkanInstance>;
     using VulkanRenderPassPtr = std::shared_ptr<VulkanRenderPass>;
     using VulkanSubPassPtr = std::shared_ptr<VulkanSubPass>;
+    using VulkanBufferPtr = std::shared_ptr<VulkanBuffer>;
     using VulkanVertexBufferPtr = std::shared_ptr<VulkanVertexBuffer>;
     using VulkanIndexBufferPtr = std::shared_ptr<VulkanIndexBuffer>;
     using VulkanUniformBufferPtr = std::shared_ptr<VulkanUniformBuffer>;
@@ -55,6 +58,7 @@ namespace Homura
     using VulkanCommandPoolPtr = std::shared_ptr<VulkanCommandPool>;
     using VulkanCommandBufferPtr = std::shared_ptr<VulkanCommandBuffer>;
     using VulkanShaderPtr = std::shared_ptr<VulkanShader>;
+    using VulkanShaderEntityPtr = std::shared_ptr<VulkanShaderEntity>;
     using VulkanTexture1DPtr = std::shared_ptr<VulkanTexture1D>;
     using VulkanTexture2DPtr = std::shared_ptr<VulkanTexture2D>;
     using VulkanTexture3DPtr = std::shared_ptr<VulkanTexture3D>;

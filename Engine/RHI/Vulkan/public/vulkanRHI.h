@@ -72,8 +72,12 @@ namespace Homura
         void setupAttachments();
         void setupRenderPass(RHIRenderPassInfo& info);
         void setupFramebuffer(std::vector<VulkanTexture2DPtr>& colorImages, std::vector<VulkanTextureDepthPtr>& depthStencilImages);
-        void setupShaders(std::string filename, ShaderType type);
+        VulkanShaderEntityPtr setupShaders(std::string filename, ShaderType type);
         void setupPipeline(VulkanDescriptorSetPtr descriptorSet);
+
+        void beginCommandBuffer();
+        void createBuffer(void* bufferData, uint32_t bufferSize, BufferType type);
+        void endCommandBuffer();
 
     private:
         VulkanInstancePtr                   mInstance;;

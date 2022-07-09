@@ -14,6 +14,8 @@ namespace Homura
         , mStage{stage}
         , mEntryPoint{entryPoint}
         , mModule{VK_NULL_HANDLE}
+        , mVertexInputAttributeDes{}
+        , mVertexInputBindingDes{}
     {
 
     }
@@ -39,6 +41,39 @@ namespace Homura
             vkDestroyShaderModule(mDevice->getHandle(), mModule, nullptr);
             mModule = VK_NULL_HANDLE;
         }
+    }
+
+    void VulkanShaderEntity::setVertexAttributeDescription(std::vector<VkVertexInputAttributeDescription>& attributeDescriptions)
+    {
+        for (const VkVertexInputAttributeDescription& attribute : attributeDescriptions)
+        {
+            mVertexInputAttributeDes.push_back(attribute);
+        }
+    }
+
+    void VulkanShaderEntity::setVertexInputBindingDescription(VkVertexInputBindingDescription inputBindingDescription)
+    {
+        mVertexInputBindingDes.push_back(inputBindingDescription);
+    }
+
+    uint32_t VulkanShaderEntity::getVertexAttributeDesriptionCount() const
+    {
+        return mVertexInputAttributeDes.size();
+    }
+
+    uint32_t VulkanShaderEntity::getVertexInputBindingDescriptionCount() const
+    {
+        return mVertexInputBindingDes.size();
+    }
+
+    const VkVertexInputAttributeDescription* VulkanShaderEntity::getVertexAttributeDesriptionData() const
+    {
+        return mVertexInputAttributeDes.data();
+    }
+
+    const VkVertexInputBindingDescription* VulkanShaderEntity::getVertexBindingDesriptionData() const
+    {
+        return mVertexInputBindingDes.data();
     }
 
     VulkanShader::VulkanShader(VulkanDevicePtr device)
@@ -71,7 +106,7 @@ namespace Homura
         return buffer;
     }
 
-    void VulkanShader::setupShader(std::string filename, ShaderType type)
+    VulkanShaderEntityPtr VulkanShader::setupShader(std::string filename, ShaderType type)
     {
         VkShaderStageFlagBits stage;
         if (type == VERTEX)
@@ -89,16 +124,61 @@ namespace Homura
         else
             stage = VK_SHADER_STAGE_ALL_GRAPHICS;
 
-        VulkanShaderEntity shader(mDevice, stage, std::string("main"));
-        shader.create(readFile(filename));
+        VulkanShaderEntityPtr shader = std::make_shared<VulkanShaderEntity>(mDevice, stage, std::string("main"));
+        shader->create(readFile(filename));
         mShaders.push_back(shader);
+        return shader;
+    }
+
+    uint32_t VulkanShader::getVertexAttributeDesriptionCount() const
+    {
+        for (const VulkanShaderEntityPtr& shader : mShaders)
+        {
+            if (shader->getStage() == VK_SHADER_STAGE_VERTEX_BIT)
+            {
+                return shader->getVertexAttributeDesriptionCount();
+            }
+        }
+    }
+
+    uint32_t VulkanShader::getVertexInputBindingDescriptionCount() const
+    {
+        for (const VulkanShaderEntityPtr& shader : mShaders)
+        {
+            if (shader->getStage() == VK_SHADER_STAGE_VERTEX_BIT)
+            {
+                return shader->getVertexInputBindingDescriptionCount();
+            }
+        }
+    }
+
+    const VkVertexInputAttributeDescription* VulkanShader::getVertexAttributeDesriptionData() const
+    {
+        for (const VulkanShaderEntityPtr& shader : mShaders)
+        {
+            if (shader->getStage() == VK_SHADER_STAGE_VERTEX_BIT)
+            {
+                return shader->getVertexAttributeDesriptionData();
+            }
+        }
+    }
+
+    const VkVertexInputBindingDescription* VulkanShader::getVertexBindingDesriptionData() const
+    {
+        for (const VulkanShaderEntityPtr& shader : mShaders)
+        {
+            if (shader->getStage() == VK_SHADER_STAGE_VERTEX_BIT)
+            {
+                return shader->getVertexBindingDesriptionData();
+            }
+        }
     }
 
     void VulkanShader::destroy()
     {
         for (auto& shader : mShaders)
         {
-            shader.destroy();
+            shader->destroy();
         }
         mShaders.clear();
     }

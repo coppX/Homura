@@ -105,6 +105,14 @@ namespace Homura {
         COMPUTE,
         ALL,
     };
+    enum class BufferType
+    {
+        VERTEX = 0,
+        INDEX,
+        UNIFORM,
+        STAGGING,
+        ALL,
+    };
 }
 
 #endif //HOMURA_RHIRESOURCES_H

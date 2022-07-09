@@ -66,8 +66,6 @@ namespace Homura
             depthStencilImages.push_back(depthImg);
 
             mCommandBuffer = rhi->createCommandBuffer();
-//            mVertexBuffer = rhi->createVertexBuffer();
-//            mIndexBuffer = rhi->createIndexBuffer();
 
             RHIRenderPassInfo info;
 
@@ -113,7 +111,9 @@ namespace Homura
             rhi->setupFramebuffer(colorImages, depthStencilImages);
             std::shared_ptr<VulkanDescriptorSet> descriptorSet = rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
 
-            rhi->setupShaders(FileSystem::getPath("resources/shader/triangle/triangle.vert.spv"), VERTEX);
+            auto vertexShader = rhi->setupShaders(FileSystem::getPath("resources/shader/triangle/triangle.vert.spv"), VERTEX);
+            vertexShader->setVertexAttributeDescription(Vertex::getAttributeDescriptions());
+            vertexShader->setVertexInputBindingDescription(Vertex::getBindingDescription());
             rhi->setupShaders(FileSystem::getPath("resources/shader/triangle/triangle.frag.spv"), FRAGMENT);
 
             rhi->setupPipeline(descriptorSet);

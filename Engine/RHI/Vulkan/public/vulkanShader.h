@@ -35,11 +35,20 @@ namespace Homura
         {
             return mEntryPoint;
         }
+
+        void setVertexAttributeDescription(std::vector<VkVertexInputAttributeDescription>& attributeDescriptions);
+        void setVertexInputBindingDescription(VkVertexInputBindingDescription inputBindingDescription);
+        uint32_t getVertexAttributeDesriptionCount() const;
+        uint32_t getVertexInputBindingDescriptionCount() const;
+        const VkVertexInputAttributeDescription* getVertexAttributeDesriptionData() const;
+        const VkVertexInputBindingDescription* getVertexBindingDesriptionData() const;
     private:
         VulkanDevicePtr             mDevice;
         VkShaderModule              mModule;
         VkShaderStageFlagBits       mStage;
         std::string                 mEntryPoint;
+        std::vector<VkVertexInputAttributeDescription>  mVertexInputAttributeDes;
+        std::vector<VkVertexInputBindingDescription>    mVertexInputBindingDes;
     };
 
     class VulkanShader
@@ -48,18 +57,24 @@ namespace Homura
         explicit VulkanShader(VulkanDevicePtr device);
         ~VulkanShader();
 
-        void setupShader(std::string filename, ShaderType type);
+        VulkanShaderEntityPtr setupShader(std::string filename, ShaderType type);
         void destroy();
 
-        std::vector<VulkanShaderEntity>& getShaders()
+        std::vector<VulkanShaderEntityPtr>& getShaders()
         {
             return mShaders;
         }
+
+        uint32_t getVertexAttributeDesriptionCount() const;
+        uint32_t getVertexInputBindingDescriptionCount() const;
+        const VkVertexInputAttributeDescription* getVertexAttributeDesriptionData() const;
+        const VkVertexInputBindingDescription* getVertexBindingDesriptionData() const;
+
     private:
         std::vector<char> readFile(const std::string &filename);
     private:
-        VulkanDevicePtr                 mDevice;
-        std::vector<VulkanShaderEntity> mShaders;
+        VulkanDevicePtr                     mDevice;
+        std::vector<VulkanShaderEntityPtr>  mShaders;
     };
 }
 

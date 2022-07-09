@@ -43,6 +43,32 @@ namespace Homura
             return mCommandBuffers[mCurrentFrameIndex];
         }
 
+        void begin();
+        void beginRenderPass(VulkanRenderPassPtr renderPass);
+        void bindGraphicPipeline(VulkanPipelinePtr pipeline);
+        void bindVertexBuffer(std::vector<VulkanVertexBufferPtr>& buffers);
+        void bindIndexBuffer(VulkanIndexBufferPtr buffer);
+        void bindDescriptorSet(const VulkanPipelineLayoutPtr layout, const VulkanDescriptorSetPtr descriptorSet);
+        void draw(uint32_t vertexCount);
+        void drawIndex(uint32_t indexCount);
+        void drawIndirect(VulkanVertexBufferPtr buffer);
+        void drawIndexIndirect(VulkanStagingBufferPtr buffer);
+        void endRenderPass();
+        void end();
+
+        void beginFrame();
+        void endFrame();
+
+        void transferImageLayout(VkCommandBuffer commandBuffer, const VkImageMemoryBarrier& imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask);
+
+        void blitImage(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout,
+                       VkImage dstImage, VkImageLayout dstImageLayout,
+                       uint32_t regionCount, VkImageBlit* Regions, VkFilter filter);
+        VkCommandBuffer beginSingleTimeCommands();
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+        void submitSync(VulkanQueuePtr queue, VkCommandBuffer commandBuffer, bool isSync);
+
+    private:
         void begin(uint32_t index);
         void beginRenderPass(VulkanRenderPassPtr renderPass, uint32_t index);
         void bindGraphicPipeline(VulkanPipelinePtr pipeline, uint32_t index);
@@ -55,20 +81,7 @@ namespace Homura
         void drawIndexIndirect(VulkanStagingBufferPtr buffer, uint32_t index);
         void endRenderPass(uint32_t index);
         void end(uint32_t index);
-        void submitSync(VulkanQueuePtr queue, VkCommandBuffer commandBuffer, bool isSync);
 
-        void beginFrame();
-        void endFrame();
-
-        void transferImageLayout(VkCommandBuffer commandBuffer, const VkImageMemoryBarrier& imageMemoryBarrier, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask);
-
-        void blitImage(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout,
-                       VkImage dstImage, VkImageLayout dstImageLayout,
-                       uint32_t regionCount, VkImageBlit* Regions, VkFilter filter);
-        VkCommandBuffer beginSingleTimeCommands();
-
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-    private:
         VulkanDevicePtr                 mDevice;
         VulkanSwapChainPtr              mSwapChain;
         VulkanFramebufferPtr            mFramebuffrer;
