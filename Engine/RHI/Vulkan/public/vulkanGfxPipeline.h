@@ -23,10 +23,20 @@ namespace Homura
         void setViewports(const std::vector<VkViewport>& viewports);
         void setScissors(const std::vector<VkRect2D>& scissors);
 
-        void build(VulkanDescriptorSetLayoutPtr descriptorSetLayout);
+        void build(VulkanDescriptorSetPtr descriptorSet);
         VkPipeline& getHandle()
         {
             return mPipeline;
+        }
+
+        VulkanPipelineLayoutPtr getPipelineLayout()
+        {
+            return mPipelineLayout;
+        }
+
+        VulkanDescriptorSetPtr getDescriptorSet()
+        {
+            return mDescriptSet;
         }
     private:
         VulkanDevicePtr                                     mDevice;
@@ -43,6 +53,7 @@ namespace Homura
         VkPipelineDynamicStateCreateInfo                    mDynamicState;
 
         VkPipeline                                          mPipeline;
+        VulkanDescriptorSetPtr                              mDescriptSet;
         VulkanPipelineLayoutPtr                             mPipelineLayout;
 
         std::vector<VkPipelineColorBlendAttachmentState>    mBlendAttachmentStates{};

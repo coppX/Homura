@@ -32,7 +32,7 @@ namespace Homura
     class VulkanCommandBuffer
     {
     public:
-        VulkanCommandBuffer(VulkanDevicePtr device, VulkanSwapChainPtr swapChain, VulkanCommandPoolPtr commandPool, VulkanFramebufferPtr framebuffer);
+        VulkanCommandBuffer(VulkanDevicePtr device, VulkanSwapChainPtr swapChain, VulkanCommandPoolPtr commandPool, VulkanFramebufferPtr framebuffer, VulkanPipelinePtr pipeline);
         ~VulkanCommandBuffer();
 
         void create();
@@ -45,10 +45,10 @@ namespace Homura
 
         void begin();
         void beginRenderPass(VulkanRenderPassPtr renderPass);
-        void bindGraphicPipeline(VulkanPipelinePtr pipeline);
-        void bindVertexBuffer(std::vector<VulkanVertexBufferPtr>& buffers);
+        void bindGraphicPipeline();
+        void bindVertexBuffer(VulkanVertexBufferPtr buffer);
         void bindIndexBuffer(VulkanIndexBufferPtr buffer);
-        void bindDescriptorSet(const VulkanPipelineLayoutPtr layout, const VulkanDescriptorSetPtr descriptorSet);
+        void bindDescriptorSet();
         void draw(uint32_t vertexCount);
         void drawIndex(uint32_t indexCount);
         void drawIndirect(VulkanVertexBufferPtr buffer);
@@ -56,6 +56,7 @@ namespace Homura
         void endRenderPass();
         void end();
 
+        void draw();
         void beginFrame();
         void endFrame();
 
@@ -66,6 +67,8 @@ namespace Homura
                        uint32_t regionCount, VkImageBlit* Regions, VkFilter filter);
         VkCommandBuffer beginSingleTimeCommands();
         void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+        void copyBuffer(VulkanBuffer srcBuffer, VulkanBuffer dstBuffer, VkDeviceSize size);
+        void copyBufferToTexture(VulkanBuffer Buffer, VulkanTexture2DPtr texture, uint32_t width, uint32_t height);
         void submitSync(VulkanQueuePtr queue, VkCommandBuffer commandBuffer, bool isSync);
 
     private:
@@ -85,6 +88,7 @@ namespace Homura
         VulkanDevicePtr                 mDevice;
         VulkanSwapChainPtr              mSwapChain;
         VulkanFramebufferPtr            mFramebuffrer;
+        VulkanPipelinePtr               mPipeline;
         //  sync
         VulkanFencesPtr                 imageInFlight;
         VulkanFencesPtr                 inFlightFences;
@@ -97,6 +101,9 @@ namespace Homura
         uint32_t                        mCurrentFrameIndex;
         uint32_t                        mMaxFrameCount;
         uint32_t                        mImageIndex;
+
+        bool                            mHasIndexBuffer;
+        uint32_t                        mBuferSize;
     };
 }
 #endif //HOMURA_VULKANCOMMANDBUFFER_H

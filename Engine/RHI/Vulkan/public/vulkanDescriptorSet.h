@@ -48,9 +48,9 @@ namespace Homura
             return (uint32_t )mDescriptorSets.size();
         }
 
-        VkDescriptorSet* getData()
+        std::vector<VkDescriptorSet>& getData()
         {
-            return mDescriptorSets.data();
+            return mDescriptorSets;
         }
 
         VulkanDescriptorSetLayoutPtr getLayout()

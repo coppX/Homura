@@ -95,7 +95,7 @@ namespace Homura {
         VkAttachmentReference DepthReference;
     };
 
-    enum ShaderType
+    enum class ShaderType
     {
         VERTEX = 0,
         TESSELLATION_CONTROL,

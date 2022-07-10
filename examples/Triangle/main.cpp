@@ -65,10 +65,7 @@ namespace Homura
             colorImages.push_back(colorImg);
             depthStencilImages.push_back(depthImg);
 
-            mCommandBuffer = rhi->createCommandBuffer();
-
             RHIRenderPassInfo info;
-
             VkAttachmentDescription colorAttachmentDescription{};
             colorAttachmentDescription.format                       = colorImg->getFormat();
             colorAttachmentDescription.samples                      = VK_SAMPLE_COUNT_1_BIT;
@@ -109,14 +106,23 @@ namespace Homura
 
             rhi->setupRenderPass(info);
             rhi->setupFramebuffer(colorImages, depthStencilImages);
-            std::shared_ptr<VulkanDescriptorSet> descriptorSet = rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
-
-            auto vertexShader = rhi->setupShaders(FileSystem::getPath("resources/shader/triangle/triangle.vert.spv"), VERTEX);
+            
+            auto vertexShader = rhi->setupShaders(FileSystem::getPath("resources/shader/triangle/triangle.vert.spv"), ShaderType::VERTEX);
             vertexShader->setVertexAttributeDescription(Vertex::getAttributeDescriptions());
             vertexShader->setVertexInputBindingDescription(Vertex::getBindingDescription());
-            rhi->setupShaders(FileSystem::getPath("resources/shader/triangle/triangle.frag.spv"), FRAGMENT);
+            rhi->setupShaders(FileSystem::getPath("resources/shader/triangle/triangle.frag.spv"), ShaderType::FRAGMENT);
 
+            std::shared_ptr<VulkanDescriptorSet> descriptorSet = rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
             rhi->setupPipeline(descriptorSet);
+            
+            loadModel();
+
+            rhi->createCommandBuffer();
+            rhi->beginCommandBuffer();
+            rhi->createBuffer(vertices.data(), vertices.size(), BufferType::VERTEX);
+            rhi->createBuffer(indices.data(), indices.size(), BufferType::INDEX);
+            rhi->draw();
+            rhi->endCommandBuffer();
 
             update();
             return true;
@@ -231,7 +237,6 @@ namespace Homura
 
         std::vector<VulkanTexture2DPtr>     colorImages;
         std::vector<VulkanTextureDepthPtr>  depthStencilImages;
-        VulkanCommandBufferPtr              mCommandBuffer;
         VulkanVertexBufferPtr               mVertexBuffer;
         VulkanIndexBufferPtr                mIndexBuffer;
     };

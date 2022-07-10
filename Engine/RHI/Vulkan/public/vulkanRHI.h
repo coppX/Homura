@@ -55,16 +55,12 @@ namespace Homura
         void destroyCommandPool();
         void destroyShader();
         void destroyPipeline();
+        void destroyBuffers();
 
         VulkanTexture2DPtr createColorResources();
         VulkanTextureDepthPtr createDepthResources();
         void destroyColorResources();
         void destroyDepthResources();
-
-        VulkanVertexBufferPtr createVertexBuffer(uint32_t size, void* pData);
-        VulkanIndexBufferPtr createIndexBuffer(uint32_t size, void* pData);
-        VulkanUniformBufferPtr createUniformBuffer(uint32_t size, void* pData);
-        VulkanStagingBufferPtr createStagingBuffer(uint32_t size, void* pData);
 
         void idle();
 //        void addPushConstant(const VkPushConstantRange& constantRange, const char* data);
@@ -73,10 +69,11 @@ namespace Homura
         void setupRenderPass(RHIRenderPassInfo& info);
         void setupFramebuffer(std::vector<VulkanTexture2DPtr>& colorImages, std::vector<VulkanTextureDepthPtr>& depthStencilImages);
         VulkanShaderEntityPtr setupShaders(std::string filename, ShaderType type);
-        void setupPipeline(VulkanDescriptorSetPtr descriptorSet);
+        void setupPipeline(const VulkanDescriptorSetPtr descriptorSet);
 
         void beginCommandBuffer();
         void createBuffer(void* bufferData, uint32_t bufferSize, BufferType type);
+        void draw();
         void endCommandBuffer();
 
     private:
@@ -100,6 +97,7 @@ namespace Homura
         uint32_t                            mHeight;
 
         VulkanTexture2DPtr                  mDepthStencil;
+        std::vector<VulkanBufferPtr>        mBuffers;
     };
 }
 #endif //HOMURA_VULKANRHI_H

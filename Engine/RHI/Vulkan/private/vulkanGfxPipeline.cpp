@@ -7,6 +7,7 @@
 #include <vulkanDevice.h>
 #include <vulkanShader.h>
 #include <debugUtils.h>
+#include <vulkanDescriptorSet.h>
 #include <vulkanLayout.h>
 
 namespace Homura
@@ -114,9 +115,10 @@ namespace Homura
         mScissors = scissors;
     }
 
-    void VulkanPipeline::build(VulkanDescriptorSetLayoutPtr descriptorSetLayout)
+    void VulkanPipeline::build(VulkanDescriptorSetPtr descriptorSet)
     {
-        mPipelineLayout->create(descriptorSetLayout);
+        mDescriptSet = descriptorSet;
+        mPipelineLayout->create(mDescriptSet->getLayout());
 
         std::vector<VkPipelineShaderStageCreateInfo> shaderCreateInfos{};
         std::vector<VulkanShaderEntityPtr>& shaders = mShaders->getShaders();
@@ -129,11 +131,10 @@ namespace Homura
             shaderCreateInfo.module = shader->getHandle();
             shaderCreateInfos.push_back(shaderCreateInfo);
         }
-        mVertexInputState.vertexBindingDescriptionCount = mShaders->getVertexInputBindingDescriptionCount();
-        mVertexInputState.pVertexBindingDescriptions = mShaders->getVertexBindingDesriptionData();
-        mVertexInputState.vertexAttributeDescriptionCount = mShaders->getVertexAttributeDesriptionCount();
-        mVertexInputState.pVertexAttributeDescriptions = mShaders->getVertexAttributeDesriptionData();
-
+        mVertexInputState.vertexBindingDescriptionCount     = mShaders->getVertexInputBindingDescriptionCount();
+        mVertexInputState.pVertexBindingDescriptions        = mShaders->getVertexBindingDesriptionData();
+        mVertexInputState.vertexAttributeDescriptionCount   = mShaders->getVertexAttributeDesriptionCount();
+        mVertexInputState.pVertexAttributeDescriptions      = mShaders->getVertexAttributeDesriptionData();
 
         mViewportState.viewportCount        = static_cast<uint32_t>(mViewports.size());
         mViewportState.pViewports           = mViewports.data();

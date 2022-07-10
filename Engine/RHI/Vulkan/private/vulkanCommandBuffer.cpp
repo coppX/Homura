@@ -7,6 +7,7 @@
 #include <vulkanDevice.h>
 #include <vulkanQueue.h>
 #include <vulkanBuffer.h>
+#include <vulkanTexture.h>
 #include <vulkanLayout.h>
 #include <vulkanDescriptorSet.h>
 #include <vulkanRenderPass.h>
@@ -51,11 +52,12 @@ namespace Homura
         }
     }
 
-    VulkanCommandBuffer::VulkanCommandBuffer(VulkanDevicePtr device, VulkanSwapChainPtr swapChain, VulkanCommandPoolPtr commandPool, VulkanFramebufferPtr framebuffer)
+    VulkanCommandBuffer::VulkanCommandBuffer(VulkanDevicePtr device, VulkanSwapChainPtr swapChain, VulkanCommandPoolPtr commandPool, VulkanFramebufferPtr framebuffer, VulkanPipelinePtr pipeline)
         : mDevice{device}
         , mSwapChain{swapChain}
         , mCommandPool{commandPool}
         , mFramebuffrer{framebuffer}
+        , mPipeline{pipeline}
         , mCurrentFrameIndex{0}
         , mImageIndex{0}
         , imageInFlight{}
@@ -64,6 +66,8 @@ namespace Homura
         , mRenderFinishedSemaphores{}
         , mMaxFrameCount{2}
         , mCommandBuffers{}
+        , mHasIndexBuffer{false}
+        , mBuferSize{0}
     {
         imageInFlight = std::make_shared<VulkanFences>(mDevice);
         imageInFlight->create(swapChain->getImageCount());
@@ -162,6 +166,7 @@ namespace Homura
     void VulkanCommandBuffer::beginRenderPass(VulkanRenderPassPtr renderPass)
     {
         VkRenderPassBeginInfo Info{};
+        Info.sType                      = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         Info.renderPass                 = renderPass->getHandle();
         Info.framebuffer                = mFramebuffrer->getHandle();
         Info.renderArea.offset.x        = 0;
@@ -182,42 +187,44 @@ namespace Homura
         }
     }
 
-    void VulkanCommandBuffer::bindGraphicPipeline(VulkanPipelinePtr pipeline)
+    void VulkanCommandBuffer::bindGraphicPipeline()
     {
         for (const auto& commandBuffer : mCommandBuffers)
         {
-            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getHandle());
+            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipeline->getHandle());
         }
     }
 
-    void VulkanCommandBuffer::bindVertexBuffer(std::vector<VulkanVertexBufferPtr>& buffers)
+    void VulkanCommandBuffer::bindVertexBuffer(VulkanVertexBufferPtr buffer)
     {
-        std::vector<VkDeviceSize> offsets(buffers.size(), 0);
-        std::vector<VkBuffer> nativeBuffers;
-        for (const auto& buffer : buffers)
-        {
-            nativeBuffers.push_back(buffer->getHandle());
-        }
-
+        VkBuffer vertexBuffers[] = {buffer->getHandle()};
+        VkDeviceSize offsets[] = {0};
+        mBuferSize = buffer->getSize();
         for (const auto& commandBuffer : mCommandBuffers)
         {
-            vkCmdBindVertexBuffers(commandBuffer, 0, static_cast<uint32_t>(nativeBuffers.size()), nativeBuffers.data(), offsets.data());
+            vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
         }
     }
 
     void VulkanCommandBuffer::bindIndexBuffer(VulkanIndexBufferPtr buffer)
     {
+        mBuferSize = buffer->getSize();
         for (const auto& commandBuffer : mCommandBuffers)
         {
             vkCmdBindIndexBuffer(commandBuffer, buffer->getHandle(), 0, VK_INDEX_TYPE_UINT32);
         }
     }
 
-    void VulkanCommandBuffer::bindDescriptorSet(const VulkanPipelineLayoutPtr layout, const VulkanDescriptorSetPtr descriptorSet)
+    void VulkanCommandBuffer::bindDescriptorSet()
     {
-        for (const auto& commandBuffer : mCommandBuffers)
+        const VulkanPipelineLayoutPtr layout = mPipeline->getPipelineLayout();
+        const VulkanDescriptorSetPtr descriptorSet = mPipeline->getDescriptorSet();
+        assert(mCommandBuffers.size() == descriptorSet->getCount());
+
+        std::vector<VkDescriptorSet>& desSet = descriptorSet->getData();
+        for (int i = 0; i < mCommandBuffers.size(); i++)
         {
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout->getHandle(), 0, descriptorSet->getCount(), descriptorSet->getData(), 0, nullptr);
+            vkCmdBindDescriptorSets(mCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, layout->getHandle(), 0, 1, &desSet[i], 0, nullptr);
         }
     }
 
@@ -242,6 +249,18 @@ namespace Homura
         for (const auto& commandBuffer : mCommandBuffers)
         {
             vkCmdDrawIndirect(commandBuffer, buffer->getHandle(), 0, 1, sizeof(VkDrawIndirectCommand));
+        }
+    }
+
+    void VulkanCommandBuffer::draw()
+    {
+        if (mHasIndexBuffer != 0)
+        {
+            drawIndex(mBuferSize);
+        }
+        else
+        {
+            draw(mBuferSize);
         }
     }
 
@@ -298,6 +317,36 @@ namespace Homura
                    uint32_t regionCount, VkImageBlit* Regions, VkFilter filter)
     {
         vkCmdBlitImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, Regions, filter);
+    }
+
+    void VulkanCommandBuffer::copyBuffer(VulkanBuffer srcBuffer, VulkanBuffer dstBuffer, VkDeviceSize size)
+    {
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+        VkBufferCopy copyRegion{};
+        copyRegion.size = size;
+        vkCmdCopyBuffer(commandBuffer, srcBuffer.getHandle(), dstBuffer.getHandle(), 1, &copyRegion);
+
+       endSingleTimeCommands(commandBuffer);
+    }
+
+    void VulkanCommandBuffer::copyBufferToTexture(VulkanBuffer buffer, VulkanTexture2DPtr texture, uint32_t width, uint32_t height)
+    {
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+        VkBufferImageCopy region{};
+        region.bufferOffset = 0;
+        region.bufferRowLength = 0;
+        region.bufferImageHeight = 0;
+        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.mipLevel = 0;
+        region.imageSubresource.baseArrayLayer = 0;
+        region.imageSubresource.layerCount = 1;
+        region.imageOffset = { 0, 0, 0, };
+        region.imageExtent = { width, height,1 };
+
+        vkCmdCopyBufferToImage(commandBuffer, buffer.getHandle(), texture->getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+        endSingleTimeCommands(commandBuffer);
     }
 
     void VulkanCommandBuffer::beginFrame()

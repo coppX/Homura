@@ -9,14 +9,15 @@
 
 namespace Homura
 {
-    VulkanBuffer::VulkanBuffer(VulkanDevicePtr device, VkDeviceSize size, VkBufferUsageFlags  usage, VkMemoryPropertyFlags props)
+    VulkanBuffer::VulkanBuffer(VulkanDevicePtr device, VulkanCommandBufferPtr commandBuffer, VkDeviceSize size, VkBufferUsageFlags  usage, VkMemoryPropertyFlags props)
         : mBuffer{VK_NULL_HANDLE}
         , mBufferMemory{VK_NULL_HANDLE}
         , mDevice{device}
-        , mCommandBuffer{nullptr}
+        , mCommandBuffer{commandBuffer}
         , mSize{size}
         , mUsage{usage}
         , mProperties{props}
+        , mStagingBuffer{nullptr}
     {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType        = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -41,6 +42,11 @@ namespace Homura
 
     VulkanBuffer::~VulkanBuffer()
     {
+        
+    }
+
+    void VulkanBuffer::destroy()
+    {
         if (mBuffer != VK_NULL_HANDLE)
         {
             vkDestroyBuffer(mDevice->getHandle(), mBuffer, nullptr);
@@ -51,6 +57,13 @@ namespace Homura
         {
             vkFreeMemory(mDevice->getHandle(), mBufferMemory, nullptr);
             mBufferMemory = VK_NULL_HANDLE;
+        }
+
+        if (mStagingBuffer)
+        {
+            mStagingBuffer->destroy();
+            delete mStagingBuffer;
+            mStagingBuffer = nullptr;
         }
     }
 
@@ -80,40 +93,18 @@ namespace Homura
 
     void VulkanBuffer::updateBufferByStaging(void *pData, uint32_t size)
     {
-        VulkanBuffer stagingBuffer = VulkanBuffer(mDevice, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-        stagingBuffer.fillBuffer(pData, size);
-        copyBuffer(stagingBuffer, *this, static_cast<VkDeviceSize>(size));
+        mStagingBuffer = new VulkanBuffer(mDevice, mCommandBuffer, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        copyBuffer(*mStagingBuffer, *this, static_cast<VkDeviceSize>(size));
     }
 
     void VulkanBuffer::copyBuffer(VulkanBuffer& srcBuffer, VulkanBuffer& dstBuffer, VkDeviceSize size)
     {
-        VkCommandBuffer commandBuffer = mCommandBuffer->beginSingleTimeCommands();
-
-        VkBufferCopy copyRegion{};
-        copyRegion.size = size;
-        vkCmdCopyBuffer(mCommandBuffer->getHandle(), srcBuffer.getHandle(), dstBuffer.getHandle(), 1, &copyRegion);
-
-        mCommandBuffer->endSingleTimeCommands(commandBuffer);
+        mCommandBuffer->copyBuffer(srcBuffer, dstBuffer, size);
     }
 
-    void VulkanBuffer::copyToImage(VkImage image, uint32_t width, uint32_t height)
+    void VulkanBuffer::copyToTexture(VulkanTexture2DPtr texture, uint32_t width, uint32_t height)
     {
-        VkCommandBuffer commandBuffer = mCommandBuffer->beginSingleTimeCommands();
-
-        VkBufferImageCopy region{};
-        region.bufferOffset                     = 0;
-        region.bufferRowLength                  = 0;
-        region.bufferImageHeight                = 0;
-        region.imageSubresource.aspectMask      = VK_IMAGE_ASPECT_COLOR_BIT;
-        region.imageSubresource.mipLevel        = 0;
-        region.imageSubresource.baseArrayLayer  = 0;
-        region.imageSubresource.layerCount      = 1;
-        region.imageOffset                      = {0, 0, 0,};
-        region.imageExtent                      = {width, height,1};
-
-        vkCmdCopyBufferToImage(mCommandBuffer->getHandle(), mBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
-        mCommandBuffer->endSingleTimeCommands(commandBuffer);
+        mCommandBuffer->copyBufferToTexture(*this, texture, width, height);
     }
 
 }

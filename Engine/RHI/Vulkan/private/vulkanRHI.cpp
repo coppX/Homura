@@ -59,6 +59,7 @@ namespace Homura
 
     void VulkanRHI::exit()
     {
+        destroyBuffers();
         destroyPipeline();
         destroyShader();
         destroyRenderPass();
@@ -152,26 +153,6 @@ namespace Homura
         return mShader;
     }
 
-    VulkanVertexBufferPtr VulkanRHI::createVertexBuffer(uint32_t size, void* pData)
-    {
-        return std::make_shared<VulkanVertexBuffer>(mDevice, static_cast<VkDeviceSize>(size), pData);
-    }
-
-    VulkanIndexBufferPtr VulkanRHI::createIndexBuffer(uint32_t size, void* pData)
-    {
-        return std::make_shared<VulkanIndexBuffer>(mDevice, static_cast<VkDeviceSize>(size), pData);
-    }
-
-    VulkanUniformBufferPtr VulkanRHI::createUniformBuffer(uint32_t size, void* pData)
-    {
-        return std::make_shared<VulkanUniformBuffer>(mDevice, static_cast<VkDeviceSize>(size), pData);
-    }
-
-    VulkanStagingBufferPtr VulkanRHI::createStagingBuffer(uint32_t size, void* pData)
-    {
-        return std::make_shared<VulkanStagingBuffer>(mDevice, static_cast<VkDeviceSize>(size), pData);
-    }
-
     VulkanCommandPoolPtr VulkanRHI::createCommandPool()
     {
         mCommandPool = std::make_shared<VulkanCommandPool>(mDevice);
@@ -180,7 +161,7 @@ namespace Homura
 
     VulkanCommandBufferPtr VulkanRHI::createCommandBuffer()
     {
-        mCommandBuffer = std::make_shared<VulkanCommandBuffer>(mDevice, mSwapChain, mCommandPool, mFramebuffer);
+        mCommandBuffer = std::make_shared<VulkanCommandBuffer>(mDevice, mSwapChain, mCommandPool, mFramebuffer, mPipeline);
         return mCommandBuffer;
     }
 
@@ -270,6 +251,14 @@ namespace Homura
         mPipeline->destroy();
     }
 
+    void VulkanRHI::destroyBuffers()
+    {
+        for (auto& buffer : mBuffers)
+        {
+            buffer->destroy();
+        }
+    }
+
     void VulkanRHI::idle()
     {
         vkDeviceWaitIdle(mDevice->getHandle());
@@ -290,7 +279,7 @@ namespace Homura
         mFramebuffer->create(mRenderPass, colorImages, depthStencilImages);
     }
 
-    void VulkanRHI::setupPipeline(VulkanDescriptorSetPtr descriptorSet)
+    void VulkanRHI::setupPipeline(const VulkanDescriptorSetPtr descriptorSet)
     {
         mPipeline->create(mRenderPass);
         VkViewport viewport{0.0, 0.0, (float)mWidth, (float)mHeight, 0.0, 1.0};
@@ -298,7 +287,7 @@ namespace Homura
         mPipeline->setViewports({viewport});
         mPipeline->setScissors({scissor});
         mPipeline->setShaders(mShader);
-        mPipeline->build(descriptorSet->getLayout());
+        mPipeline->build(descriptorSet);
     }
 
     VulkanShaderEntityPtr VulkanRHI::setupShaders(std::string filename, ShaderType type)
@@ -309,25 +298,35 @@ namespace Homura
     void VulkanRHI::beginCommandBuffer()
     {
         mCommandBuffer->begin();
+        mCommandBuffer->beginRenderPass(mRenderPass);
+        mCommandBuffer->bindGraphicPipeline();
+        mCommandBuffer->bindDescriptorSet();
     }
 
     void VulkanRHI::createBuffer(void* bufferData, uint32_t bufferSize, BufferType type)
     {
         if (type == BufferType::VERTEX)
         {
-            VulkanVertexBufferPtr buffer = std::make_shared<VulkanVertexBuffer>(mDevice, bufferSize, bufferData);
-            std::vector<VulkanVertexBufferPtr> buffers = { buffer };
-            mCommandBuffer->bindVertexBuffer(buffers);
+            VulkanVertexBufferPtr buffer = std::make_shared<VulkanVertexBuffer>(mDevice, mCommandBuffer, bufferSize, bufferData);
+            mCommandBuffer->bindVertexBuffer(buffer);
+            mBuffers.push_back(buffer);
         }
         else if (type == BufferType::INDEX)
         {
-            VulkanIndexBufferPtr buffer = std::make_shared<VulkanIndexBuffer>(mDevice, bufferSize, bufferData);
+            VulkanIndexBufferPtr buffer = std::make_shared<VulkanIndexBuffer>(mDevice, mCommandBuffer, bufferSize, bufferData);
             mCommandBuffer->bindIndexBuffer(buffer);
+            mBuffers.push_back(buffer);
         }
+    }
+
+    void VulkanRHI::draw()
+    {
+        mCommandBuffer->draw();
     }
 
     void VulkanRHI::endCommandBuffer()
     {
+        mCommandBuffer->endRenderPass();
         mCommandBuffer->end();
     }
 }

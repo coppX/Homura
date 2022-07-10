@@ -109,17 +109,17 @@ namespace Homura
     VulkanShaderEntityPtr VulkanShader::setupShader(std::string filename, ShaderType type)
     {
         VkShaderStageFlagBits stage;
-        if (type == VERTEX)
+        if (type == ShaderType::VERTEX)
             stage = VK_SHADER_STAGE_VERTEX_BIT;
-        else if (type == TESSELLATION_CONTROL)
+        else if (type == ShaderType::TESSELLATION_CONTROL)
             stage = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-        else if (type == TESSELLATION_EVALUATION)
+        else if (type == ShaderType::TESSELLATION_EVALUATION)
             stage = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-        else if (type == GEOMETRY)
+        else if (type == ShaderType::GEOMETRY)
             stage = VK_SHADER_STAGE_GEOMETRY_BIT;
-        else if (type == FRAGMENT)
+        else if (type == ShaderType::FRAGMENT)
             stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        else if (type == COMPUTE)
+        else if (type == ShaderType::COMPUTE)
             stage = VK_SHADER_STAGE_COMPUTE_BIT;
         else
             stage = VK_SHADER_STAGE_ALL_GRAPHICS;
