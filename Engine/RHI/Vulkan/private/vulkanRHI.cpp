@@ -389,12 +389,12 @@ namespace Homura
         mBuffers.clear();
     }
 
-    void VulkanRHI::addMouseButtonCallBack(MouseCallback& cb)
+    void VulkanRHI::addMouseButtonCallBack(MouseCallback cb)
     {
         mMouseCallback = cb;
     }
 
-    void VulkanRHI::addFramebufferResizeCallback(FramebufferResizeCallback& cb)
+    void VulkanRHI::addFramebufferResizeCallback(FramebufferResizeCallback cb)
     {
         mFramebufferResizeCallback = cb;
     }

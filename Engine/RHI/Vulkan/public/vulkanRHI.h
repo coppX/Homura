@@ -14,11 +14,9 @@
 #include <vector>
 #include <string>
 #include <functional>
+
 namespace Homura
 {
-    typedef std::function<void(int, int, int)> MouseCallback;
-    typedef std::function<void(int, int)> FramebufferResizeCallback;
-
     class VulkanRHI : public std::enable_shared_from_this<VulkanRHI>
     {
     public:
@@ -89,8 +87,8 @@ namespace Homura
         void destroyBuffer();
 
         // callback
-        void addMouseButtonCallBack(MouseCallback& cb);
-        void addFramebufferResizeCallback(FramebufferResizeCallback& cb);
+        void addMouseButtonCallBack(MouseCallback cb);
+        void addFramebufferResizeCallback(FramebufferResizeCallback cb);
     private:
         VulkanInstancePtr                   mInstance;;
         VulkanDevicePtr                     mDevice;

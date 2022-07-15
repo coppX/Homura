@@ -44,6 +44,17 @@ namespace Homura
         alignas(16) glm::mat4 proj;
     };
 
+    void OnFramebufferChanged(int width, int height)
+    {
+        std::cout << "framebuffer size changed " << width << " " << height << std::endl;
+    }
+
+    void OnMouseButtonClicked(int button, int action, int mods)
+    {
+        std::cout << "mouse clicked " << button << " " << action << " " << mods << std::endl;
+    }
+
+
     class TriangleApplication : Application
     {
     public:
@@ -61,8 +72,8 @@ namespace Homura
         bool init()
         {
             rhi->init();
-            //rhi->addFramebufferResizeCallback(&TriangleApplication::OnFramebufferChanged);
-            //rhi->addMouseButtonCallBack(&TriangleApplication::OnMouseButtonClicked);
+            rhi->addFramebufferResizeCallback(&OnFramebufferChanged);
+            rhi->addMouseButtonCallBack(&OnMouseButtonClicked);
 
             VulkanTexture2DPtr colorImg = rhi->createColorResources();
             VulkanTextureDepthPtr depthImg = rhi->createDepthResources();
@@ -164,15 +175,6 @@ namespace Homura
             rhi->update();
         }
     private:
-        void OnFramebufferChanged(int width, int height)
-        {
-            std::cout << "framebuffer size changed " << width << " " << height << std::endl;
-        }
-
-        void OnMouseButtonClicked(int button, int action, int mods)
-        {
-            std::cout << "mouse clicked " << button << " " << action << " " << mods << std::endl;
-        }
 
         void loadModel()
         {
