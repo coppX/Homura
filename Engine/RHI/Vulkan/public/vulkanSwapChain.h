@@ -25,7 +25,7 @@ namespace Homura
     class VulkanSwapChain
     {
     public:
-        VulkanSwapChain(VulkanDevicePtr device, GLFWwindow* window, VulkanSurfacePtr surface);
+        VulkanSwapChain(VulkanDevicePtr device, ApplicationWindowPtr window, VulkanSurfacePtr surface);
         ~VulkanSwapChain();
 
         void create();
@@ -67,7 +67,7 @@ namespace Homura
     private:
         VulkanDevicePtr                 mDevice;
         VulkanSurfacePtr                mSurface;
-        GLFWwindow*                     mWindow;
+        ApplicationWindowPtr            mWindow;
         VkSwapchainKHR                  mSwapChain;
 
         VkFormat                        mSwapChainFormat;

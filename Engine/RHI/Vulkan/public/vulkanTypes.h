@@ -9,6 +9,8 @@
 
 namespace Homura
 {
+    class ApplicationWindow;
+    class VulkanRHI;
     class VulkanDevice;
     class VulkanInstance;
     class VulkanRenderPass;
@@ -41,6 +43,8 @@ namespace Homura
     class VulkanSampler;
     class VulkanFramebuffer;
 
+    using ApplicationWindowPtr = std::shared_ptr<ApplicationWindow>;
+    using VulkanRHIPtr = std::shared_ptr<VulkanRHI>;
     using VulkanDevicePtr = std::shared_ptr<VulkanDevice>;
     using VulkanInstancePtr = std::shared_ptr<VulkanInstance>;
     using VulkanRenderPassPtr = std::shared_ptr<VulkanRenderPass>;

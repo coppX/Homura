@@ -29,6 +29,7 @@
 #include <rhiResources.h>
 #include <vulkanShader.h>
 
+#include <new>
 namespace Homura
 {
     const std::string MODEL_PATH = FileSystem::getPath("resources/models/viking_room.obj");
@@ -47,9 +48,9 @@ namespace Homura
     {
     public:
         TriangleApplication()
+            : rhi{ std::make_shared<VulkanRHI>(960, 540) }
         {
-            initWindow();
-            rhi = std::make_shared<VulkanRHI>(mWindow, getWidth(), getHeight());
+            
         }
 
         ~TriangleApplication()
@@ -60,6 +61,9 @@ namespace Homura
         bool init()
         {
             rhi->init();
+            //rhi->addFramebufferResizeCallback(&TriangleApplication::OnFramebufferChanged);
+            //rhi->addMouseButtonCallBack(&TriangleApplication::OnMouseButtonClicked);
+
             VulkanTexture2DPtr colorImg = rhi->createColorResources();
             VulkanTextureDepthPtr depthImg = rhi->createDepthResources();
             colorImages.push_back(colorImg);
@@ -146,17 +150,6 @@ namespace Homura
             return {uboLayoutBinding, samplerLayoutBinding};
         }
 
-        void update()
-        {
-            while (!glfwWindowShouldClose(mWindow))
-            {
-                processInput(mWindow);
-                glfwPollEvents();
-//                drawFrame();
-            }
-            rhi->idle();
-        }
-
         void exit()
         {
             rhi->destroyCommandBuffer();
@@ -164,27 +157,21 @@ namespace Homura
             rhi->destroyColorResources();
             rhi->destroyDescriptorSet();
             rhi->exit();
-            glfwDestroyWindow(mWindow);
-            glfwTerminate();
         }
 
+        void update()
+        {
+            rhi->update();
+        }
     private:
-        void initWindow()
+        void OnFramebufferChanged(int width, int height)
         {
-            Application::initWindow();
-            glfwSetWindowUserPointer(mWindow, this);
-            glfwSetFramebufferSizeCallback(mWindow, framebufferResizeCallback);
+            std::cout << "framebuffer size changed " << width << " " << height << std::endl;
         }
 
-        static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
+        void OnMouseButtonClicked(int button, int action, int mods)
         {
-            auto app = reinterpret_cast<TriangleApplication*>(glfwGetWindowUserPointer(window));
-        }
-
-        void processInput(GLFWwindow* window)
-        {
-            if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-                glfwSetWindowShouldClose(window, true);
+            std::cout << "mouse clicked " << button << " " << action << " " << mods << std::endl;
         }
 
         void loadModel()
@@ -233,7 +220,7 @@ namespace Homura
 
         std::vector<Vertex>                 vertices;
         std::vector<uint32_t>               indices;
-        std::shared_ptr<VulkanRHI>          rhi;
+        VulkanRHIPtr                        rhi;
 
         std::vector<VulkanTexture2DPtr>     colorImages;
         std::vector<VulkanTextureDepthPtr>  depthStencilImages;

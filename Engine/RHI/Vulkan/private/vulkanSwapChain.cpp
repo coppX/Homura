@@ -11,10 +11,11 @@
 #include <algorithm>
 #include <array>
 #include <vulkanFramebuffer.h>
+#include <applicationWindow.h>
 
 namespace Homura
 {
-    VulkanSwapChain::VulkanSwapChain(VulkanDevicePtr device, GLFWwindow* window, VulkanSurfacePtr surface)
+    VulkanSwapChain::VulkanSwapChain(VulkanDevicePtr device, ApplicationWindowPtr window, VulkanSurfacePtr surface)
         : mDevice{device}
         , mSurface{surface}
         , mWindow{window}
@@ -168,8 +169,8 @@ namespace Homura
             return capabilities.currentExtent;
         }
 
-        int width = 0, height = 0;
-        glfwGetFramebufferSize(mWindow, &width, &height);
+        int width = mWindow->getWidth();
+        int height = mWindow->getHeight();
 
         VkExtent2D actualExtent = {
             static_cast<uint32_t>(width),

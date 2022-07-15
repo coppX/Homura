@@ -13,27 +13,33 @@
 
 #include <vector>
 #include <string>
-
+#include <functional>
 namespace Homura
 {
-    class VulkanRHI
+    typedef std::function<void(int, int, int)> MouseCallback;
+    typedef std::function<void(int, int)> FramebufferResizeCallback;
+
+    class VulkanRHI : public std::enable_shared_from_this<VulkanRHI>
     {
     public:
-        VulkanRHI(GLFWwindow* window, uint32_t width, uint32_t height);
+        VulkanRHI(uint32_t width, uint32_t height);
         virtual ~VulkanRHI();
 
         void init();
         void exit();
+        void update();
 
         VulkanInstancePtr getInstance();
         VulkanDevicePtr getDevice();
         VulkanSwapChainPtr getSwapChain();
         VulkanFramebufferPtr getFrameBuffer();
 
+        ApplicationWindowPtr createWindow();
         VulkanInstancePtr createInstance();
         VulkanDevicePtr createDevice();
         VulkanSurfacePtr createSurface();
         VulkanSwapChainPtr createSwapChain();
+        VulkanSwapChainPtr recreateSwapChain();
         VulkanRenderPassPtr createRenderPass();
         VulkanDescriptorPoolPtr createDescriptorPool();
         VulkanDescriptorSetPtr createDescriptorSet(const std::vector<VkDescriptorSetLayoutBinding>& bindings);
@@ -43,6 +49,7 @@ namespace Homura
         VulkanShaderPtr createShader();
         VulkanPipelinePtr createPipeline();
 
+        void destroyWindow();
         void destroyInstance();
         void destroyDevice();
         void destroySurface();
@@ -56,6 +63,9 @@ namespace Homura
         void destroyShader();
         void destroyPipeline();
         void destroyBuffers();
+
+        void cleanupSwapchain();
+        void cleanup();
 
         VulkanTexture2DPtr createColorResources();
         VulkanTextureDepthPtr createDepthResources();
@@ -76,6 +86,11 @@ namespace Homura
         void draw();
         void endCommandBuffer();
 
+        void destroyBuffer();
+
+        // callback
+        void addMouseButtonCallBack(MouseCallback& cb);
+        void addFramebufferResizeCallback(FramebufferResizeCallback& cb);
     private:
         VulkanInstancePtr                   mInstance;;
         VulkanDevicePtr                     mDevice;
@@ -92,12 +107,17 @@ namespace Homura
         VulkanTextureDepthPtr               mRenderTargetDepth;
         VulkanShaderPtr                     mShader;
 
-        GLFWwindow*                         mWindow;
         uint32_t                            mWidth;
         uint32_t                            mHeight;
 
         VulkanTexture2DPtr                  mDepthStencil;
         std::vector<VulkanBufferPtr>        mBuffers;
+
+        // window
+        ApplicationWindowPtr                mWindow;
+    public:
+        MouseCallback                       mMouseCallback;
+        FramebufferResizeCallback           mFramebufferResizeCallback;
     };
 }
 #endif //HOMURA_VULKANRHI_H

@@ -13,7 +13,7 @@ namespace Homura
     class VulkanSurface
     {
     public:
-        VulkanSurface(VulkanInstancePtr instance, GLFWwindow* window);
+        VulkanSurface(VulkanInstancePtr instance, ApplicationWindowPtr window);
         ~VulkanSurface();
 
         void create();
@@ -24,9 +24,9 @@ namespace Homura
             return mSurface;
         }
     private:
-        VulkanInstancePtr   mInstance;
-        GLFWwindow*         mWindow;
-        VkSurfaceKHR        mSurface;
+        VulkanInstancePtr       mInstance;
+        ApplicationWindowPtr    mWindow;
+        VkSurfaceKHR            mSurface;
     };
 }
 

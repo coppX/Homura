@@ -9,7 +9,7 @@ include_directories("include")
 include_directories("libs")
 include_directories("libs/glm")
 include_directories("libs/glfw/include")
-include_directories("Engine/platform")
+include_directories("Engine/platform/public")
 include_directories("Engine/RHI/Vulkan/public")
 include_directories("Engine/Component/public")
 include_directories("Engine/Application")
@@ -27,6 +27,7 @@ endif(WIN32)
 file(GLOB VULKAN
     "${CMAKE_CURRENT_LIST_DIR}/Engine/RHI/Vulkan/private/*.h"
     "${CMAKE_CURRENT_LIST_DIR}/Engine/RHI/Vulkan/private/*.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/Engine/platform/private/*.cpp"
     )
 
 # compile GLSL shader to SPIR-V format

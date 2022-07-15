@@ -3,11 +3,12 @@
 //
 #include <vulkanSurface.h>
 #include <vulkanInstance.h>
+#include <applicationWindow.h>
 #include <debugUtils.h>
 
 namespace Homura
 {
-    VulkanSurface::VulkanSurface(VulkanInstancePtr instance, GLFWwindow* window)
+    VulkanSurface::VulkanSurface(VulkanInstancePtr instance, ApplicationWindowPtr window)
         : mInstance{instance}
         , mWindow{window}
         , mSurface{VK_NULL_HANDLE}
@@ -22,7 +23,7 @@ namespace Homura
 
     void VulkanSurface::create()
     {
-        VERIFYVULKANRESULT(glfwCreateWindowSurface(mInstance->getHandle(), mWindow, nullptr, &mSurface));
+        VERIFYVULKANRESULT(glfwCreateWindowSurface(mInstance->getHandle(), mWindow->getHandle(), nullptr, &mSurface));
     }
 
     void VulkanSurface::destroy()

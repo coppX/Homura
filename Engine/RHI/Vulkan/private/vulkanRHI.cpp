@@ -4,6 +4,7 @@
 
 #include <vulkanRHI.h>
 #include <GLFW/glfw3.h>
+#include <applicationWindow.h>
 #include <vulkanDevice.h>
 #include <vulkanSwapChain.h>
 #include <vulkanInstance.h>
@@ -21,7 +22,7 @@
 
 namespace Homura
 {
-    VulkanRHI::VulkanRHI(GLFWwindow* window, uint32_t width, uint32_t height)
+    VulkanRHI::VulkanRHI(uint32_t width, uint32_t height)
         : mInstance{nullptr}
         , mSurface{nullptr}
         , mDevice{nullptr}
@@ -31,9 +32,11 @@ namespace Homura
         , mCommandBuffer{nullptr}
         , mDescriptorPool{nullptr}
         , mRenderPass{nullptr}
-        , mWindow{window}
+        , mWindow{nullptr}
         , mWidth{width}
         , mHeight{height}
+        , mMouseCallback{}
+        , mFramebufferResizeCallback{}
     {
 
     }
@@ -45,6 +48,7 @@ namespace Homura
 
     void VulkanRHI::init()
     {
+        createWindow();
         createInstance();
         createSurface();
         createDevice();
@@ -70,6 +74,17 @@ namespace Homura
         destroyDevice();
         destroySurface();
         destroyInstance();
+        destroyWindow();
+    }
+
+    void VulkanRHI::update()
+    {
+        while (!mWindow->shouldClose())
+        {
+            mWindow->processInput();
+            // todo
+            idle();
+        }
     }
 
     VulkanInstancePtr VulkanRHI::getInstance()
@@ -90,6 +105,13 @@ namespace Homura
     VulkanFramebufferPtr VulkanRHI::getFrameBuffer()
     {
         return mFramebuffer;
+    }
+
+    ApplicationWindowPtr VulkanRHI::createWindow()
+    {
+        mWindow = std::make_shared<ApplicationWindow>(shared_from_this(), mWidth, mHeight);
+        mWindow->create("madoka");
+        return mWindow;
     }
 
     VulkanInstancePtr VulkanRHI::createInstance()
@@ -115,6 +137,12 @@ namespace Homura
     {
         mSwapChain = std::make_shared<VulkanSwapChain>(mDevice, mWindow, mSurface);
         return mSwapChain;
+    }
+
+    VulkanSwapChainPtr VulkanRHI::recreateSwapChain()
+    {
+        idle();
+        return nullptr;
     }
 
     VulkanTexture2DPtr VulkanRHI::createColorResources()
@@ -191,6 +219,11 @@ namespace Homura
         return mPipeline;
     }
 
+    void VulkanRHI::destroyWindow()
+    {
+        mWindow->destroy();
+    }
+
     void VulkanRHI::destroyInstance()
     {
         mInstance->destroy();
@@ -257,6 +290,23 @@ namespace Homura
         {
             buffer->destroy();
         }
+    }
+
+    void VulkanRHI::cleanupSwapchain()
+    {
+        mSwapChain->destroy();
+    }
+
+    void VulkanRHI::cleanup()
+    {
+        destroyColorResources();
+        destroyDepthResources();
+        destroyFrameBuffer();
+        destroyCommandBuffer();
+        destroyPipeline();
+        destroyRenderPass();
+        destroyBuffer();
+        destroyDescriptorPool();
     }
 
     void VulkanRHI::idle()
@@ -329,4 +379,24 @@ namespace Homura
         mCommandBuffer->endRenderPass();
         mCommandBuffer->end();
     }
+
+    void VulkanRHI::destroyBuffer()
+    {
+        for (auto& buffer : mBuffers)
+        {
+            buffer->destroy();
+        }
+        mBuffers.clear();
+    }
+
+    void VulkanRHI::addMouseButtonCallBack(MouseCallback& cb)
+    {
+        mMouseCallback = cb;
+    }
+
+    void VulkanRHI::addFramebufferResizeCallback(FramebufferResizeCallback& cb)
+    {
+        mFramebufferResizeCallback = cb;
+    }
+
 }
