@@ -34,10 +34,27 @@ namespace Homura
         VkFence         mFence;
     };
 
+    class VulkanSemaphoreEntity
+    {
+    public:
+        explicit VulkanSemaphoreEntity(VulkanDevicePtr device);
+        ~VulkanSemaphoreEntity();
+        void create();
+        void destroy();
+
+        VkSemaphore getHandle()
+        {
+            return mSemaphore;
+        }
+    private:
+        VulkanDevicePtr mDevice;
+        VkSemaphore     mSemaphore;
+    };
+
     class VulkanFences
     {
     public:
-        VulkanFences(VulkanDevicePtr device);
+        explicit VulkanFences(VulkanDevicePtr device);
         ~VulkanFences();
 
         void create(uint32_t num);
@@ -51,6 +68,20 @@ namespace Homura
     private:
         VulkanDevicePtr                 mDevice;
         std::vector<VulkanFenceEntity>  mFences;
+    };
+
+    class VulkanSemaphores
+    {
+    public:
+        explicit VulkanSemaphores(VulkanDevicePtr device);
+        ~VulkanSemaphores();
+        
+        void create(uint32_t num);
+        void destroy();
+        VkSemaphore getSemaphore(uint32_t index);
+    private:
+        VulkanDevicePtr                     mDevice;
+        std::vector<VulkanSemaphoreEntity>  mSemaphores;
     };
 }
 #endif //HOMURA_VULKANSYNCHRONIZATION_H

@@ -92,8 +92,8 @@ namespace Homura
         //  sync
         VulkanFencesPtr                 imageInFlight;
         VulkanFencesPtr                 inFlightFences;
-        std::vector<VkSemaphore>        mImageAvailableSemaphores;
-        std::vector<VkSemaphore>        mRenderFinishedSemaphores;
+        VulkanSemaphoresPtr             mImageAvailableSemaphores;
+        VulkanSemaphoresPtr             mRenderFinishedSemaphores;
 
         VulkanCommandPoolPtr            mCommandPool;
         std::vector<VkCommandBuffer>    mCommandBuffers;

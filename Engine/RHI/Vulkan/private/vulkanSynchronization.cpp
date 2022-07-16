@@ -10,6 +10,7 @@ namespace Homura
 {
     VulkanFenceEntity::VulkanFenceEntity(VulkanDevicePtr device)
         : mDevice{device}
+        , mFence{VK_NULL_HANDLE}
     {
 
     }
@@ -62,6 +63,34 @@ namespace Homura
         return *this;
     }
 
+    VulkanSemaphoreEntity::VulkanSemaphoreEntity(VulkanDevicePtr device)
+        : mDevice{device}
+        , mSemaphore{VK_NULL_HANDLE}
+    {
+
+    }
+
+    VulkanSemaphoreEntity::~VulkanSemaphoreEntity()
+    {
+
+    }
+
+    void VulkanSemaphoreEntity::create()
+    {
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        VERIFYVULKANRESULT(vkCreateSemaphore(mDevice->getHandle(), &semaphoreInfo, nullptr, &mSemaphore));
+    }
+
+    void VulkanSemaphoreEntity::destroy()
+    {
+        if (mSemaphore != VK_NULL_HANDLE)
+        {
+            vkDestroySemaphore(mDevice->getHandle(), mSemaphore, nullptr);
+            mSemaphore = VK_NULL_HANDLE;
+        }
+    }
+
     VulkanFences::VulkanFences(VulkanDevicePtr device)
         : mDevice{device}
         , mFences{}
@@ -79,8 +108,8 @@ namespace Homura
         for (uint32_t i = 0; i < num; i++)
         {
             VulkanFenceEntity entity(mDevice);
-            entity.create(false);
-            mFences.push_back(entity);
+            entity.create(true);
+            mFences.emplace_back(entity);
         }
     }
 
@@ -126,5 +155,42 @@ namespace Homura
     {
         assert(index < mFences.size());
         return mFences[index];
+    }
+
+    VulkanSemaphores::VulkanSemaphores(VulkanDevicePtr device)
+        : mDevice{device}
+        , mSemaphores{}
+    {
+
+    }
+
+    VulkanSemaphores::~VulkanSemaphores()
+    {
+
+    }
+
+    void VulkanSemaphores::create(uint32_t num)
+    {
+        for (int i = 0; i < num; i++)
+        {
+            VulkanSemaphoreEntity entiy(mDevice);
+            entiy.create();
+            mSemaphores.emplace_back(entiy);
+        }
+    }
+
+    void VulkanSemaphores::destroy()
+    {
+        for (auto& entiy : mSemaphores)
+        {
+            entiy.destroy();
+        }
+        mSemaphores.clear();
+    }
+
+    VkSemaphore VulkanSemaphores::getSemaphore(uint32_t index)
+    {
+        assert(index < mSemaphores.size());
+        return mSemaphores[index].getHandle();
     }
 }

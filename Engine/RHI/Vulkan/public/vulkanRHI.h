@@ -8,7 +8,6 @@
 #include <vulkan/vulkan.h>
 #include <vulkanTypes.h>
 #include <rhiResources.h>
-#include <pixelFormat.h>
 #include <GLFW/glfw3.h>
 
 #include <vector>

@@ -64,7 +64,7 @@ namespace Homura
         , inFlightFences{}
         , mImageAvailableSemaphores{}
         , mRenderFinishedSemaphores{}
-        , mMaxFrameCount{2}
+        , mMaxFrameCount{3}
         , mCommandBuffers{}
         , mHasIndexBuffer{false}
         , mBuferSize{0}
@@ -73,8 +73,10 @@ namespace Homura
         imageInFlight->create(swapChain->getImageCount());
         inFlightFences = std::make_shared<VulkanFences>(mDevice);
         inFlightFences->create(mMaxFrameCount);
-        mImageAvailableSemaphores.resize(mMaxFrameCount);
-        mRenderFinishedSemaphores.resize(mMaxFrameCount);
+        mImageAvailableSemaphores = std::make_shared<VulkanSemaphores>(mDevice);
+        mImageAvailableSemaphores->create(mMaxFrameCount);
+        mRenderFinishedSemaphores = std::make_shared<VulkanSemaphores>(mDevice);
+        mRenderFinishedSemaphores->create(mMaxFrameCount);
         create();
     }
 
@@ -113,16 +115,16 @@ namespace Homura
             inFlightFences->destroy();
             inFlightFences.reset();
         }
-        for (auto& semaphore : mImageAvailableSemaphores)
+        if (mImageAvailableSemaphores != nullptr)
         {
-            vkDestroySemaphore(mDevice->getHandle(), semaphore, nullptr);
+            mImageAvailableSemaphores->destroy();
+            mImageAvailableSemaphores.reset();
         }
-        mImageAvailableSemaphores.clear();
-        for (auto& semaphore : mRenderFinishedSemaphores)
+        if (mRenderFinishedSemaphores != nullptr)
         {
-            vkDestroySemaphore(mDevice->getHandle(), semaphore, nullptr);
+            mRenderFinishedSemaphores->destroy();
+            mRenderFinishedSemaphores.reset();
         }
-        mRenderFinishedSemaphores.clear();
     }
 
     VkCommandBuffer VulkanCommandBuffer::beginSingleTimeCommands()
@@ -353,7 +355,7 @@ namespace Homura
     {
         inFlightFences->wait(mImageIndex);
 
-        VkResult result = vkAcquireNextImageKHR(mDevice->getHandle(), mSwapChain->getHandle(), UINT64_MAX, mImageAvailableSemaphores[mCurrentFrameIndex], VK_NULL_HANDLE, &mImageIndex);
+        VkResult result = vkAcquireNextImageKHR(mDevice->getHandle(), mSwapChain->getHandle(), UINT64_MAX, mImageAvailableSemaphores->getSemaphore(mCurrentFrameIndex), VK_NULL_HANDLE, &mImageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
             mSwapChain->recreateSwapChain();
@@ -372,7 +374,7 @@ namespace Homura
             imageInFlight->wait(mImageIndex);
         }
         imageInFlight->setValue(inFlightFences->getEntity(mCurrentFrameIndex), mImageIndex);
-        VkSemaphore waitSemaphores[] = {mImageAvailableSemaphores[mCurrentFrameIndex]};
+        VkSemaphore waitSemaphores[] = {mImageAvailableSemaphores->getSemaphore(mCurrentFrameIndex)};
         VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
         VkSubmitInfo submitInfo{};
         submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -382,7 +384,7 @@ namespace Homura
         submitInfo.commandBufferCount   = 1;
         submitInfo.pCommandBuffers      = &mCommandBuffers[mImageIndex];
 
-        VkSemaphore signalSemaphores[]  = {mRenderFinishedSemaphores[mCurrentFrameIndex]};
+        VkSemaphore signalSemaphores[]  = {mRenderFinishedSemaphores->getSemaphore(mCurrentFrameIndex)};
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores    = signalSemaphores;
         inFlightFences->getEntity(mCurrentFrameIndex).reset();
