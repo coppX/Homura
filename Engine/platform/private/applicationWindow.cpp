@@ -40,6 +40,27 @@ namespace Homura
 		glfwTerminate();
 	}
 
+	void ApplicationWindow::processInput()
+	{
+		if (glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		{
+			glfwSetWindowShouldClose(mWindow, true);
+		}
+		glfwPollEvents();
+	}
+
+	void ApplicationWindow::resize()
+	{
+		mWidth = 0;
+		mHeight = 0;
+		glfwGetFramebufferSize(mWindow, &mWidth, &mHeight);
+		while (mWidth == 0 || mHeight == 0)
+		{
+			glfwGetFramebufferSize(mWindow, &mWidth, &mHeight);
+			glfwWaitEvents();
+		}
+	}
+
 	void ApplicationWindow::mouseButtonCallback(GLFWwindow* window, int button, int state, int mods)
 	{
 		auto rhi = reinterpret_cast<VulkanRHI*>(glfwGetWindowUserPointer(window));

@@ -43,6 +43,11 @@ namespace Homura
         }
     }
 
+    void VulkanDevice::idle()
+    {
+        vkDeviceWaitIdle(mDevice);
+    }
+
     void VulkanDevice::pickPhysicalDevice()
     {
         uint32_t deviceCount = 0;

@@ -37,7 +37,7 @@ namespace Homura
     class VulkanDescriptorSet
     {
     public:
-        VulkanDescriptorSet(VulkanDevicePtr device, VulkanDescriptorPoolPtr pool, VulkanDescriptorSetLayoutPtr layout, VulkanSamplerPtr sampler);
+        VulkanDescriptorSet(VulkanDevicePtr device, VulkanDescriptorPoolPtr pool, VulkanDescriptorSetLayoutPtr layout);
         ~VulkanDescriptorSet();
 
         void create();
@@ -57,13 +57,10 @@ namespace Homura
         {
             return mLayout;
         }
-
-        void update();
     private:
         VulkanDevicePtr                 mDevice;
         VulkanDescriptorPoolPtr         mPool;
         VulkanDescriptorSetLayoutPtr    mLayout;
-        VulkanSamplerPtr                mSampler;
         std::vector<VkDescriptorSet>    mDescriptorSets;
     };
 }

@@ -65,19 +65,7 @@ namespace Homura
 
     void VulkanRHI::exit()
     {
-        destroySampler();
-        destroyBuffers();
-        destroyPipeline();
-        destroyShader();
-        destroyRenderPass();
-        destroyDescriptorPool();
-        destroyCommandPool();
-        destroyFrameBuffer();
-        destroySwapChain();
-        destroyDevice();
-        destroySurface();
-        destroyInstance();
-        destroyWindow();
+        cleanup();
     }
 
     void VulkanRHI::update()
@@ -85,9 +73,12 @@ namespace Homura
         while (!mWindow->shouldClose())
         {
             mWindow->processInput();
-            // todo
+            mCommandBuffer->beginFrame();
+            mCommandBuffer->endFrame();
             idle();
         }
+        idle();
+        cleanup();
     }
 
     VulkanInstancePtr VulkanRHI::getInstance()
@@ -142,11 +133,19 @@ namespace Homura
         return mSwapChain;
     }
 
-    VulkanSwapChainPtr VulkanRHI::recreateSwapChain()
+    void VulkanRHI::recreateSwapChain()
     {
         // todo
+        mWindow->resize();
         idle();
-        return nullptr;
+        cleanupSwapchain();
+        createSwapChain();
+        createRenderPass();
+        createPipeline();
+        createColorResources();
+        createDepthResources();
+        createFrameBuffer();
+        createCommandBuffer();
     }
 
     VulkanTexture2DPtr VulkanRHI::createColorResources()
@@ -220,7 +219,7 @@ namespace Homura
         }
         auto layout = std::make_shared<VulkanDescriptorSetLayout>(mDevice);
         layout->create(bindings);
-        mDescriptorSet = std::make_shared<VulkanDescriptorSet>(mDevice, mDescriptorPool, layout, mSampler);
+        mDescriptorSet = std::make_shared<VulkanDescriptorSet>(mDevice, mDescriptorPool, layout);
         return mDescriptorSet;
     }
 
@@ -316,24 +315,35 @@ namespace Homura
 
     void VulkanRHI::cleanupSwapchain()
     {
+        destroyColorResources();
+        destroyDepthResources();
+        destroyCommandBuffer();
+        destroyFrameBuffer();
+        destroyPipeline();
+        destroyRenderPass();
+        destroySwapChain();
         mSwapChain->destroy();
     }
 
     void VulkanRHI::cleanup()
     {
+        destroySampler();
         destroyColorResources();
         destroyDepthResources();
-        destroyFrameBuffer();
+        destroyDescriptorSet();
+        destroyBuffer();
         destroyCommandBuffer();
+        destroyFrameBuffer();
         destroyPipeline();
         destroyRenderPass();
-        destroyBuffer();
         destroyDescriptorPool();
+        destroyInstance();
+        destroyWindow();
     }
 
     void VulkanRHI::idle()
     {
-        vkDeviceWaitIdle(mDevice->getHandle());
+        mDevice->idle();
     }
 
     void VulkanRHI::setupAttachments()
@@ -354,8 +364,8 @@ namespace Homura
     void VulkanRHI::setupPipeline(const VulkanDescriptorSetPtr descriptorSet)
     {
         mPipeline->create(mRenderPass);
-        VkViewport viewport{0.0, 0.0, (float)mWidth, (float)mHeight, 0.0, 1.0};
-        VkRect2D scissor{{0, 0}, {mWidth, mHeight}};
+        VkViewport viewport{0.0, 0.0, (float)mWindow->getWidth(), (float)mWindow->getHeight(), 0.0, 1.0};
+        VkRect2D scissor{{0, 0}, {mWindow->getWidth(), mWindow->getHeight()}};
         mPipeline->setViewports({viewport});
         mPipeline->setScissors({scissor});
         mPipeline->setShaders(mShader);

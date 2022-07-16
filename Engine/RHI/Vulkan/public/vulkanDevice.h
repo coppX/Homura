@@ -41,6 +41,7 @@ namespace Homura
 
         void create();
         void destroy();
+        void idle();
 
         VkDevice getHandle()
         {

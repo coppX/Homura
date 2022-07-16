@@ -39,15 +39,8 @@ namespace Homura
 			return glfwWindowShouldClose(mWindow);
 		}
 
-		void processInput()
-		{
-			if (glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-			{
-				glfwSetWindowShouldClose(mWindow, true);
-			}
-			glfwPollEvents();
-		}
-
+		void resize();
+		void processInput();
 		static void mouseButtonCallback(GLFWwindow* window, int button, int state, int mods);
 		static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 

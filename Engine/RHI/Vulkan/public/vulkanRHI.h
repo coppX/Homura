@@ -37,7 +37,6 @@ namespace Homura
         VulkanDevicePtr createDevice();
         VulkanSurfacePtr createSurface();
         VulkanSwapChainPtr createSwapChain();
-        VulkanSwapChainPtr recreateSwapChain();
         VulkanRenderPassPtr createRenderPass();
         VulkanDescriptorPoolPtr createDescriptorPool();
         VulkanDescriptorSetPtr createDescriptorSet(std::vector<VkDescriptorSetLayoutBinding>& bindings);
@@ -64,6 +63,7 @@ namespace Homura
         void destroyBuffers();
         void destroySampler();
 
+        void recreateSwapChain();
         void cleanupSwapchain();
         void cleanup();
 
