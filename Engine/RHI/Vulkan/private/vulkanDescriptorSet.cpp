@@ -6,6 +6,7 @@
 #include <vulkanLayout.h>
 #include <vulkanDevice.h>
 #include <vulkanSwapChain.h>
+#include <vulkanSampler.h>
 #include <debugUtils.h>
 
 namespace Homura
@@ -56,11 +57,12 @@ namespace Homura
         }
     }
 
-    VulkanDescriptorSet::VulkanDescriptorSet(VulkanDevicePtr device, VulkanDescriptorPoolPtr pool, VulkanDescriptorSetLayoutPtr layout)
+    VulkanDescriptorSet::VulkanDescriptorSet(VulkanDevicePtr device, VulkanDescriptorPoolPtr pool, VulkanDescriptorSetLayoutPtr layout, VulkanSamplerPtr sampler)
         : mDevice{device}
         , mPool{pool}
         , mLayout{layout}
         , mDescriptorSets{0}
+        , mSampler{sampler}
     {
         create();
     }
@@ -91,5 +93,10 @@ namespace Homura
             vkFreeDescriptorSets(mDevice->getHandle(), mPool->getHandle(), static_cast<uint32_t >(mDescriptorSets.size()), mDescriptorSets.data());
             mDescriptorSets.clear();
         }
+    }
+
+    void VulkanDescriptorSet::update()
+    {
+
     }
 }

@@ -19,6 +19,7 @@
 #include <vulkanTexture.h>
 #include <vulkanLayout.h>
 #include <vulkanShader.h>
+#include <vulkanSampler.h>
 
 namespace Homura
 {
@@ -59,10 +60,12 @@ namespace Homura
         createRenderPass();
         createShader();
         createPipeline();
+        createSampler();
     }
 
     void VulkanRHI::exit()
     {
+        destroySampler();
         destroyBuffers();
         destroyPipeline();
         destroyShader();
@@ -141,6 +144,7 @@ namespace Homura
 
     VulkanSwapChainPtr VulkanRHI::recreateSwapChain()
     {
+        // todo
         idle();
         return nullptr;
     }
@@ -205,11 +209,18 @@ namespace Homura
         return mDescriptorPool;
     }
 
-    VulkanDescriptorSetPtr VulkanRHI::createDescriptorSet(const std::vector<VkDescriptorSetLayoutBinding>& bindings)
+    VulkanDescriptorSetPtr VulkanRHI::createDescriptorSet(std::vector<VkDescriptorSetLayoutBinding>& bindings)
     {
+        if (mSampler)
+        {
+            for (auto& binding : bindings)
+            {
+                binding.pImmutableSamplers = &mSampler->getHandle();
+            }
+        }
         auto layout = std::make_shared<VulkanDescriptorSetLayout>(mDevice);
         layout->create(bindings);
-        mDescriptorSet = std::make_shared<VulkanDescriptorSet>(mDevice, mDescriptorPool, layout);
+        mDescriptorSet = std::make_shared<VulkanDescriptorSet>(mDevice, mDescriptorPool, layout, mSampler);
         return mDescriptorSet;
     }
 
@@ -217,6 +228,12 @@ namespace Homura
     {
         mPipeline = std::make_shared<VulkanPipeline>(mDevice);
         return mPipeline;
+    }
+
+    VulkanSamplerPtr VulkanRHI::createSampler()
+    {
+        mSampler = std::make_shared<VulkanSampler>(mDevice);
+        return mSampler;
     }
 
     void VulkanRHI::destroyWindow()
@@ -290,6 +307,11 @@ namespace Homura
         {
             buffer->destroy();
         }
+    }
+
+    void VulkanRHI::destroySampler()
+    {
+        mSampler->destroy();
     }
 
     void VulkanRHI::cleanupSwapchain()

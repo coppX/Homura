@@ -77,7 +77,7 @@ namespace Homura
     using VulkanSamplerPtr              = std::shared_ptr<VulkanSampler>;
     using VulkanFramebufferPtr          = std::shared_ptr<VulkanFramebuffer>;
 
-    typedef std::function<void(int, int, int)>  MouseCallback;
-    typedef std::function<void(int, int)>       FramebufferResizeCallback;
+    using MouseCallback                 = std::function<void(int, int, int)>;
+    using FramebufferResizeCallback     = std::function<void(int, int)>;
 }
 #endif //HOMURA_VULKANTYPES_H
