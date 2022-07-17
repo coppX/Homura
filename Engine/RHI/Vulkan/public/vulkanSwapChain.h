@@ -48,7 +48,6 @@ namespace Homura
             return mImageCount;
         }
 
-
         VkExtent2D& getExtent()
         {
             return mSwapChainExtent;
@@ -60,7 +59,7 @@ namespace Homura
         VkExtent2D chooseExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
         void createSwapChainImageViews();
-
+        VkImageView getImageView(uint32_t index);
         void recreateSwapChain();
     private:
         VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageViewType viewType, uint32_t layerCount, uint32_t mipLevels = 1);

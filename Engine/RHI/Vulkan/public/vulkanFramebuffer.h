@@ -31,6 +31,7 @@ namespace Homura
         }
     private:
         VulkanDevicePtr                     mDevice;
+        VulkanSwapChainPtr                  mSwapchain;
         VkFramebuffer                       mFrameBuffer;
         VkExtent2D                          mExtent;
     };

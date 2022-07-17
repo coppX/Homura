@@ -107,6 +107,12 @@ namespace Homura
         }
     }
 
+    VkImageView VulkanSwapChain::getImageView(uint32_t index)
+    {
+        assert(index < mImageCount);
+        return mSwapChainImageViews[index];
+    }
+
     SwapChainSupportInfo VulkanSwapChain::querySwapChainSupportInfo()
     {
         SwapChainSupportInfo info;
@@ -125,8 +131,7 @@ namespace Homura
         if (presentModeCount != 0)
         {
             info.mPresentModes.resize(presentModeCount);
-            VERIFYVULKANRESULT(
-                    vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalHandle(), mSurface->getHandle(), &presentModeCount, info.mPresentModes.data()));
+            VERIFYVULKANRESULT(vkGetPhysicalDeviceSurfacePresentModesKHR(mDevice->getPhysicalHandle(), mSurface->getHandle(), &presentModeCount, info.mPresentModes.data()));
         }
 
         return info;

@@ -101,6 +101,11 @@ namespace Homura
         return mFramebuffer;
     }
 
+    VkSampleCountFlagBits VulkanRHI::getSampleCount()
+    {
+        return VK_SAMPLE_COUNT_4_BIT;
+    }
+
     ApplicationWindowPtr VulkanRHI::createWindow()
     {
         mWindow = std::make_shared<ApplicationWindow>(shared_from_this(), mWidth, mHeight);
@@ -150,14 +155,14 @@ namespace Homura
 
     VulkanTexture2DPtr VulkanRHI::createColorResources()
     {
-        mRenderTarget =  std::make_shared<VulkanTexture2D>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, VK_SAMPLE_COUNT_1_BIT, mSwapChain->getFormat(),
+        mRenderTarget =  std::make_shared<VulkanTexture2D>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, getSampleCount(), mSwapChain->getFormat(),
                                           VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         return  mRenderTarget;
     }
 
     VulkanTextureDepthPtr VulkanRHI::createDepthResources()
     {
-        mRenderTargetDepth =  std::make_shared<VulkanTextureDepth>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, VK_SAMPLE_COUNT_1_BIT, findDepthFormat(mDevice),
+        mRenderTargetDepth =  std::make_shared<VulkanTextureDepth>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, getSampleCount(), findDepthFormat(mDevice),
                                                     VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         return mRenderTargetDepth;
     }
@@ -363,7 +368,7 @@ namespace Homura
 
     void VulkanRHI::setupPipeline(const VulkanDescriptorSetPtr descriptorSet)
     {
-        mPipeline->create(mRenderPass);
+        mPipeline->create(mRenderPass, getSampleCount());
         VkViewport viewport{0.0, 0.0, (float)mWindow->getWidth(), (float)mWindow->getHeight(), 0.0, 1.0};
         VkRect2D scissor{{0, 0}, {mWindow->getWidth(), mWindow->getHeight()}};
         mPipeline->setViewports({viewport});

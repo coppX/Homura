@@ -16,7 +16,7 @@ namespace Homura
         VulkanPipeline(VulkanDevicePtr device);
         ~VulkanPipeline();
 
-        void create(VulkanRenderPassPtr renderPass);
+        void create(VulkanRenderPassPtr renderPass, VkSampleCountFlagBits samples);
         void destroy();
 
         void setShaders(VulkanShaderPtr shaders);

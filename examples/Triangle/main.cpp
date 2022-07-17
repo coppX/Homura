@@ -83,17 +83,17 @@ namespace Homura
             RHIRenderPassInfo info;
             VkAttachmentDescription colorAttachmentDescription{};
             colorAttachmentDescription.format                       = colorImg->getFormat();
-            colorAttachmentDescription.samples                      = VK_SAMPLE_COUNT_1_BIT;
+            colorAttachmentDescription.samples                      = rhi->getSampleCount();
             colorAttachmentDescription.loadOp                       = VK_ATTACHMENT_LOAD_OP_CLEAR;
             colorAttachmentDescription.storeOp                      = VK_ATTACHMENT_STORE_OP_STORE;
             colorAttachmentDescription.stencilLoadOp                = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             colorAttachmentDescription.stencilStoreOp               = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             colorAttachmentDescription.initialLayout                = VK_IMAGE_LAYOUT_UNDEFINED;
-            colorAttachmentDescription.finalLayout                  = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR ;
+            colorAttachmentDescription.finalLayout                  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
             VkAttachmentDescription depthAttachmentDescription{};
             depthAttachmentDescription.format                       = depthImg->getFormat();
-            depthAttachmentDescription.samples                      = VK_SAMPLE_COUNT_1_BIT;
+            depthAttachmentDescription.samples                      = rhi->getSampleCount();
             depthAttachmentDescription.loadOp                       = VK_ATTACHMENT_LOAD_OP_CLEAR;
             depthAttachmentDescription.storeOp                      = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             depthAttachmentDescription.stencilLoadOp                = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -101,10 +101,22 @@ namespace Homura
             depthAttachmentDescription.initialLayout                = VK_IMAGE_LAYOUT_UNDEFINED;
             depthAttachmentDescription.finalLayout                  = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+            VkAttachmentDescription colorAttachmentResolve{};
+            colorAttachmentResolve.format                           = colorImg->getFormat();
+            colorAttachmentResolve.samples                          = VK_SAMPLE_COUNT_1_BIT;
+            colorAttachmentResolve.loadOp                           = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            colorAttachmentResolve.storeOp                          = VK_ATTACHMENT_STORE_OP_STORE;
+            colorAttachmentResolve.stencilLoadOp                    = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            colorAttachmentResolve.stencilStoreOp                   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            colorAttachmentResolve.initialLayout                    = VK_IMAGE_LAYOUT_UNDEFINED;
+            colorAttachmentResolve.finalLayout                      = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+
             info.addAttachment(colorAttachmentDescription);
             info.addAttachment(depthAttachmentDescription);
+            info.addAttachment(colorAttachmentResolve);
 
-            AttachmentReference reference({colorAttachmentDescription, depthAttachmentDescription});
+            AttachmentReference reference({colorAttachmentDescription, depthAttachmentDescription, colorAttachmentResolve });
             VulkanSubPassPtr subPass = std::make_shared<VulkanSubPass>(reference);
 
             info.addSubPass(subPass);

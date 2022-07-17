@@ -358,6 +358,7 @@ namespace Homura
         VkResult result = vkAcquireNextImageKHR(mDevice->getHandle(), mSwapChain->getHandle(), UINT64_MAX, mImageAvailableSemaphores->getSemaphore(mCurrentFrameIndex), VK_NULL_HANDLE, &mImageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
+            // todo
             mSwapChain->recreateSwapChain();
             return;
         }
@@ -403,6 +404,7 @@ namespace Homura
         VkResult result = vkQueuePresentKHR(mDevice->getPresentQueue()->getHandle(), &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
         {
+            // todo
             mSwapChain->recreateSwapChain();
         }
         else if (result != VK_SUCCESS)

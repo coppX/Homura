@@ -46,7 +46,7 @@ namespace Homura
 
     }
 
-    void VulkanPipeline::create(VulkanRenderPassPtr renderPass)
+    void VulkanPipeline::create(VulkanRenderPassPtr renderPass, VkSampleCountFlagBits samples)
     {
         mRenderPass = renderPass;
 
@@ -65,7 +65,7 @@ namespace Homura
         mRasterizationState.depthBiasSlopeFactor            = 0.0f;
 
         mMultisampleState.sampleShadingEnable               = VK_FALSE;
-        mMultisampleState.rasterizationSamples              = VK_SAMPLE_COUNT_1_BIT;
+        mMultisampleState.rasterizationSamples              = samples;
 
         mDepthStencilState.depthTestEnable                  = VK_TRUE;
         mDepthStencilState.depthWriteEnable                 = VK_TRUE;
@@ -141,8 +141,14 @@ namespace Homura
         mViewportState.scissorCount         = static_cast<uint32_t>(mScissors.size());
         mViewportState.pScissors            = mScissors.data();
 
+        mColorBlendState.logicOpEnable      = VK_FALSE;
+        mColorBlendState.logicOp            = VK_LOGIC_OP_COPY;
         mColorBlendState.attachmentCount    = static_cast<uint32_t>(mBlendAttachmentStates.size());
         mColorBlendState.pAttachments       = mBlendAttachmentStates.data();
+        mColorBlendState.blendConstants[0] = 0.0f;
+        mColorBlendState.blendConstants[1] = 0.0f;
+        mColorBlendState.blendConstants[2] = 0.0f;
+        mColorBlendState.blendConstants[3] = 0.0f;
 
         VkGraphicsPipelineCreateInfo  gfxPipelineInfo{};
         gfxPipelineInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

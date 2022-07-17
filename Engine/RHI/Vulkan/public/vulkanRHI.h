@@ -30,6 +30,7 @@ namespace Homura
         VulkanDevicePtr getDevice();
         VulkanSwapChainPtr getSwapChain();
         VulkanFramebufferPtr getFrameBuffer();
+        VkSampleCountFlagBits getSampleCount();
 
         ApplicationWindowPtr createWindow();
         VulkanInstancePtr createInstance();
