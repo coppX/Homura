@@ -167,25 +167,24 @@ namespace Homura
 
     void VulkanCommandBuffer::beginRenderPass(VulkanRenderPassPtr renderPass)
     {
-        VkRenderPassBeginInfo Info{};
-        Info.sType                      = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        Info.renderPass                 = renderPass->getHandle();
-        Info.framebuffer                = mFramebuffrer->getHandle();
-        Info.renderArea.offset.x        = 0;
-        Info.renderArea.offset.y        = 0;
-        Info.renderArea.extent.width    = mFramebuffrer->getExtent().width;
-        Info.renderArea.extent.height   = mFramebuffrer->getExtent().height;
-
-        std::vector<VkClearValue> clearValues{2};
-        clearValues[0].color            = {{0.0f, 0.0f, 0.0f, 1.0f}};
-        clearValues[1].depthStencil     = {1.0f, 0};
-
-        Info.clearValueCount            = static_cast<uint32_t>(clearValues.size());
-        Info.pClearValues               = clearValues.data();
-
-        for (const auto& commandBuffer : mCommandBuffers)
+        for (int i = 0; i < mCommandBuffers.size(); i++)
         {
-            vkCmdBeginRenderPass(commandBuffer, &Info, VK_SUBPASS_CONTENTS_INLINE);
+            VkRenderPassBeginInfo Info{};
+            Info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            Info.renderPass = renderPass->getHandle();
+            Info.framebuffer = mFramebuffrer->getHandle(i);
+            Info.renderArea.offset.x = 0;
+            Info.renderArea.offset.y = 0;
+            Info.renderArea.extent.width = mFramebuffrer->getExtent().width;
+            Info.renderArea.extent.height = mFramebuffrer->getExtent().height;
+
+            std::vector<VkClearValue> clearValues{ 2 };
+            clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+            clearValues[1].depthStencil = { 1.0f, 0 };
+
+            Info.clearValueCount = static_cast<uint32_t>(clearValues.size());
+            Info.pClearValues = clearValues.data();
+            vkCmdBeginRenderPass(mCommandBuffers[i], &Info, VK_SUBPASS_CONTENTS_INLINE);
         }
     }
 

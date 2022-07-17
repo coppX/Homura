@@ -65,12 +65,12 @@ namespace Homura
 
     void VulkanRHI::exit()
     {
-        cleanup();
+        //cleanup();
     }
 
     void VulkanRHI::update()
     {
-        while (!mWindow->shouldClose())
+        //while (!mWindow->shouldClose())
         {
             mWindow->processInput();
             mCommandBuffer->beginFrame();
@@ -78,7 +78,7 @@ namespace Homura
             idle();
         }
         idle();
-        cleanup();
+        //cleanup();
     }
 
     VulkanInstancePtr VulkanRHI::getInstance()

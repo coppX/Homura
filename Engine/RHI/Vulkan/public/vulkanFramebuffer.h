@@ -20,10 +20,7 @@ namespace Homura
                     std::vector<VulkanTextureDepthPtr>& depthStencilImages);
         void destroy();
 
-        VkFramebuffer& getHandle()
-        {
-            return mFrameBuffer;
-        }
+        VkFramebuffer& getHandle(uint32_t index);
 
         VkExtent2D& getExtent()
         {
@@ -32,8 +29,8 @@ namespace Homura
     private:
         VulkanDevicePtr                     mDevice;
         VulkanSwapChainPtr                  mSwapchain;
-        VkFramebuffer                       mFrameBuffer;
         VkExtent2D                          mExtent;
+        std::vector<VkFramebuffer>          mFrameBuffers;
     };
 }
 #endif //HOMURA_VULKANFRAMEBUFFER_H

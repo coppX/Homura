@@ -175,10 +175,6 @@ namespace Homura
 
         void exit()
         {
-            rhi->destroyCommandBuffer();
-            rhi->destroyDepthResources();
-            rhi->destroyColorResources();
-            rhi->destroyDescriptorSet();
             rhi->exit();
         }
 

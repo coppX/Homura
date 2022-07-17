@@ -15,6 +15,7 @@ namespace Homura
         : mDevice{device}
         , mSwapchain{swapChain}
         , mExtent(swapChain->getExtent())
+        , mFrameBuffers{}
     {
 
     }
@@ -27,6 +28,7 @@ namespace Homura
     void VulkanFramebuffer::create(VulkanRenderPassPtr renderPass, std::vector<VulkanTexture2DPtr>& colorImages,
                                                                     std::vector<VulkanTextureDepthPtr>& depthStencilImages)
     {
+        mFrameBuffers.resize(mSwapchain->getImageCount());
         for (int i = 0; i < mSwapchain->getImageCount(); i++)
         {
             std::vector<VkImageView> attachments;
@@ -51,17 +53,24 @@ namespace Homura
             frameBufferCreateInfo.height = mExtent.height;
             frameBufferCreateInfo.layers = 1;
 
-            VERIFYVULKANRESULT(vkCreateFramebuffer(mDevice->getHandle(), &frameBufferCreateInfo, nullptr, &mFrameBuffer));
+            VERIFYVULKANRESULT(vkCreateFramebuffer(mDevice->getHandle(), &frameBufferCreateInfo, nullptr, &mFrameBuffers[i]));
         }
     }
 
     void VulkanFramebuffer::destroy()
     {
-        if (mFrameBuffer != VK_NULL_HANDLE)
+
+        for (auto& framebuffer : mFrameBuffers)
         {
-            vkDestroyFramebuffer(mDevice->getHandle(), mFrameBuffer, nullptr);
-            mFrameBuffer = VK_NULL_HANDLE;
+            vkDestroyFramebuffer(mDevice->getHandle(), framebuffer, nullptr);
         }
+        mFrameBuffers.clear();
+    }
+
+    VkFramebuffer& VulkanFramebuffer::getHandle(uint32_t index)
+    {
+        assert(index < mFrameBuffers.size());
+        return mFrameBuffers[index];
     }
 
 }
