@@ -352,7 +352,7 @@ namespace Homura
 
     void VulkanCommandBuffer::beginFrame()
     {
-        inFlightFences->wait(mImageIndex);
+        inFlightFences->wait(mCurrentFrameIndex);
 
         VkResult result = vkAcquireNextImageKHR(mDevice->getHandle(), mSwapChain->getHandle(), UINT64_MAX, mImageAvailableSemaphores->getSemaphore(mCurrentFrameIndex), VK_NULL_HANDLE, &mImageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR)

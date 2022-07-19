@@ -49,7 +49,7 @@ namespace Homura
         createInfo.imageColorSpace          = surfaceFormat.colorSpace;
         createInfo.imageExtent              = extent;
         createInfo.imageArrayLayers         = 1;
-        createInfo.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        createInfo.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 
         std::vector<uint32_t> queueFamilies = {mDevice->getGraphicsQueue()->getFamilyIndex(), mDevice->getPresentQueue()->getFamilyIndex()};
 
@@ -61,7 +61,7 @@ namespace Homura
         createInfo.compositeAlpha           = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         createInfo.presentMode              = presentMode;
         createInfo.clipped                  = VK_TRUE;
-        createInfo.oldSwapchain             = VK_NULL_HANDLE;
+        //createInfo.oldSwapchain             = VK_NULL_HANDLE;
 
         VERIFYVULKANRESULT(vkCreateSwapchainKHR(mDevice->getHandle(), &createInfo, nullptr, &mSwapChain));
         mSwapChainFormat = surfaceFormat.format;
