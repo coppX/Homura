@@ -9,10 +9,10 @@ include_directories("include")
 include_directories("libs")
 include_directories("libs/glm")
 include_directories("libs/glfw/include")
-include_directories("Engine/platform/public")
-include_directories("Engine/RHI/Vulkan/public")
-include_directories("Engine/Component/public")
-include_directories("Engine/Application")
+include_directories("engine/platform/public")
+include_directories("engine/rhi/vulkan/public")
+include_directories("engine/component/public")
+include_directories("engine/application")
 
 link_directories("libs/libs")
 
@@ -25,9 +25,9 @@ elseif(APPLE)
 endif(WIN32)
 
 file(GLOB VULKAN
-    "${CMAKE_CURRENT_LIST_DIR}/Engine/RHI/Vulkan/private/*.h"
-    "${CMAKE_CURRENT_LIST_DIR}/Engine/RHI/Vulkan/private/*.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/Engine/platform/private/*.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/engine/rhi/vulkan/private/*.h"
+    "${CMAKE_CURRENT_LIST_DIR}/engine/rhi/vulkan/private/*.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/engine/platform/private/*.cpp"
     )
 
 # compile GLSL shader to SPIR-V format
