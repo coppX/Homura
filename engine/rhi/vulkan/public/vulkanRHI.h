@@ -31,6 +31,8 @@ namespace Homura
         VulkanSwapChainPtr getSwapChain();
         VulkanFramebufferPtr getFrameBuffer();
         VkSampleCountFlagBits getSampleCount();
+        uint32_t getWidth();
+        uint32_t getHeight();
 
         ApplicationWindowPtr createWindow();
         VulkanInstancePtr createInstance();
@@ -82,15 +84,21 @@ namespace Homura
         void setupPipeline(const VulkanDescriptorSetPtr descriptorSet);
 
         void beginCommandBuffer();
-        void createBuffer(void* bufferData, uint32_t bufferSize, BufferType type);
+        void createVertexBuffer(void* bufferData, uint32_t bufferSize);
+        void createIndexBuffer(void* bufferData, uint32_t bufferSize);
+        void createUniformBuffer(int binding, uint32_t bufferSize);
+        void updateUniformBuffer();
+        void createSampleTexture(void* imageData, uint32_t imageSize, uint32_t width, uint32_t height);
+
         void draw();
         void endCommandBuffer();
 
         void destroyBuffer();
 
         // callback
-        void addMouseButtonCallBack(MouseCallback cb);
-        void addFramebufferResizeCallback(FramebufferResizeCallback cb);
+        void setMouseButtonCallBack(MouseCallback cb);
+        void setFramebufferResizeCallback(FramebufferResizeCallback cb);
+        void setWriteDataCallback(UnifromUpdateCallback cb);
     private:
         VulkanInstancePtr                   mInstance;;
         VulkanDevicePtr                     mDevice;
@@ -113,6 +121,8 @@ namespace Homura
 
         VulkanTexture2DPtr                  mDepthStencil;
         std::vector<VulkanBufferPtr>        mBuffers;
+        std::vector<VulkanUniformBufferPtr> mUniformBuffers;
+        std::vector<VulkanTexture2DPtr>     mSampleTextures;
 
         // window
         ApplicationWindowPtr                mWindow;

@@ -19,6 +19,7 @@
 #include <string>
 #include <unordered_map>
 #include <memory>
+#include <chrono>
 
 #include <filesystem.h>
 #include <application.h>
@@ -54,6 +55,21 @@ namespace Homura
         std::cout << "mouse clicked " << button << " " << action << " " << mods << std::endl;
     }
 
+    size_t UpdateUniform(void* data, uint32_t size)
+    {
+        static auto startTime = std::chrono::high_resolution_clock::now();
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+        UniformBufferObject ubo{};
+        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.proj = glm::perspective(glm::radians(45.0f), 960 / (float)540, 0.1f, 10.0f);
+        ubo.proj[1][1] *= -1;
+        memcpy(data, &ubo, size);
+        return sizeof(ubo);
+    }
 
     class TriangleApplication : Application
     {
@@ -72,8 +88,8 @@ namespace Homura
         bool init()
         {
             rhi->init();
-            rhi->addFramebufferResizeCallback(&OnFramebufferChanged);
-            rhi->addMouseButtonCallBack(&OnMouseButtonClicked);
+            rhi->setFramebufferResizeCallback(&OnFramebufferChanged);
+            rhi->setMouseButtonCallBack(&OnMouseButtonClicked);
 
             VulkanTexture2DPtr colorImg = rhi->createColorResources();
             VulkanTextureDepthPtr depthImg = rhi->createDepthResources();
@@ -141,19 +157,25 @@ namespace Homura
 
             std::shared_ptr<VulkanDescriptorSet> descriptorSet = rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
             rhi->setupPipeline(descriptorSet);
-            
-            loadModel();
-
             rhi->createCommandBuffer();
+
+            loadModel();
+            loadSampleTexture(TEXTURE_PATH);
+
+            rhi->createUniformBuffer(0, sizeof(UniformBufferObject));
+            rhi->setWriteDataCallback(UpdateUniform);
+
             rhi->beginCommandBuffer();
-            rhi->createBuffer(vertices.data(), vertices.size(), BufferType::VERTEX);
-            rhi->createBuffer(indices.data(), indices.size(), BufferType::INDEX);
+            rhi->createVertexBuffer(vertices.data(), vertices.size());
+            rhi->createIndexBuffer(indices.data(), indices.size());
             rhi->draw();
             rhi->endCommandBuffer();
 
             update();
             return true;
         }
+
+
 
         std::vector<VkDescriptorSetLayoutBinding> getDescriptorSetLayoutBinding()
         {
@@ -226,6 +248,14 @@ namespace Homura
                     indices.push_back(uniqueVertices[vertex]);
                 }
             }
+        }
+
+        void loadSampleTexture(std::string filename)
+        {
+            int texWidth, texHeight, texChannels;
+            stbi_uc* pixels = stbi_load(filename.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+            VkDeviceSize imageSize = texWidth * texHeight * 4;
+            rhi->createSampleTexture((void*)pixels, imageSize, texWidth, texHeight);
         }
 
         std::vector<Vertex>                 vertices;

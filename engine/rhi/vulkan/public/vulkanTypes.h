@@ -79,5 +79,6 @@ namespace Homura
 
     using MouseCallback                 = std::function<void(int, int, int)>;
     using FramebufferResizeCallback     = std::function<void(int, int)>;
+    using UnifromUpdateCallback         = std::function<uint32_t(void*, uint32_t)>;
 }
 #endif //HOMURA_VULKANTYPES_H

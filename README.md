@@ -1,6 +1,6 @@
 # HOMURA
 
-# 封装一下vulkan api
+# 封装一下vulkan api，施工中...
 
 # 代码获取方式
-git clone --recursive git@github.com:coppX/Homura.git
+git clone --recursive https://github.com/coppX/Homura.git

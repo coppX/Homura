@@ -11,7 +11,7 @@
 namespace Homura
 {
     VulkanTexture::VulkanTexture(VulkanDevicePtr device, uint32_t width, uint32_t height, TextureType type, VkImageTiling tiling, VkImageAspectFlags aspectFlags,
-                                 uint32_t mipLevels, uint32_t arraySize, uint32_t numSamples, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
+                                 uint32_t mipLevels, uint32_t arraySize, VkSampleCountFlagBits numSamples, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
         : mDevice{device}
         , mWidth{width}
         , mHeight{height}
@@ -54,69 +54,47 @@ namespace Homura
         }
     }
 
-    void VulkanTexture::createImage(uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
+    void VulkanTexture::createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage,
                                     VkMemoryPropertyFlags properties)
     {
-        VkImageCreateInfo imageInfo{};
-        imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        VkImageCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         switch (mType)
         {
             case TextureType::TEXTURE_1D:
             case TextureType::TEXTURE_1D_ARRAY:
-                imageInfo.imageType = VK_IMAGE_TYPE_1D;
+                createInfo.imageType = VK_IMAGE_TYPE_1D;
                 break;
             case TextureType::TEXTURE_2D:
             case TextureType::TEXTURE_2D_ARRAY:
-                imageInfo.imageType = VK_IMAGE_TYPE_2D;
+                createInfo.imageType = VK_IMAGE_TYPE_2D;
                 break;
             case TextureType::TEXTURE_3D:
-                imageInfo.imageType = VK_IMAGE_TYPE_3D;
+                createInfo.imageType = VK_IMAGE_TYPE_3D;
                 break;
             case TextureType::TEXTURE_CUBE:
             case TextureType::TEXTURE_CUBE_ARRAY:
-                imageInfo.imageType = VK_IMAGE_TYPE_2D;
+                createInfo.imageType = VK_IMAGE_TYPE_2D;
                 break;
             default:
                 std::cerr<< "Unknown Texture Type!";
                 break;
         }
 
-        imageInfo.extent.width  = width;
-        imageInfo.extent.height = height;
-        imageInfo.extent.depth  = 1;
-        imageInfo.mipLevels     = mipLevels;
-        imageInfo.arrayLayers   = mLayerCount;
-        imageInfo.format        = format;
-        imageInfo.tiling        = tiling;
-        imageInfo.initialLayout = mImageLayout;
-        imageInfo.usage         = usage;
-        switch (numSamples)
-        {
-            case 1:
-                imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-                break;
-            case 2:
-                imageInfo.samples = VK_SAMPLE_COUNT_2_BIT;
-                break;
-            case 4:
-                imageInfo.samples = VK_SAMPLE_COUNT_4_BIT;
-                break;
-            case 8:
-                imageInfo.samples = VK_SAMPLE_COUNT_8_BIT;
-                break;
-            case 16:
-                imageInfo.samples = VK_SAMPLE_COUNT_16_BIT;
-                break;
-            case 32:
-                imageInfo.samples = VK_SAMPLE_COUNT_32_BIT;
-                break;
-            case 64:
-                imageInfo.samples = VK_SAMPLE_COUNT_64_BIT;
-                break;
-        }
-        imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        createInfo.extent.width  = width;
+        createInfo.extent.height = height;
+        createInfo.extent.depth  = 1;
+        createInfo.mipLevels     = mipLevels;
+        createInfo.arrayLayers   = mLayerCount;
+        createInfo.format        = format;
+        createInfo.tiling        = tiling;
+        createInfo.initialLayout = mImageLayout;
+        createInfo.usage         = usage;
+        createInfo.samples       = numSamples;
+        createInfo.sharingMode   = VK_SHARING_MODE_EXCLUSIVE;
 
-        VERIFYVULKANRESULT(vkCreateImage(mDevice->getHandle(), &imageInfo, nullptr, &mImage));
+
+        VERIFYVULKANRESULT(vkCreateImage(mDevice->getHandle(), &createInfo, nullptr, &mImage));
 
         VkMemoryRequirements memRequirements;
         vkGetImageMemoryRequirements(mDevice->getHandle(), mImage, &memRequirements);
@@ -187,100 +165,84 @@ namespace Homura
         return -1;
     }
 
-//    void VulkanTexture::fromBuffer(VulkanBufferPtr buffer, uint32_t width, uint32_t height)
-//    {
-//        VulkanCommandBuffer commandBuffer{mDevice};
-//        commandBuffer.beginSingleTimeCommands();
-//
-//        VkBufferImageCopy region{};
-//        region.bufferOffset = 0;
-//        region.bufferRowLength = 0;
-//        region.bufferImageHeight = 0;
-//        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-//        region.imageSubresource.mipLevel = 0;
-//        region.imageSubresource.baseArrayLayer = 0;
-//        region.imageSubresource.layerCount = 1;
-//        region.imageOffset = {0, 0, 0};
-//        region.imageExtent = {
-//                width,
-//                height,
-//                1
-//        };
-//        vkCmdCopyBufferToImage(commandBuffer.getHandle(), buffer->getHandle(), mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-//
-//        commandBuffer.endSingleTimeCommands();
-//    }
-
-    void VulkanTexture::setImageLayout(VkImageLayout newLayout,
-                        VkPipelineStageFlags srcStageMask,
-                        VkPipelineStageFlags dstStageMask,
-                        VkImageSubresourceRange subresourceRange,
-                        VulkanCommandBufferPtr command)
+    void VulkanTexture::fromBuffer(VulkanCommandBufferPtr command, VulkanBufferPtr buffer)
     {
-        VkImageMemoryBarrier imageMemoryBarrier{};
-        imageMemoryBarrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        imageMemoryBarrier.oldLayout            = mImageLayout;
-        imageMemoryBarrier.newLayout            = newLayout;
-        imageMemoryBarrier.srcQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
-        imageMemoryBarrier.dstQueueFamilyIndex  = VK_QUEUE_FAMILY_IGNORED;
-        imageMemoryBarrier.image                = mImage;
-        imageMemoryBarrier.subresourceRange     = subresourceRange;
-
-        switch (mImageLayout)
-        {
-            case VK_IMAGE_LAYOUT_UNDEFINED:
-                imageMemoryBarrier.srcAccessMask = 0;
-                break;
-            case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-                imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-                break;
-            default:
-                break;
-        }
-
-        switch (newLayout)
-        {
-            case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-                imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-                break;
-            case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
-                if (imageMemoryBarrier.srcAccessMask == 0)
-                {
-                    imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-                }
-                imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-                break;
-            case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
-                imageMemoryBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-                break;
-            case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
-                imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-                break;
-            default:
-                break;
-        }
-
-        mImageLayout = newLayout;
         VkCommandBuffer commandBuffer = command->beginSingleTimeCommands();
-        command->transferImageLayout(commandBuffer, imageMemoryBarrier, srcStageMask, dstStageMask);
+        VkBufferImageCopy region{};
+        region.bufferOffset                     = 0;
+        region.bufferRowLength                  = 0;
+        region.bufferImageHeight                = 0;
+        region.imageSubresource.aspectMask      = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.mipLevel        = 0;
+        region.imageSubresource.baseArrayLayer  = 0;
+        region.imageSubresource.layerCount      = 1;
+        region.imageOffset                      = {0, 0, 0};
+        region.imageExtent                      = {mWidth, mHeight, 1};
+
+        vkCmdCopyBufferToImage(commandBuffer, buffer->getHandle(), mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
         command->endSingleTimeCommands(commandBuffer);
     }
 
-    void VulkanTexture::generateMipmaps(VulkanCommandBufferPtr commandBuffer, VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
+    void VulkanTexture::setImageLayout(VkImageLayout newLayout, VulkanCommandBufferPtr command)
+    {
+        VkImageMemoryBarrier imageMemoryBarrier{};
+        imageMemoryBarrier.sType                            = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        imageMemoryBarrier.oldLayout                        = mImageLayout;
+        imageMemoryBarrier.newLayout                        = newLayout;
+        imageMemoryBarrier.srcQueueFamilyIndex              = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.dstQueueFamilyIndex              = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.image                            = mImage;
+        imageMemoryBarrier.subresourceRange.aspectMask      = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageMemoryBarrier.subresourceRange.baseMipLevel    = 0;
+        imageMemoryBarrier.subresourceRange.levelCount      = mMipLevels;
+        imageMemoryBarrier.subresourceRange.baseArrayLayer  = 0;
+        imageMemoryBarrier.subresourceRange.layerCount      = 1;
+
+        VkPipelineStageFlags srcStageMask;
+        VkPipelineStageFlags dstStageMask;
+
+        if (mImageLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+        {
+            imageMemoryBarrier.srcAccessMask = 0;
+            imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+            srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        }
+        else if (mImageLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        {
+            imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+            srcStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        }
+        else
+        {
+            throw std::invalid_argument("unsupported layout transition!");
+        }
+
+        VkCommandBuffer commandBuffer = command->beginSingleTimeCommands();
+        command->transferImageLayout(commandBuffer, imageMemoryBarrier, srcStageMask, dstStageMask);
+        command->endSingleTimeCommands(commandBuffer);
+        mImageLayout = newLayout;
+    }
+
+    void VulkanTexture::generateMipmaps(VulkanCommandBufferPtr command)
     {
         VkFormatProperties formatProperties;
-        vkGetPhysicalDeviceFormatProperties(mDevice->getPhysicalHandle(), imageFormat, &formatProperties);
+        vkGetPhysicalDeviceFormatProperties(mDevice->getPhysicalHandle(), mFormat, &formatProperties);
 
         if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
         {
             throw std::runtime_error("texture image format does not support linear blitting!");
         }
 
-        VkCommandBuffer commandBuffer1 = commandBuffer->beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = command->beginSingleTimeCommands();
 
         VkImageMemoryBarrier barrier{};
         barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        barrier.image                           = image;
+        barrier.image                           = mImage;
         barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
         barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
         barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -288,10 +250,11 @@ namespace Homura
         barrier.subresourceRange.layerCount     = 1;
         barrier.subresourceRange.levelCount     = 1;
 
-        int32_t mipWidth = texWidth;
-        int32_t mipHeight = texHeight;
 
-        for (uint32_t i = 1; i < mipLevels; i++)
+        int32_t mipWidth = mWidth;
+        int32_t mipHeight = mHeight;
+
+        for (uint32_t i = 1; i < mMipLevels; i++)
         {
             barrier.subresourceRange.baseArrayLayer = i - 1;
             barrier.oldLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -299,7 +262,7 @@ namespace Homura
             barrier.srcAccessMask                   = VK_ACCESS_TRANSFER_WRITE_BIT;
             barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
 
-            commandBuffer->transferImageLayout(commandBuffer1, barrier, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+            command->transferImageLayout(commandBuffer, barrier, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
 
             VkImageBlit blit{};
             blit.srcOffsets[0]                      = {0, 0, 0};
@@ -315,8 +278,8 @@ namespace Homura
             blit.dstSubresource.baseArrayLayer      = 0;
             blit.dstSubresource.layerCount          = 1;
 
-            commandBuffer->blitImage(commandBuffer1, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                           image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            command->blitImage(commandBuffer, mImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                           mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            1, &blit,
                            VK_FILTER_LINEAR);
 
@@ -325,19 +288,37 @@ namespace Homura
             barrier.srcAccessMask   = VK_ACCESS_TRANSFER_READ_BIT;
             barrier.dstAccessMask   = VK_ACCESS_SHADER_READ_BIT;
 
-            commandBuffer->transferImageLayout(commandBuffer1, barrier, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+            command->transferImageLayout(commandBuffer, barrier, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 
             if (mipWidth > 1) mipWidth /= 2;
             if (mipHeight > 1) mipHeight /= 2;
         }
 
-        barrier.subresourceRange.baseMipLevel   = mipLevels - 1;
+        barrier.subresourceRange.baseMipLevel   = mMipLevels - 1;
         barrier.oldLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         barrier.newLayout                       = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         barrier.srcAccessMask                   = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask                   = VK_ACCESS_SHADER_READ_BIT;
 
-        commandBuffer->transferImageLayout(commandBuffer1, barrier, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
-        commandBuffer->endSingleTimeCommands(commandBuffer1);
+        command->transferImageLayout(commandBuffer, barrier, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+        command->endSingleTimeCommands(commandBuffer);
+    }
+
+    VkWriteDescriptorSet VulkanTexture2D::createWriteDescriptorSet(VkDescriptorSet descriptorSet)
+    {
+        VkDescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = mImageView;
+        imageInfo.sampler = mSampler->getHandle();
+
+        VkWriteDescriptorSet descriptorWrite;
+        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet = descriptorSet;
+        descriptorWrite.dstBinding = mBinding;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pImageInfo = &imageInfo;
+        return descriptorWrite;
     }
 }

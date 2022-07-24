@@ -7,6 +7,8 @@
 #include <vulkanDevice.h>
 #include <vulkanSwapChain.h>
 #include <vulkanSampler.h>
+#include <vulkanBuffer.h>
+#include <vulkanTexture.h>
 #include <debugUtils.h>
 
 namespace Homura
@@ -91,6 +93,24 @@ namespace Homura
         {
             vkFreeDescriptorSets(mDevice->getHandle(), mPool->getHandle(), static_cast<uint32_t >(mDescriptorSets.size()), mDescriptorSets.data());
             mDescriptorSets.clear();
+        }
+    }
+
+    void VulkanDescriptorSet::updateDescriptorSet(std::vector<VulkanUniformBufferPtr>& uniformBuffers, std::vector<VulkanTexture2DPtr>& sampleTextures)
+    {
+        for (size_t i = 0; i < mPool->getFrameCount(); i++)
+        {
+            std::vector<VkWriteDescriptorSet> descriptorWrites;
+            for (auto unifromBuffer : uniformBuffers)
+            {
+                descriptorWrites.push_back(unifromBuffer->createWriteDescriptorSet(mDescriptorSets[i]));
+            }
+
+            for (auto texture : sampleTextures)
+            {
+                descriptorWrites.push_back(texture->createWriteDescriptorSet(mDescriptorSets[i]));
+            }
+            vkUpdateDescriptorSets(mDevice->getHandle(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
         }
     }
 }

@@ -71,11 +71,12 @@ namespace Homura
     void VulkanRHI::update()
     {
         //while (!mWindow->shouldClose())
+        for (int i = 0; i < 2; i++)
         {
             mWindow->processInput();
             mCommandBuffer->beginFrame();
             mCommandBuffer->endFrame();
-            idle();
+            //idle();
         }
         idle();
         //cleanup();
@@ -104,6 +105,16 @@ namespace Homura
     VkSampleCountFlagBits VulkanRHI::getSampleCount()
     {
         return VK_SAMPLE_COUNT_4_BIT;
+    }
+
+    uint32_t VulkanRHI::getWidth()
+    {
+        return mWindow->getWidth();
+    }
+
+    uint32_t VulkanRHI::getHeight()
+    {
+        return mWindow->getHeight();
     }
 
     ApplicationWindowPtr VulkanRHI::createWindow()
@@ -374,6 +385,7 @@ namespace Homura
         mPipeline->setViewports({viewport});
         mPipeline->setScissors({scissor});
         mPipeline->setShaders(mShader);
+        descriptorSet->updateDescriptorSet(mUniformBuffers, mSampleTextures);
         mPipeline->build(descriptorSet);
     }
 
@@ -390,20 +402,61 @@ namespace Homura
         mCommandBuffer->bindDescriptorSet();
     }
 
-    void VulkanRHI::createBuffer(void* bufferData, uint32_t bufferSize, BufferType type)
+    void VulkanRHI::createVertexBuffer(void* bufferData, uint32_t bufferSize)
     {
-        if (type == BufferType::VERTEX)
+        VulkanVertexBufferPtr buffer = std::make_shared<VulkanVertexBuffer>(mDevice, mCommandBuffer, bufferSize, bufferData);
+        mCommandBuffer->bindVertexBuffer(buffer);
+        mBuffers.push_back(buffer);
+    }
+
+    void VulkanRHI::createIndexBuffer(void* bufferData, uint32_t bufferSize)
+    {
+        VulkanIndexBufferPtr buffer = std::make_shared<VulkanIndexBuffer>(mDevice, mCommandBuffer, bufferSize, bufferData);
+        mCommandBuffer->bindIndexBuffer(buffer);
+        mBuffers.push_back(buffer);
+    }
+
+    void VulkanRHI::createUniformBuffer(int binding, uint32_t bufferSize)
+    {
+        for (size_t i = 0; i < mSwapChain->getImageCount(); i++)
         {
-            VulkanVertexBufferPtr buffer = std::make_shared<VulkanVertexBuffer>(mDevice, mCommandBuffer, bufferSize, bufferData);
-            mCommandBuffer->bindVertexBuffer(buffer);
-            mBuffers.push_back(buffer);
+            VulkanUniformBufferPtr buffer = std::make_shared<VulkanUniformBuffer>(mDevice, mCommandBuffer, bufferSize, 0);
+            mUniformBuffers.push_back(buffer);
         }
-        else if (type == BufferType::INDEX)
+    }
+
+    void VulkanRHI::setWriteDataCallback(UnifromUpdateCallback callback)
+    {
+        for (auto& uniform : mUniformBuffers)
         {
-            VulkanIndexBufferPtr buffer = std::make_shared<VulkanIndexBuffer>(mDevice, mCommandBuffer, bufferSize, bufferData);
-            mCommandBuffer->bindIndexBuffer(buffer);
-            mBuffers.push_back(buffer);
+            uniform->setUpdateCallBack(callback);
         }
+    }
+
+    void VulkanRHI::updateUniformBuffer()
+    {
+        for (auto& uniform : mUniformBuffers)
+        {
+            uniform->update();
+        }
+    }
+
+    void VulkanRHI::createSampleTexture(void* imageData, uint32_t imageSize, uint32_t width, uint32_t height)
+    {
+        VulkanStagingBufferPtr stagingBuffer = std::make_shared<VulkanStagingBuffer>(mDevice, mCommandBuffer, imageSize, imageData);
+        uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+        VulkanTexture2DPtr sampleTexture = std::make_shared<VulkanTexture2D>(mDevice, width, height, mipLevels, 
+                                                                            VK_SAMPLE_COUNT_1_BIT, 
+                                                                            VK_FORMAT_R8G8B8A8_SRGB, 
+                                                                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                                                            VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                                                                            VK_IMAGE_USAGE_SAMPLED_BIT,
+                                                                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        sampleTexture->setImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mCommandBuffer);
+        sampleTexture->fromBuffer(mCommandBuffer, stagingBuffer);
+        sampleTexture->generateMipmaps(mCommandBuffer);
+        sampleTexture->setSampler(mSampler, 1);
+        mSampleTextures.push_back(sampleTexture);
     }
 
     void VulkanRHI::draw()
@@ -426,12 +479,12 @@ namespace Homura
         mBuffers.clear();
     }
 
-    void VulkanRHI::addMouseButtonCallBack(MouseCallback cb)
+    void VulkanRHI::setMouseButtonCallBack(MouseCallback cb)
     {
         mMouseCallback = cb;
     }
 
-    void VulkanRHI::addFramebufferResizeCallback(FramebufferResizeCallback cb)
+    void VulkanRHI::setFramebufferResizeCallback(FramebufferResizeCallback cb)
     {
         mFramebufferResizeCallback = cb;
     }

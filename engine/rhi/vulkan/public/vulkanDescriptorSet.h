@@ -43,6 +43,8 @@ namespace Homura
         void create();
         void destroy();
 
+        void updateDescriptorSet(std::vector<VulkanUniformBufferPtr>& uniformBuffers, std::vector<VulkanTexture2DPtr>& sampleTextures);
+
         const uint32_t getCount()
         {
             return (uint32_t )mDescriptorSets.size();

@@ -42,6 +42,7 @@ namespace Homura
         VkDeviceSize            mSize;
         VkBufferUsageFlags      mUsage;
         VkMemoryPropertyFlags   mProperties;
+    public:
         VkBuffer                mBuffer;
         VkDeviceMemory          mBufferMemory;
         VulkanBuffer*           mStagingBuffer;
@@ -70,11 +71,51 @@ namespace Homura
     class VulkanUniformBuffer : public VulkanBuffer
     {
     public:
-        VulkanUniformBuffer(VulkanDevicePtr device, VulkanCommandBufferPtr commandBuffer, VkDeviceSize size, void* pData)
+        VulkanUniformBuffer(VulkanDevicePtr device, VulkanCommandBufferPtr commandBuffer, VkDeviceSize size, uint32_t binding)
             : VulkanBuffer(device, commandBuffer, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+            , mCallback{}
+            , mDataBuffer{}
+            , mSize{size}
+            , mBinding{binding}
         {
-
+            mDataBuffer.resize(size);
         }
+        
+        VkWriteDescriptorSet createWriteDescriptorSet(VkDescriptorSet descriptorSet)
+        {
+            VkDescriptorBufferInfo bufferInfo{};
+            bufferInfo.buffer   = mBuffer;
+            bufferInfo.offset   = 0;
+            bufferInfo.range    = mSize;
+
+            VkWriteDescriptorSet descriptorWrite;
+            descriptorWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrite.dstSet          = descriptorSet;
+            descriptorWrite.dstBinding      = mBinding;
+            descriptorWrite.dstArrayElement = 0;
+            descriptorWrite.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorWrite.descriptorCount = 1;
+            descriptorWrite.pBufferInfo     = &bufferInfo;
+            return descriptorWrite;
+        }
+
+        void setUpdateCallBack(UnifromUpdateCallback callback)
+        {
+            mCallback = callback;
+        }
+
+        void update()
+        {
+            char* userData = mDataBuffer.data();
+            uint32_t size = mCallback(userData, mDataBuffer.size());
+            assert(size == mDataBuffer.size());
+            updateBufferByStaging(userData, size);
+        }
+    private:
+        UnifromUpdateCallback   mCallback;
+        std::vector<char>       mDataBuffer;
+        VkDeviceSize            mSize;
+        uint32_t                mBinding;
     };
 
     class VulkanStagingBuffer : public VulkanBuffer
