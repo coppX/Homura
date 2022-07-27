@@ -256,7 +256,7 @@ namespace Homura
 
         for (uint32_t i = 1; i < mMipLevels; i++)
         {
-            barrier.subresourceRange.baseArrayLayer = i - 1;
+            barrier.subresourceRange.baseMipLevel   = i - 1;
             barrier.oldLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
             barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
             barrier.srcAccessMask                   = VK_ACCESS_TRANSFER_WRITE_BIT;
