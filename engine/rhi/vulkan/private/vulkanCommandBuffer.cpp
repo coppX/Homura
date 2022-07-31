@@ -58,25 +58,38 @@ namespace Homura
         , mCommandPool{commandPool}
         , mFramebuffrer{framebuffer}
         , mPipeline{pipeline}
-        , mCurrentFrameIndex{0}
+        , mCurrentFrame{0}
         , mImageIndex{0}
-        , imageInFlight{}
-        , inFlightFences{}
-        , mImageAvailableSemaphores{}
-        , mRenderFinishedSemaphores{}
+        //, imageInFlight{}
+        //, inFlightFences{}
+        //, mImageAvailableSemaphores{}
+        //, mRenderFinishedSemaphores{}
         , mMaxFrameCount{3}
         , mCommandBuffers{}
         , mHasIndexBuffer{false}
-        , mBuferSize{0}
+        , mBufferDataCount{0}
     {
-        imageInFlight = std::make_shared<VulkanFences>(mDevice);
-        imageInFlight->create(swapChain->getImageCount());
-        inFlightFences = std::make_shared<VulkanFences>(mDevice);
-        inFlightFences->create(mMaxFrameCount);
-        mImageAvailableSemaphores = std::make_shared<VulkanSemaphores>(mDevice);
-        mImageAvailableSemaphores->create(mMaxFrameCount);
-        mRenderFinishedSemaphores = std::make_shared<VulkanSemaphores>(mDevice);
-        mRenderFinishedSemaphores->create(mMaxFrameCount);
+        imageAvailableSemaphores.resize(mMaxFrameCount);
+        renderFinishedSemaphores.resize(mMaxFrameCount);
+        inFlightFences.resize(mMaxFrameCount);
+        imagesInFlight.resize(mSwapChain->getImageCount(), VK_NULL_HANDLE);
+        
+        VkFenceCreateInfo fenceInfo{};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        for (size_t i = 0; i < mMaxFrameCount; i++)
+        {
+            if (vkCreateSemaphore(mDevice->getHandle(), &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+                vkCreateSemaphore(mDevice->getHandle(), &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+                vkCreateFence(mDevice->getHandle(), &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to create synchronization objects for a frame!");
+            }
+        }
         create();
     }
 
@@ -105,25 +118,11 @@ namespace Homura
         }
         mCommandBuffers.clear();
 
-        if (imageInFlight != nullptr)
+        for (size_t i = 0; i < mMaxFrameCount; i++)
         {
-            imageInFlight->destroy();
-            imageInFlight.reset();
-        }
-        if (inFlightFences != nullptr)
-        {
-            inFlightFences->destroy();
-            inFlightFences.reset();
-        }
-        if (mImageAvailableSemaphores != nullptr)
-        {
-            mImageAvailableSemaphores->destroy();
-            mImageAvailableSemaphores.reset();
-        }
-        if (mRenderFinishedSemaphores != nullptr)
-        {
-            mRenderFinishedSemaphores->destroy();
-            mRenderFinishedSemaphores.reset();
+            vkDestroySemaphore(mDevice->getHandle(), renderFinishedSemaphores[i], nullptr);
+            vkDestroySemaphore(mDevice->getHandle(), imageAvailableSemaphores[i], nullptr);
+            vkDestroyFence(mDevice->getHandle(), inFlightFences[i], nullptr);
         }
     }
 
@@ -170,20 +169,18 @@ namespace Homura
         for (int i = 0; i < mCommandBuffers.size(); i++)
         {
             VkRenderPassBeginInfo Info{};
-            Info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            Info.renderPass = renderPass->getHandle();
-            Info.framebuffer = mFramebuffrer->getHandle(i);
-            Info.renderArea.offset.x = 0;
-            Info.renderArea.offset.y = 0;
-            Info.renderArea.extent.width = mFramebuffrer->getExtent().width;
-            Info.renderArea.extent.height = mFramebuffrer->getExtent().height;
+            Info.sType                      = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            Info.renderPass                 = renderPass->getHandle();
+            Info.framebuffer                = mFramebuffrer->getHandle(i);
+            Info.renderArea.offset          = {0, 0};
+            Info.renderArea.extent          = mFramebuffrer->getExtent();
 
             std::vector<VkClearValue> clearValues{ 2 };
-            clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-            clearValues[1].depthStencil = { 1.0f, 0 };
+            clearValues[0].color            = { {0.0f, 0.0f, 0.0f, 1.0f} };
+            clearValues[1].depthStencil     = { 1.0f, 0 };
 
-            Info.clearValueCount = static_cast<uint32_t>(clearValues.size());
-            Info.pClearValues = clearValues.data();
+            Info.clearValueCount            = static_cast<uint32_t>(clearValues.size());
+            Info.pClearValues               = clearValues.data();
             vkCmdBeginRenderPass(mCommandBuffers[i], &Info, VK_SUBPASS_CONTENTS_INLINE);
         }
     }
@@ -196,24 +193,25 @@ namespace Homura
         }
     }
 
-    void VulkanCommandBuffer::bindVertexBuffer(VulkanVertexBufferPtr buffer)
+    void VulkanCommandBuffer::bindVertexBuffer(VulkanVertexBufferPtr buffer, uint32_t count)
     {
         VkBuffer vertexBuffers[] = {buffer->getHandle()};
         VkDeviceSize offsets[] = {0};
-        mBuferSize = buffer->getSize();
+        mBufferDataCount = count;
         for (const auto& commandBuffer : mCommandBuffers)
         {
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
         }
     }
 
-    void VulkanCommandBuffer::bindIndexBuffer(VulkanIndexBufferPtr buffer)
+    void VulkanCommandBuffer::bindIndexBuffer(VulkanIndexBufferPtr buffer, uint32_t count)
     {
-        mBuferSize = buffer->getSize();
+        mBufferDataCount = count;
         for (const auto& commandBuffer : mCommandBuffers)
         {
             vkCmdBindIndexBuffer(commandBuffer, buffer->getHandle(), 0, VK_INDEX_TYPE_UINT32);
         }
+        mHasIndexBuffer = true;
     }
 
     void VulkanCommandBuffer::bindDescriptorSet()
@@ -255,13 +253,13 @@ namespace Homura
 
     void VulkanCommandBuffer::draw()
     {
-        if (mHasIndexBuffer != 0)
+        if (mHasIndexBuffer != false)
         {
-            drawIndex(mBuferSize);
+            drawIndex(mBufferDataCount);
         }
         else
         {
-            draw(mBuferSize);
+            draw(mBufferDataCount);
         }
     }
 
@@ -296,7 +294,7 @@ namespace Homura
         submitInfo.commandBufferCount   = 1;
         submitInfo.pCommandBuffers      = &commandBuffer;
 
-        VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, isSync ? inFlightFences->getFence(mCurrentFrameIndex) : VK_NULL_HANDLE));
+        VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, isSync ? inFlightFences[mCurrentFrame] : VK_NULL_HANDLE));
         VERIFYVULKANRESULT(vkQueueWaitIdle(queue->getHandle()));
     }
 
@@ -336,80 +334,86 @@ namespace Homura
         VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
         VkBufferImageCopy region{};
-        region.bufferOffset = 0;
-        region.bufferRowLength = 0;
-        region.bufferImageHeight = 0;
-        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        region.imageSubresource.mipLevel = 0;
-        region.imageSubresource.baseArrayLayer = 0;
-        region.imageSubresource.layerCount = 1;
-        region.imageOffset = { 0, 0, 0, };
-        region.imageExtent = { width, height,1 };
+        region.bufferOffset                     = 0;
+        region.bufferRowLength                  = 0;
+        region.bufferImageHeight                = 0;
+        region.imageSubresource.aspectMask      = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.mipLevel        = 0;
+        region.imageSubresource.baseArrayLayer  = 0;
+        region.imageSubresource.layerCount      = 1;
+        region.imageOffset                      = { 0, 0, 0, };
+        region.imageExtent                      = { width, height,1 };
 
         vkCmdCopyBufferToImage(commandBuffer, buffer.getHandle(), texture->getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
         endSingleTimeCommands(commandBuffer);
     }
 
-    void VulkanCommandBuffer::beginFrame()
+    void VulkanCommandBuffer::drawFrame(VulkanRHIPtr rhi)
     {
-        inFlightFences->wait(mCurrentFrameIndex);
+        vkWaitForFences(mDevice->getHandle(), 1, &inFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
 
-        VkResult result = vkAcquireNextImageKHR(mDevice->getHandle(), mSwapChain->getHandle(), UINT64_MAX, mImageAvailableSemaphores->getSemaphore(mCurrentFrameIndex), VK_NULL_HANDLE, &mImageIndex);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR)
+        uint32_t imageIndex;
+        VkResult result = vkAcquireNextImageKHR(mDevice->getHandle(), mSwapChain->getHandle(), UINT64_MAX, imageAvailableSemaphores[mCurrentFrame], VK_NULL_HANDLE, &imageIndex);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR) 
         {
-            // todo
             mSwapChain->recreateSwapChain();
-            return;
         }
-        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) 
         {
-            throw std::runtime_error("failed to acquire swapchain image");
+            std::cerr << "failed to acquire swap chain image!" << std::endl;
         }
-    }
 
-    void VulkanCommandBuffer::endFrame()
-    {
-        if (imageInFlight->getFence(mImageIndex) != VK_NULL_HANDLE)
+        if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) 
         {
-            imageInFlight->wait(mImageIndex);
+            vkWaitForFences(mDevice->getHandle(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
         }
-        imageInFlight->setValue(inFlightFences->getEntity(mCurrentFrameIndex), mImageIndex);
-        VkSemaphore waitSemaphores[] = {mImageAvailableSemaphores->getSemaphore(mCurrentFrameIndex)};
-        VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        rhi->updateUniformBuffer(imageIndex);
+
+        imagesInFlight[imageIndex] = inFlightFences[mCurrentFrame];
+
         VkSubmitInfo submitInfo{};
-        submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.waitSemaphoreCount   = 1;
-        submitInfo.pWaitSemaphores      = waitSemaphores;
-        submitInfo.pWaitDstStageMask    = waitStages;
-        submitInfo.commandBufferCount   = 1;
-        submitInfo.pCommandBuffers      = &mCommandBuffers[mImageIndex];
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        VkSemaphore signalSemaphores[]  = {mRenderFinishedSemaphores->getSemaphore(mCurrentFrameIndex)};
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores    = signalSemaphores;
-        inFlightFences->getEntity(mCurrentFrameIndex).reset();
-        VERIFYVULKANRESULT(vkQueueSubmit(mDevice->getGraphicsQueue()->getHandle(), 1, &submitInfo, inFlightFences->getFence(mCurrentFrameIndex)));
+        VkSemaphore waitSemaphores[]        = { imageAvailableSemaphores[mCurrentFrame] };
+        VkSemaphore signalSemaphores[]      = { renderFinishedSemaphores[mCurrentFrame] };
+        VkPipelineStageFlags waitStages[]   = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        submitInfo.waitSemaphoreCount       = 1;
+        submitInfo.pWaitSemaphores          = waitSemaphores;
+        submitInfo.pWaitDstStageMask        = waitStages;
+        submitInfo.commandBufferCount       = 1;
+        submitInfo.pCommandBuffers          = &mCommandBuffers[imageIndex];
+        submitInfo.signalSemaphoreCount     = 1;
+        submitInfo.pSignalSemaphores        = signalSemaphores;
 
-        VkPresentInfoKHR presentInfo{};
-        presentInfo.sType               = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        presentInfo.waitSemaphoreCount  = 1;
-        presentInfo.pWaitSemaphores     = signalSemaphores;
+        vkResetFences(mDevice->getHandle(), 1, &inFlightFences[mCurrentFrame]);
 
-        VkSwapchainKHR swapchain[]      = {mSwapChain->getHandle()};
-        presentInfo.swapchainCount      = 1;
-        presentInfo.pSwapchains         = swapchain;
-        presentInfo.pImageIndices       = &mImageIndex;
-
-        VkResult result = vkQueuePresentKHR(mDevice->getPresentQueue()->getHandle(), &presentInfo);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+        if (vkQueueSubmit(mDevice->getGraphicsQueue()->getHandle(), 1, &submitInfo, inFlightFences[mCurrentFrame]) != VK_SUCCESS) 
         {
-            // todo
+            std::cerr << "failed to submit draw command buffer!" << std::endl;
+        }
+
+        VkSwapchainKHR swapChains[]         = { mSwapChain->getHandle() };
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType                   = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount      = 1;
+        presentInfo.pWaitSemaphores         = signalSemaphores;
+        presentInfo.swapchainCount          = 1;
+        presentInfo.pSwapchains             = swapChains;
+        presentInfo.pImageIndices           = &imageIndex;
+
+        result = vkQueuePresentKHR(mDevice->getPresentQueue()->getHandle(), &presentInfo);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR ||
+            result == VK_SUBOPTIMAL_KHR) 
+        {
             mSwapChain->recreateSwapChain();
         }
-        else if (result != VK_SUCCESS)
+        else if (result != VK_SUCCESS) 
         {
-            throw std::runtime_error("failed to present swap chain image!");
+            std::cerr << "failed to present swap chain image!" << std::endl;
         }
-        mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mMaxFrameCount;
+
+        mCurrentFrame = (mCurrentFrame + 1) % mMaxFrameCount;
     }
 }

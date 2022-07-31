@@ -139,7 +139,7 @@ namespace Homura
         VERIFYVULKANRESULT(vkWaitForFences(mDevice->getHandle(), fences.size(), fences.data(), VK_TRUE, UINT64_MAX));
     }
 
-    VkFence VulkanFences::getFence(uint32_t index)
+    VkFence& VulkanFences::getFence(uint32_t index)
     {
         assert(index < mFences.size());
         return mFences[index].getHandle();
@@ -188,7 +188,7 @@ namespace Homura
         mSemaphores.clear();
     }
 
-    VkSemaphore VulkanSemaphores::getSemaphore(uint32_t index)
+    VkSemaphore& VulkanSemaphores::getSemaphore(uint32_t index)
     {
         assert(index < mSemaphores.size());
         return mSemaphores[index].getHandle();

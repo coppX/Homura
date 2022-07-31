@@ -74,8 +74,7 @@ namespace Homura
         for (int i = 0; i < 2; i++)
         {
             mWindow->processInput();
-            mCommandBuffer->beginFrame();
-            mCommandBuffer->endFrame();
+            mCommandBuffer->drawFrame(shared_from_this());
             //idle();
         }
         idle();
@@ -402,17 +401,17 @@ namespace Homura
         mCommandBuffer->bindDescriptorSet();
     }
 
-    void VulkanRHI::createVertexBuffer(void* bufferData, uint32_t bufferSize)
+    void VulkanRHI::createVertexBuffer(void* bufferData, uint32_t bufferSize, uint32_t count)
     {
         VulkanVertexBufferPtr buffer = std::make_shared<VulkanVertexBuffer>(mDevice, mCommandBuffer, bufferSize, bufferData);
-        mCommandBuffer->bindVertexBuffer(buffer);
+        mCommandBuffer->bindVertexBuffer(buffer, count);
         mBuffers.push_back(buffer);
     }
 
-    void VulkanRHI::createIndexBuffer(void* bufferData, uint32_t bufferSize)
+    void VulkanRHI::createIndexBuffer(void* bufferData, uint32_t bufferSize, uint32_t count)
     {
         VulkanIndexBufferPtr buffer = std::make_shared<VulkanIndexBuffer>(mDevice, mCommandBuffer, bufferSize, bufferData);
-        mCommandBuffer->bindIndexBuffer(buffer);
+        mCommandBuffer->bindIndexBuffer(buffer, count);
         mBuffers.push_back(buffer);
     }
 
@@ -433,12 +432,10 @@ namespace Homura
         }
     }
 
-    void VulkanRHI::updateUniformBuffer()
+    void VulkanRHI::updateUniformBuffer(uint32_t index)
     {
-        for (auto& uniform : mUniformBuffers)
-        {
-            uniform->update();
-        }
+        assert(index < mUniformBuffers.size());
+        mUniformBuffers[index]->update();
     }
 
     void VulkanRHI::createSampleTexture(void* imageData, uint32_t imageSize, uint32_t width, uint32_t height)

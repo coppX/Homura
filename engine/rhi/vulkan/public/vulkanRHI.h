@@ -84,10 +84,10 @@ namespace Homura
         void setupPipeline(const VulkanDescriptorSetPtr descriptorSet);
 
         void beginCommandBuffer();
-        void createVertexBuffer(void* bufferData, uint32_t bufferSize);
-        void createIndexBuffer(void* bufferData, uint32_t bufferSize);
+        void createVertexBuffer(void* bufferData, uint32_t bufferSize, uint32_t count);
+        void createIndexBuffer(void* bufferData, uint32_t bufferSize, uint32_t count);
         void createUniformBuffer(int binding, uint32_t bufferSize);
-        void updateUniformBuffer();
+        void updateUniformBuffer(uint32_t index);
         void createSampleTexture(void* imageData, uint32_t imageSize, uint32_t width, uint32_t height);
 
         void draw();

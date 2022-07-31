@@ -42,26 +42,33 @@ namespace Homura
         }
 
         VkSwapchainCreateInfoKHR createInfo{};
-        createInfo.sType                    = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface                  = mSurface->getHandle();
-        createInfo.minImageCount            = mImageCount;
-        createInfo.imageFormat              = surfaceFormat.format;
-        createInfo.imageColorSpace          = surfaceFormat.colorSpace;
-        createInfo.imageExtent              = extent;
-        createInfo.imageArrayLayers         = 1;
-        createInfo.imageUsage               = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        createInfo.surface = mSurface->getHandle();
+        createInfo.minImageCount = mImageCount;
+        createInfo.imageFormat = surfaceFormat.format;
+        createInfo.imageColorSpace = surfaceFormat.colorSpace;
+        createInfo.imageExtent = extent;
+        createInfo.imageArrayLayers = 1;
+        createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 
-        std::vector<uint32_t> queueFamilies = {mDevice->getGraphicsQueue()->getFamilyIndex(), mDevice->getPresentQueue()->getFamilyIndex()};
+        std::vector<uint32_t> queueFamilies = { mDevice->getGraphicsQueue()->getFamilyIndex(), mDevice->getPresentQueue()->getFamilyIndex() };
 
-        createInfo.imageSharingMode         = VK_SHARING_MODE_EXCLUSIVE;
-        createInfo.queueFamilyIndexCount    = 2;
-        createInfo.pQueueFamilyIndices      = queueFamilies.data();
+        if (mDevice->getGraphicsQueue()->getFamilyIndex() != mDevice->getPresentQueue()->getFamilyIndex())
+        {
+            createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+            createInfo.queueFamilyIndexCount = 2;
+            createInfo.pQueueFamilyIndices = queueFamilies.data();
+        }
+        else
+        {
+            createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        }
 
         createInfo.preTransform             = swapChainSupportInfo.mCapabilities.currentTransform;
         createInfo.compositeAlpha           = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         createInfo.presentMode              = presentMode;
         createInfo.clipped                  = VK_TRUE;
-        //createInfo.oldSwapchain             = VK_NULL_HANDLE;
+        createInfo.oldSwapchain             = VK_NULL_HANDLE;
 
         VERIFYVULKANRESULT(vkCreateSwapchainKHR(mDevice->getHandle(), &createInfo, nullptr, &mSwapChain));
         mSwapChainFormat = surfaceFormat.format;

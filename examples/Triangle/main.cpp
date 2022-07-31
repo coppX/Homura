@@ -166,8 +166,8 @@ namespace Homura
             rhi->setWriteDataCallback(UpdateUniform);
 
             rhi->beginCommandBuffer();
-            rhi->createVertexBuffer(vertices.data(), vertices.size());
-            rhi->createIndexBuffer(indices.data(), indices.size());
+            rhi->createVertexBuffer(vertices.data(), sizeof(vertices[0]) * vertices.size(), vertices.size());
+            rhi->createIndexBuffer(indices.data(), sizeof(indices[0]) * indices.size(), indices.size());
             rhi->draw();
             rhi->endCommandBuffer();
 

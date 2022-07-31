@@ -145,10 +145,10 @@ namespace Homura
         mColorBlendState.logicOp            = VK_LOGIC_OP_COPY;
         mColorBlendState.attachmentCount    = static_cast<uint32_t>(mBlendAttachmentStates.size());
         mColorBlendState.pAttachments       = mBlendAttachmentStates.data();
-        mColorBlendState.blendConstants[0] = 0.0f;
-        mColorBlendState.blendConstants[1] = 0.0f;
-        mColorBlendState.blendConstants[2] = 0.0f;
-        mColorBlendState.blendConstants[3] = 0.0f;
+        mColorBlendState.blendConstants[0]  = 0.0f;
+        mColorBlendState.blendConstants[1]  = 0.0f;
+        mColorBlendState.blendConstants[2]  = 0.0f;
+        mColorBlendState.blendConstants[3]  = 0.0f;
 
         VkGraphicsPipelineCreateInfo  gfxPipelineInfo{};
         gfxPipelineInfo.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

@@ -42,7 +42,7 @@ namespace Homura
         void create();
         void destroy();
 
-        VkSemaphore getHandle()
+        VkSemaphore& getHandle()
         {
             return mSemaphore;
         }
@@ -63,7 +63,7 @@ namespace Homura
         void wait(uint32_t index);
         void waitAll();
         void setValue(VulkanFenceEntity& value, uint32_t index);
-        VkFence getFence(uint32_t index);
+        VkFence& getFence(uint32_t index);
         VulkanFenceEntity& getEntity(uint32_t index);
     private:
         VulkanDevicePtr                 mDevice;
@@ -78,7 +78,7 @@ namespace Homura
         
         void create(uint32_t num);
         void destroy();
-        VkSemaphore getSemaphore(uint32_t index);
+        VkSemaphore& getSemaphore(uint32_t index);
     private:
         VulkanDevicePtr                     mDevice;
         std::vector<VulkanSemaphoreEntity>  mSemaphores;
