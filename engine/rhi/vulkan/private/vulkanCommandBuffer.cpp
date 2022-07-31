@@ -60,37 +60,17 @@ namespace Homura
         , mPipeline{pipeline}
         , mCurrentFrame{0}
         , mImageIndex{0}
-        //, imageInFlight{}
-        //, inFlightFences{}
-        //, mImageAvailableSemaphores{}
-        //, mRenderFinishedSemaphores{}
+        , imageInFlight{}
+        , inFlightFences{}
+        , mImageAvailableSemaphores{}
+        , mRenderFinishedSemaphores{}
         , mMaxFrameCount{3}
         , mCommandBuffers{}
         , mHasIndexBuffer{false}
         , mBufferDataCount{0}
     {
-        imageAvailableSemaphores.resize(mMaxFrameCount);
-        renderFinishedSemaphores.resize(mMaxFrameCount);
-        inFlightFences.resize(mMaxFrameCount);
-        imagesInFlight.resize(mSwapChain->getImageCount(), VK_NULL_HANDLE);
-        
-        VkFenceCreateInfo fenceInfo{};
-        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-        VkSemaphoreCreateInfo semaphoreInfo{};
-        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-        for (size_t i = 0; i < mMaxFrameCount; i++)
-        {
-            if (vkCreateSemaphore(mDevice->getHandle(), &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-                vkCreateSemaphore(mDevice->getHandle(), &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-                vkCreateFence(mDevice->getHandle(), &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
-            {
-                throw std::runtime_error("failed to create synchronization objects for a frame!");
-            }
-        }
         create();
+        createSyncObj();
     }
 
     VulkanCommandBuffer::~VulkanCommandBuffer()
@@ -118,12 +98,45 @@ namespace Homura
         }
         mCommandBuffers.clear();
 
-        for (size_t i = 0; i < mMaxFrameCount; i++)
+        if (imageInFlight != nullptr)
         {
-            vkDestroySemaphore(mDevice->getHandle(), renderFinishedSemaphores[i], nullptr);
-            vkDestroySemaphore(mDevice->getHandle(), imageAvailableSemaphores[i], nullptr);
-            vkDestroyFence(mDevice->getHandle(), inFlightFences[i], nullptr);
+            imageInFlight->destroy();
+            imageInFlight.reset();
         }
+        if (inFlightFences != nullptr)
+        {
+            inFlightFences->destroy();
+            inFlightFences.reset();
+        }
+        if (mImageAvailableSemaphores != nullptr)
+        {
+            mImageAvailableSemaphores->destroy();
+            mImageAvailableSemaphores.reset();
+        }
+        if (mRenderFinishedSemaphores != nullptr)
+        {
+            mRenderFinishedSemaphores->destroy();
+            mRenderFinishedSemaphores.reset();
+        }
+    }
+
+    void VulkanCommandBuffer::createSyncObj()
+    {
+        imageInFlight = std::make_shared<VulkanFences>(mDevice);
+        imageInFlight->create(mSwapChain->getImageCount());
+        inFlightFences = std::make_shared<VulkanFences>(mDevice);
+        inFlightFences->create(mMaxFrameCount);
+        mImageAvailableSemaphores = std::make_shared<VulkanSemaphores>(mDevice);
+        mImageAvailableSemaphores->create(mMaxFrameCount);
+        mRenderFinishedSemaphores = std::make_shared<VulkanSemaphores>(mDevice);
+        mRenderFinishedSemaphores->create(mMaxFrameCount);
+
+        VkFenceCreateInfo fenceInfo{};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
     }
 
     VkCommandBuffer VulkanCommandBuffer::beginSingleTimeCommands()
@@ -294,7 +307,7 @@ namespace Homura
         submitInfo.commandBufferCount   = 1;
         submitInfo.pCommandBuffers      = &commandBuffer;
 
-        VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, isSync ? inFlightFences[mCurrentFrame] : VK_NULL_HANDLE));
+        VERIFYVULKANRESULT(vkQueueSubmit(queue->getHandle(), 1, &submitInfo, isSync ? inFlightFences->getFence(mCurrentFrame) : VK_NULL_HANDLE));
         VERIFYVULKANRESULT(vkQueueWaitIdle(queue->getHandle()));
     }
 
@@ -350,10 +363,10 @@ namespace Homura
 
     void VulkanCommandBuffer::drawFrame(VulkanRHIPtr rhi)
     {
-        vkWaitForFences(mDevice->getHandle(), 1, &inFlightFences[mCurrentFrame], VK_TRUE, UINT64_MAX);
+        inFlightFences->wait(mCurrentFrame);
 
         uint32_t imageIndex;
-        VkResult result = vkAcquireNextImageKHR(mDevice->getHandle(), mSwapChain->getHandle(), UINT64_MAX, imageAvailableSemaphores[mCurrentFrame], VK_NULL_HANDLE, &imageIndex);
+        VkResult result = vkAcquireNextImageKHR(mDevice->getHandle(), mSwapChain->getHandle(), UINT64_MAX, mImageAvailableSemaphores->getSemaphore(mCurrentFrame), VK_NULL_HANDLE, &imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) 
         {
@@ -364,19 +377,19 @@ namespace Homura
             std::cerr << "failed to acquire swap chain image!" << std::endl;
         }
 
-        if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) 
+        if (imageInFlight->getFence(imageIndex) != VK_NULL_HANDLE)
         {
-            vkWaitForFences(mDevice->getHandle(), 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+            vkWaitForFences(mDevice->getHandle(), 1, &imageInFlight->getFence(imageIndex), VK_TRUE, UINT64_MAX);
         }
         rhi->updateUniformBuffer(imageIndex);
 
-        imagesInFlight[imageIndex] = inFlightFences[mCurrentFrame];
+        imageInFlight->setValue(inFlightFences->getEntity(mCurrentFrame), imageIndex);
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        VkSemaphore waitSemaphores[]        = { imageAvailableSemaphores[mCurrentFrame] };
-        VkSemaphore signalSemaphores[]      = { renderFinishedSemaphores[mCurrentFrame] };
+        VkSemaphore waitSemaphores[]        = { mImageAvailableSemaphores->getSemaphore(mCurrentFrame) };
+        VkSemaphore signalSemaphores[]      = { mRenderFinishedSemaphores->getSemaphore(mCurrentFrame) };
         VkPipelineStageFlags waitStages[]   = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         submitInfo.waitSemaphoreCount       = 1;
         submitInfo.pWaitSemaphores          = waitSemaphores;
@@ -386,9 +399,9 @@ namespace Homura
         submitInfo.signalSemaphoreCount     = 1;
         submitInfo.pSignalSemaphores        = signalSemaphores;
 
-        vkResetFences(mDevice->getHandle(), 1, &inFlightFences[mCurrentFrame]);
+        vkResetFences(mDevice->getHandle(), 1, &inFlightFences->getFence(mCurrentFrame));
 
-        if (vkQueueSubmit(mDevice->getGraphicsQueue()->getHandle(), 1, &submitInfo, inFlightFences[mCurrentFrame]) != VK_SUCCESS) 
+        if (vkQueueSubmit(mDevice->getGraphicsQueue()->getHandle(), 1, &submitInfo, inFlightFences->getFence(mCurrentFrame)) != VK_SUCCESS) 
         {
             std::cerr << "failed to submit draw command buffer!" << std::endl;
         }

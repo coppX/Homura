@@ -37,6 +37,7 @@ namespace Homura
 
         void create();
         void destroy();
+        void createSyncObj();
 
         VkCommandBuffer& getHandle()
         {
@@ -76,14 +77,10 @@ namespace Homura
         VulkanFramebufferPtr            mFramebuffrer;
         VulkanPipelinePtr               mPipeline;
         //  sync
-        // VulkanFencesPtr                 imageInFlight;
-        // VulkanFencesPtr                 inFlightFences;
-        // VulkanSemaphoresPtr             mImageAvailableSemaphores;
-        // VulkanSemaphoresPtr             mRenderFinishedSemaphores;
-        std::vector<VkSemaphore>        imageAvailableSemaphores;
-        std::vector<VkSemaphore>        renderFinishedSemaphores;
-        std::vector<VkFence>            inFlightFences;
-        std::vector<VkFence>            imagesInFlight;
+        VulkanFencesPtr                 imageInFlight;
+        VulkanFencesPtr                 inFlightFences;
+        VulkanSemaphoresPtr             mImageAvailableSemaphores;
+        VulkanSemaphoresPtr             mRenderFinishedSemaphores;
 
         VulkanCommandPoolPtr            mCommandPool;
         std::vector<VkCommandBuffer>    mCommandBuffers;
