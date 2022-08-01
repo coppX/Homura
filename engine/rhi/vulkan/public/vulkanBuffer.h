@@ -109,7 +109,7 @@ namespace Homura
             char* userData = mDataBuffer.data();
             uint32_t size = mCallback(userData, mDataBuffer.size());
             assert(size == mDataBuffer.size());
-            updateBufferByStaging(userData, size);
+            fillBuffer(userData, size);
         }
     private:
         UnifromUpdateCallback   mCallback;
