@@ -70,35 +70,13 @@ namespace Homura
 
     void VulkanRHI::update()
     {
-        //while (!mWindow->shouldClose())
-        for (int i = 0; i < 2; i++)
+        while (!mWindow->shouldClose())
         {
             mWindow->processInput();
             mCommandBuffer->drawFrame(shared_from_this());
-            //idle();
         }
         idle();
         //cleanup();
-    }
-
-    VulkanInstancePtr VulkanRHI::getInstance()
-    {
-        return mInstance;
-    }
-
-    VulkanDevicePtr VulkanRHI::getDevice()
-    {
-        return mDevice;
-    }
-
-    VulkanSwapChainPtr VulkanRHI::getSwapChain()
-    {
-        return mSwapChain;
-    }
-
-    VulkanFramebufferPtr VulkanRHI::getFrameBuffer()
-    {
-        return mFramebuffer;
     }
 
     VkSampleCountFlagBits VulkanRHI::getSampleCount()
@@ -106,15 +84,6 @@ namespace Homura
         return VK_SAMPLE_COUNT_4_BIT;
     }
 
-    uint32_t VulkanRHI::getWidth()
-    {
-        return mWindow->getWidth();
-    }
-
-    uint32_t VulkanRHI::getHeight()
-    {
-        return mWindow->getHeight();
-    }
 
     ApplicationWindowPtr VulkanRHI::createWindow()
     {
@@ -343,6 +312,7 @@ namespace Homura
     void VulkanRHI::cleanup()
     {
         destroySampler();
+        destroySampleTexture();
         destroyColorResources();
         destroyDepthResources();
         destroyDescriptorSet();
@@ -475,6 +445,15 @@ namespace Homura
         }
         mBuffers.clear();
     }
+
+    void VulkanRHI::destroySampleTexture()
+    {
+        for (auto& texture : mSampleTextures)
+        {
+            texture->destroy();
+        }
+    }
+
 
     void VulkanRHI::setMouseButtonCallBack(MouseCallback cb)
     {

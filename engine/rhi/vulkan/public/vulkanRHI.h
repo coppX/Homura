@@ -25,15 +25,40 @@ namespace Homura
         void init();
         void exit();
         void update();
-
-        VulkanInstancePtr getInstance();
-        VulkanDevicePtr getDevice();
-        VulkanSwapChainPtr getSwapChain();
-        VulkanFramebufferPtr getFrameBuffer();
         VkSampleCountFlagBits getSampleCount();
-        uint32_t getWidth();
-        uint32_t getHeight();
+        VulkanTexture2DPtr createColorResources();
+        VulkanTextureDepthPtr createDepthResources();
+        void destroyColorResources();
+        void destroyDepthResources();
 
+        void setupAttachments();
+        void setupRenderPass(RHIRenderPassInfo& info);
+        void setupFramebuffer(std::vector<VulkanTexture2DPtr>& colorImages, std::vector<VulkanTextureDepthPtr>& depthStencilImages);
+        VulkanShaderEntityPtr setupShaders(std::string filename, ShaderType type);
+        void setupPipeline(const VulkanDescriptorSetPtr descriptorSet);
+
+        void beginCommandBuffer();
+        void createVertexBuffer(void* bufferData, uint32_t bufferSize, uint32_t count);
+        void createIndexBuffer(void* bufferData, uint32_t bufferSize, uint32_t count);
+        void createUniformBuffer(int binding, uint32_t bufferSize);
+        void updateUniformBuffer(uint32_t index);
+        void createSampleTexture(void* imageData, uint32_t imageSize, uint32_t width, uint32_t height);
+
+        void draw();
+        void endCommandBuffer();
+
+        void destroyBuffer();
+        void destroySampleTexture();
+
+        // callback
+        void setMouseButtonCallBack(MouseCallback cb);
+        void setFramebufferResizeCallback(FramebufferResizeCallback cb);
+        void setWriteDataCallback(UnifromUpdateCallback cb);
+
+        VulkanDescriptorSetPtr createDescriptorSet(std::vector<VkDescriptorSetLayoutBinding>& bindings);
+        VulkanCommandBufferPtr createCommandBuffer();
+    private:
+        
         ApplicationWindowPtr createWindow();
         VulkanInstancePtr createInstance();
         VulkanDevicePtr createDevice();
@@ -41,10 +66,9 @@ namespace Homura
         VulkanSwapChainPtr createSwapChain();
         VulkanRenderPassPtr createRenderPass();
         VulkanDescriptorPoolPtr createDescriptorPool();
-        VulkanDescriptorSetPtr createDescriptorSet(std::vector<VkDescriptorSetLayoutBinding>& bindings);
+
         VulkanCommandPoolPtr createCommandPool();
         VulkanFramebufferPtr createFrameBuffer();
-        VulkanCommandBufferPtr createCommandBuffer();
         VulkanShaderPtr createShader();
         VulkanPipelinePtr createPipeline();
         VulkanSamplerPtr createSampler();
@@ -68,37 +92,10 @@ namespace Homura
         void recreateSwapChain();
         void cleanupSwapchain();
         void cleanup();
-
-        VulkanTexture2DPtr createColorResources();
-        VulkanTextureDepthPtr createDepthResources();
-        void destroyColorResources();
-        void destroyDepthResources();
-
+        
         void idle();
-//        void addPushConstant(const VkPushConstantRange& constantRange, const char* data);
+        //        void addPushConstant(const VkPushConstantRange& constantRange, const char* data);
 
-        void setupAttachments();
-        void setupRenderPass(RHIRenderPassInfo& info);
-        void setupFramebuffer(std::vector<VulkanTexture2DPtr>& colorImages, std::vector<VulkanTextureDepthPtr>& depthStencilImages);
-        VulkanShaderEntityPtr setupShaders(std::string filename, ShaderType type);
-        void setupPipeline(const VulkanDescriptorSetPtr descriptorSet);
-
-        void beginCommandBuffer();
-        void createVertexBuffer(void* bufferData, uint32_t bufferSize, uint32_t count);
-        void createIndexBuffer(void* bufferData, uint32_t bufferSize, uint32_t count);
-        void createUniformBuffer(int binding, uint32_t bufferSize);
-        void updateUniformBuffer(uint32_t index);
-        void createSampleTexture(void* imageData, uint32_t imageSize, uint32_t width, uint32_t height);
-
-        void draw();
-        void endCommandBuffer();
-
-        void destroyBuffer();
-
-        // callback
-        void setMouseButtonCallBack(MouseCallback cb);
-        void setFramebufferResizeCallback(FramebufferResizeCallback cb);
-        void setWriteDataCallback(UnifromUpdateCallback cb);
     private:
         VulkanInstancePtr                   mInstance;;
         VulkanDevicePtr                     mDevice;
