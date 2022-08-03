@@ -26,6 +26,7 @@ namespace Homura
         createInfo.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         createInfo.bindingCount = static_cast<uint32_t>(bindings.size());
         createInfo.pBindings    = bindings.data();
+        createInfo.pNext        = nullptr;
 
         VERIFYVULKANRESULT(vkCreateDescriptorSetLayout(mDevice->getHandle(), &createInfo, nullptr, &mSetLayout));
     }

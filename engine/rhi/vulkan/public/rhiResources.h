@@ -116,7 +116,7 @@ namespace Homura {
         VkAttachmentReference DepthReference;
     };
 
-    enum class ShaderType
+    enum ShaderType
     {
         VERTEX = 0,
         TESSELLATION_CONTROL,
@@ -124,14 +124,6 @@ namespace Homura {
         GEOMETRY,
         FRAGMENT,
         COMPUTE,
-        ALL,
-    };
-    enum class BufferType
-    {
-        VERTEX = 0,
-        INDEX,
-        UNIFORM,
-        STAGGING,
         ALL,
     };
 }

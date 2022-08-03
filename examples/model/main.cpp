@@ -193,10 +193,10 @@ namespace Homura
             rhi->setupRenderPass(info);
             rhi->setupFramebuffer(colorImages, depthStencilImages);
             
-            auto vertexShader = rhi->setupShaders(FileSystem::getPath("resources/shader/triangle/triangle.vert.spv"), ShaderType::VERTEX);
+            auto vertexShader = rhi->setupShaders(FileSystem::getPath("resources/shader/model/model.vert.spv"), VERTEX);
             vertexShader->setVertexAttributeDescription(Vertex::getAttributeDescriptions());
             vertexShader->setVertexInputBindingDescription(Vertex::getBindingDescription());
-            rhi->setupShaders(FileSystem::getPath("resources/shader/triangle/triangle.frag.spv"), ShaderType::FRAGMENT);
+            rhi->setupShaders(FileSystem::getPath("resources/shader/model/model.frag.spv"), FRAGMENT);
 
             std::shared_ptr<VulkanDescriptorSet> descriptorSet = rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
             rhi->setupPipeline(descriptorSet);
@@ -233,7 +233,7 @@ namespace Homura
             samplerLayoutBinding.binding = 1;
             samplerLayoutBinding.descriptorCount = 1;
             samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            samplerLayoutBinding.pImmutableSamplers = nullptr;
+            samplerLayoutBinding.pImmutableSamplers = &rhi->getSampler()->getHandle();
             samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
             return {uboLayoutBinding, samplerLayoutBinding};
         }
@@ -307,12 +307,8 @@ namespace Homura
 
         std::vector<VulkanTexture2DPtr>     colorImages;
         std::vector<VulkanTextureDepthPtr>  depthStencilImages;
-        VulkanVertexBufferPtr               mVertexBuffer;
-        VulkanIndexBufferPtr                mIndexBuffer;
     };
 }
-
-
 
 int main()
 {

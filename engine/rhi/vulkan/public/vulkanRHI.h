@@ -25,6 +25,7 @@ namespace Homura
         void exit();
         void update();
         VkSampleCountFlagBits getSampleCount();
+        VulkanSamplerPtr getSampler();
         VulkanTexture2DPtr createColorResources();
         VulkanTextureDepthPtr createDepthResources();
         void destroyColorResources();
