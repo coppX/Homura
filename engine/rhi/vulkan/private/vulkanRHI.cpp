@@ -84,7 +84,6 @@ namespace Homura
         return VK_SAMPLE_COUNT_4_BIT;
     }
 
-
     ApplicationWindowPtr VulkanRHI::createWindow()
     {
         mWindow = std::make_shared<ApplicationWindow>(shared_from_this(), mWidth, mHeight);

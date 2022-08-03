@@ -24,13 +24,56 @@
 #include <filesystem.h>
 #include <application.h>
 #include <vulkanRHI.h>
-#include <vulkanVertex.h>
 #include <vulkanTexture.h>
 #include <vulkanRenderPass.h>
 #include <rhiResources.h>
 #include <vulkanShader.h>
 
 #include <new>
+#include <functional>
+#include <glm/gtx/hash.hpp>
+
+struct Vertex
+{
+    glm::vec3 pos;
+    glm::vec3 color;
+    glm::vec2 texCoord;
+
+    static VkVertexInputBindingDescription getBindingDescription()
+    {
+        VkVertexInputBindingDescription bindingDescription{};
+        bindingDescription.binding = 0;
+        bindingDescription.stride = sizeof(Vertex);
+        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        return bindingDescription;
+    }
+
+    static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions()
+    {
+        std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
+        attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, pos) });
+        attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });
+        attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, texCoord) });
+        return attributeDescriptions;
+    }
+
+    bool operator==(const Vertex& vertex) const
+    {
+        return pos == vertex.pos && color == vertex.color && texCoord == vertex.texCoord;
+    }
+};
+
+
+template<>
+struct std::hash<Vertex>
+{
+    size_t operator()(const Vertex& vertex) const
+    {
+        return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
+    }
+};
+
 namespace Homura
 {
     const std::string MODEL_PATH = FileSystem::getPath("resources/models/viking_room.obj");
@@ -268,6 +311,8 @@ namespace Homura
         VulkanIndexBufferPtr                mIndexBuffer;
     };
 }
+
+
 
 int main()
 {
