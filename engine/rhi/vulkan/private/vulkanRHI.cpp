@@ -196,7 +196,7 @@ namespace Homura
         return mDescriptorPool;
     }
 
-    VulkanDescriptorSetPtr VulkanRHI::createDescriptorSet(std::vector<VkDescriptorSetLayoutBinding>& bindings)
+    void VulkanRHI::createDescriptorSet(std::vector<VkDescriptorSetLayoutBinding>& bindings)
     {
         if (mSampler)
         {
@@ -208,7 +208,11 @@ namespace Homura
         auto layout = std::make_shared<VulkanDescriptorSetLayout>(mDevice);
         layout->create(bindings);
         mDescriptorSet = std::make_shared<VulkanDescriptorSet>(mDevice, mDescriptorPool, layout);
-        return mDescriptorSet;
+    }
+
+    void VulkanRHI::updateDescriptorSet()
+    {
+        mDescriptorSet->updateDescriptorSet(mUniformBuffers, mSampleTextures);
     }
 
     VulkanPipelinePtr VulkanRHI::createPipeline()
@@ -350,7 +354,7 @@ namespace Homura
         mFramebuffer->create(mRenderPass, colorImages, depthStencilImages);
     }
 
-    void VulkanRHI::setupPipeline(const VulkanDescriptorSetPtr descriptorSet)
+    void VulkanRHI::setupPipeline()
     {
         mPipeline->create(mRenderPass, getSampleCount());
         VkViewport viewport{0.0, 0.0, (float)mWindow->getWidth(), (float)mWindow->getHeight(), 0.0, 1.0};
@@ -358,8 +362,8 @@ namespace Homura
         mPipeline->setViewports({viewport});
         mPipeline->setScissors({scissor});
         mPipeline->setShaders(mShader);
-        descriptorSet->updateDescriptorSet(mUniformBuffers, mSampleTextures);
-        mPipeline->build(descriptorSet);
+        updateDescriptorSet();
+        mPipeline->build(mDescriptorSet);
     }
 
     VulkanShaderEntityPtr VulkanRHI::setupShaders(std::string filename, ShaderType type)

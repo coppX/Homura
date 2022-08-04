@@ -198,8 +198,8 @@ namespace Homura
             vertexShader->setVertexInputBindingDescription(Vertex::getBindingDescription());
             rhi->setupShaders(FileSystem::getPath("resources/shader/model/model.frag.spv"), FRAGMENT);
 
-            std::shared_ptr<VulkanDescriptorSet> descriptorSet = rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
-            rhi->setupPipeline(descriptorSet);
+            rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
+            rhi->setupPipeline();
             rhi->createCommandBuffer();
 
             loadModel();

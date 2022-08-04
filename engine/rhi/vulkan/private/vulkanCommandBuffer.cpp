@@ -382,7 +382,6 @@ namespace Homura
             vkWaitForFences(mDevice->getHandle(), 1, &imageInFlight->getFence(imageIndex), VK_TRUE, UINT64_MAX);
         }
         rhi->updateUniformBuffer(imageIndex);
-
         imageInFlight->setValue(inFlightFences->getEntity(mCurrentFrame), imageIndex);
 
         VkSubmitInfo submitInfo{};

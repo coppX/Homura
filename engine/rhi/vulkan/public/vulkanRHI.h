@@ -28,14 +28,12 @@ namespace Homura
         VulkanSamplerPtr getSampler();
         VulkanTexture2DPtr createColorResources();
         VulkanTextureDepthPtr createDepthResources();
-        void destroyColorResources();
-        void destroyDepthResources();
 
         void setupAttachments();
         void setupRenderPass(RHIRenderPassInfo& info);
         void setupFramebuffer(std::vector<VulkanTexture2DPtr>& colorImages, std::vector<VulkanTextureDepthPtr>& depthStencilImages);
         VulkanShaderEntityPtr setupShaders(std::string filename, ShaderType type);
-        void setupPipeline(const VulkanDescriptorSetPtr descriptorSet);
+        void setupPipeline();
 
         void beginCommandBuffer();
         void createVertexBuffer(void* bufferData, uint32_t bufferSize, uint32_t count);
@@ -47,16 +45,14 @@ namespace Homura
         void draw();
         void endCommandBuffer();
 
-        void destroyBuffer();
-        void destroySampleTexture();
-
         // callback
         void setMouseButtonCallBack(MouseCallback cb);
         void setFramebufferResizeCallback(FramebufferResizeCallback cb);
         void setWriteDataCallback(UnifromUpdateCallback cb);
 
-        VulkanDescriptorSetPtr createDescriptorSet(std::vector<VkDescriptorSetLayoutBinding>& bindings);
+        void createDescriptorSet(std::vector<VkDescriptorSetLayoutBinding>& bindings);
         VulkanCommandBufferPtr createCommandBuffer();
+        void updateDescriptorSet();
     private:
         
         ApplicationWindowPtr createWindow();
@@ -73,6 +69,10 @@ namespace Homura
         VulkanPipelinePtr createPipeline();
         VulkanSamplerPtr createSampler();
 
+        void destroyBuffer();
+        void destroySampleTexture();
+        void destroyColorResources();
+        void destroyDepthResources();
         void destroyWindow();
         void destroyInstance();
         void destroyDevice();
