@@ -196,9 +196,27 @@ namespace Homura
         return mDescriptorPool;
     }
 
-    void VulkanRHI::createDescriptorSet(std::vector<VkDescriptorSetLayoutBinding>& bindings)
+    void VulkanRHI::createDescriptorSet()
     {
         VulkanDescriptorSetLayoutPtr layout = std::make_shared<VulkanDescriptorSetLayout>(mDevice);
+        std::vector<VkDescriptorSetLayoutBinding> bindings;
+        VkDescriptorSetLayoutBinding binding{};
+        if (mUniformBuffers.size() > 0)
+        {
+            binding.binding         = mUniformBuffers[0]->getBinding();
+            binding.descriptorCount = 1;
+            binding.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            binding.stageFlags      = VK_SHADER_STAGE_VERTEX_BIT;
+            bindings.push_back(binding);
+        }
+        if (mSampleTextures.size() > 0)
+        {
+            binding.binding         = mSampleTextures[0]->getBinding();
+            binding.descriptorCount = 1;
+            binding.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            binding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+            bindings.push_back(binding);
+        }
         layout->create(bindings);
         mDescriptorSet = std::make_shared<VulkanDescriptorSet>(mDevice, mDescriptorPool, layout);
     }

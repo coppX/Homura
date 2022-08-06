@@ -98,6 +98,11 @@ namespace Homura
             return descriptorWrite;
         }
 
+        int getBinding()
+        {
+            return mBinding;
+        }
+
         void setUpdateCallBack(UnifromUpdateCallback callback)
         {
             mCallback = callback;

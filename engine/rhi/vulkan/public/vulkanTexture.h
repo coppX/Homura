@@ -115,6 +115,11 @@ namespace Homura
             mSampler = sampler;
             mBinding = binding;
         }
+
+        int getBinding()
+        {
+            return mBinding;
+        }
     public:
         VulkanSamplerPtr        mSampler;
         uint32_t                mBinding;

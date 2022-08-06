@@ -49,7 +49,7 @@ namespace Homura
         void setFramebufferResizeCallback(FramebufferResizeCallback cb);
         void setWriteDataCallback(UnifromUpdateCallback cb);
 
-        void createDescriptorSet(std::vector<VkDescriptorSetLayoutBinding>& bindings);
+        void createDescriptorSet();
         VulkanCommandBufferPtr createCommandBuffer();
         void updateDescriptorSet();
     private:

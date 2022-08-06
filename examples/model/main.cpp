@@ -168,8 +168,6 @@ namespace Homura
             vertexShader->setVertexAttributeDescription(Vertex::getAttributeDescriptions());
             vertexShader->setVertexInputBindingDescription(Vertex::getBindingDescription());
             rhi->setupShaders(FileSystem::getPath("resources/shader/model/model.frag.spv"), FRAGMENT);
-
-            rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
             rhi->createCommandBuffer();
 
             rhi->createUniformBuffer(0, sizeof(UniformBufferObject));
@@ -177,7 +175,7 @@ namespace Homura
 
             loadModel();
             loadSampleTexture(TEXTURE_PATH, 1);
-
+            rhi->createDescriptorSet();
             rhi->setupPipeline();
 
             rhi->beginCommandBuffer();
@@ -188,24 +186,6 @@ namespace Homura
 
             update();
             return true;
-        }
-
-        std::vector<VkDescriptorSetLayoutBinding> getDescriptorSetLayoutBinding()
-        {
-            VkDescriptorSetLayoutBinding uboLayoutBinding{};
-            uboLayoutBinding.binding                = 0;
-            uboLayoutBinding.descriptorCount        = 1;
-            uboLayoutBinding.descriptorType         = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            uboLayoutBinding.pImmutableSamplers     = nullptr;
-            uboLayoutBinding.stageFlags             = VK_SHADER_STAGE_VERTEX_BIT;
-
-            VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-            samplerLayoutBinding.binding            = 1;
-            samplerLayoutBinding.descriptorCount    = 1;
-            samplerLayoutBinding.descriptorType     = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            samplerLayoutBinding.pImmutableSamplers = &rhi->getSampler()->getHandle();
-            samplerLayoutBinding.stageFlags         = VK_SHADER_STAGE_FRAGMENT_BIT;
-            return {uboLayoutBinding, samplerLayoutBinding};
         }
 
         void exit()
@@ -269,6 +249,7 @@ namespace Homura
             stbi_uc* pixels = stbi_load(filename.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
             VkDeviceSize imageSize = texWidth * texHeight * 4;
             rhi->createSampleTexture(binding, (void*)pixels, imageSize, texWidth, texHeight);
+            stbi_image_free(pixels);
         }
 
         std::vector<Vertex>                 vertices;
