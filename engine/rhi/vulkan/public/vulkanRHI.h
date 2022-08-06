@@ -29,7 +29,6 @@ namespace Homura
         VulkanTexture2DPtr createColorResources();
         VulkanTextureDepthPtr createDepthResources();
 
-        void setupAttachments();
         void setupRenderPass(RHIRenderPassInfo& info);
         void setupFramebuffer(std::vector<VulkanTexture2DPtr>& colorImages, std::vector<VulkanTextureDepthPtr>& depthStencilImages);
         VulkanShaderEntityPtr setupShaders(std::string filename, ShaderType type);

@@ -198,14 +198,7 @@ namespace Homura
 
     void VulkanRHI::createDescriptorSet(std::vector<VkDescriptorSetLayoutBinding>& bindings)
     {
-        if (mSampler)
-        {
-            for (auto& binding : bindings)
-            {
-                binding.pImmutableSamplers = &mSampler->getHandle();
-            }
-        }
-        auto layout = std::make_shared<VulkanDescriptorSetLayout>(mDevice);
+        VulkanDescriptorSetLayoutPtr layout = std::make_shared<VulkanDescriptorSetLayout>(mDevice);
         layout->create(bindings);
         mDescriptorSet = std::make_shared<VulkanDescriptorSet>(mDevice, mDescriptorPool, layout);
     }
@@ -339,11 +332,6 @@ namespace Homura
         mDevice->idle();
     }
 
-    void VulkanRHI::setupAttachments()
-    {
-
-    }
-
     void VulkanRHI::setupRenderPass(RHIRenderPassInfo& info)
     {
         mRenderPass->create(info);
@@ -395,9 +383,9 @@ namespace Homura
 
     void VulkanRHI::createUniformBuffer(int binding, uint32_t bufferSize)
     {
-        for (size_t i = 0; i < mSwapChain->getImageCount(); i++)
+        for (int i = 0; i < mSwapChain->getImageCount(); i++)
         {
-            VulkanUniformBufferPtr buffer = std::make_shared<VulkanUniformBuffer>(mDevice, mCommandBuffer, bufferSize, 0);
+            VulkanUniformBufferPtr buffer = std::make_shared<VulkanUniformBuffer>(mDevice, mCommandBuffer, bufferSize, binding);
             mUniformBuffers.push_back(buffer);
         }
     }

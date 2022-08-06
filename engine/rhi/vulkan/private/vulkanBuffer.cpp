@@ -19,11 +19,21 @@ namespace Homura
         , mProperties{props}
         , mStagingBuffer{nullptr}
     {
+        create();
+    }
+
+    VulkanBuffer::~VulkanBuffer()
+    {
+        
+    }
+
+    void VulkanBuffer::create()
+    {
         VkBufferCreateInfo bufferInfo{};
-        bufferInfo.sType        = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        bufferInfo.size         = mSize;
-        bufferInfo.usage        = mUsage;
-        bufferInfo.sharingMode  = VK_SHARING_MODE_EXCLUSIVE;
+        bufferInfo.sType            = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        bufferInfo.size             = mSize;
+        bufferInfo.usage            = mUsage;
+        bufferInfo.sharingMode      = VK_SHARING_MODE_EXCLUSIVE;
 
         VERIFYVULKANRESULT(vkCreateBuffer(mDevice->getHandle(), &bufferInfo, nullptr, &mBuffer));
 
@@ -33,16 +43,10 @@ namespace Homura
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType             = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize    = memRequirements.size;
-        allocInfo.memoryTypeIndex   = findMemoryType(memRequirements.memoryTypeBits, props);
+        allocInfo.memoryTypeIndex   = findMemoryType(memRequirements.memoryTypeBits, mProperties);
 
         VERIFYVULKANRESULT(vkAllocateMemory(mDevice->getHandle(), &allocInfo, nullptr, &mBufferMemory));
-
-        vkBindBufferMemory(mDevice->getHandle(), mBuffer, mBufferMemory, 0);
-    }
-
-    VulkanBuffer::~VulkanBuffer()
-    {
-        
+        VERIFYVULKANRESULT(vkBindBufferMemory(mDevice->getHandle(), mBuffer, mBufferMemory, 0));
     }
 
     void VulkanBuffer::destroy()

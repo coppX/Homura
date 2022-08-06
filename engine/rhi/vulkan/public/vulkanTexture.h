@@ -104,6 +104,7 @@ namespace Homura
         : VulkanTexture(device, width, height, TEXTURE_2D, VulkanViewTypeTilingMode[TEXTURE_2D], VK_IMAGE_ASPECT_COLOR_BIT, mipLevels, 1, numSamples, format, usage, properties)
         , mSampler{}
         , mBinding{0}
+        , mImageInfo{}
         {
 
         }
@@ -117,6 +118,7 @@ namespace Homura
     public:
         VulkanSamplerPtr        mSampler;
         uint32_t                mBinding;
+        VkDescriptorImageInfo   mImageInfo;
     };
 
     class VulkanTexture2DArray : public VulkanTexture

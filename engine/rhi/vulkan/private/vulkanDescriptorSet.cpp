@@ -36,8 +36,8 @@ namespace Homura
         poolSize.push_back(uniformBufferSize);
 
         VkDescriptorPoolSize textureSize{};
-        textureSize.type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        textureSize.descriptorCount = mFrameCount;
+        textureSize.type                    = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        textureSize.descriptorCount         = mFrameCount;
         poolSize.push_back(textureSize);
 
         VkDescriptorPoolCreateInfo createInfo{};
@@ -45,7 +45,6 @@ namespace Homura
         createInfo.poolSizeCount    = static_cast<uint32_t>(poolSize.size());
         createInfo.pPoolSizes       = poolSize.data();
         createInfo.maxSets          = mFrameCount;
-        createInfo.flags            = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
         VERIFYVULKANRESULT(vkCreateDescriptorPool(mDevice->getHandle(), &createInfo, nullptr, &mDescriptorPool));
     }

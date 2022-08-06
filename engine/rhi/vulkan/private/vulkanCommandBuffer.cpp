@@ -339,7 +339,7 @@ namespace Homura
         copyRegion.size = size;
         vkCmdCopyBuffer(commandBuffer, srcBuffer.getHandle(), dstBuffer.getHandle(), 1, &copyRegion);
 
-       endSingleTimeCommands(commandBuffer);
+        endSingleTimeCommands(commandBuffer);
     }
 
     void VulkanCommandBuffer::copyBufferToTexture(VulkanBuffer buffer, VulkanTexture2DPtr texture, uint32_t width, uint32_t height)

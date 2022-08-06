@@ -306,19 +306,18 @@ namespace Homura
 
     VkWriteDescriptorSet VulkanTexture2D::createWriteDescriptorSet(VkDescriptorSet descriptorSet)
     {
-        VkDescriptorImageInfo imageInfo{};
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = mImageView;
-        imageInfo.sampler = mSampler->getHandle();
+        mImageInfo.imageLayout          = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        mImageInfo.imageView            = mImageView;
+        mImageInfo.sampler              = mSampler->getHandle();
 
-        VkWriteDescriptorSet descriptorWrite;
-        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrite.dstSet = descriptorSet;
-        descriptorWrite.dstBinding = mBinding;
+        VkWriteDescriptorSet descriptorWrite{};
+        descriptorWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet          = descriptorSet;
+        descriptorWrite.dstBinding      = mBinding;
         descriptorWrite.dstArrayElement = 0;
-        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrite.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         descriptorWrite.descriptorCount = 1;
-        descriptorWrite.pImageInfo = &imageInfo;
+        descriptorWrite.pImageInfo      = &mImageInfo;
         return descriptorWrite;
     }
 }

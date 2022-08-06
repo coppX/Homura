@@ -15,6 +15,7 @@ namespace Homura
         VulkanBuffer(std::shared_ptr<VulkanDevice> device, VulkanCommandBufferPtr commandBuffer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags props);
         ~VulkanBuffer();
 
+        void create();
         void destroy();
 
         void fillBuffer(void *inData, uint64_t size);
@@ -38,11 +39,10 @@ namespace Homura
         VulkanDevicePtr         mDevice;
         VulkanCommandBufferPtr  mCommandBuffer;
 
-        void*                   mData;
-        VkDeviceSize            mSize;
         VkBufferUsageFlags      mUsage;
         VkMemoryPropertyFlags   mProperties;
     public:
+        VkDeviceSize            mSize;
         VkBuffer                mBuffer;
         VkDeviceMemory          mBufferMemory;
         VulkanBuffer*           mStagingBuffer;
@@ -72,30 +72,29 @@ namespace Homura
     {
     public:
         VulkanUniformBuffer(VulkanDevicePtr device, VulkanCommandBufferPtr commandBuffer, VkDeviceSize size, uint32_t binding)
-            : VulkanBuffer(device, commandBuffer, size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+            : VulkanBuffer(device, commandBuffer, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
             , mCallback{}
             , mDataBuffer{}
-            , mSize{size}
             , mBinding{binding}
+            , mBufferInfo{}
         {
             mDataBuffer.resize(size);
         }
         
         VkWriteDescriptorSet createWriteDescriptorSet(VkDescriptorSet descriptorSet)
         {
-            VkDescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer   = mBuffer;
-            bufferInfo.offset   = 0;
-            bufferInfo.range    = mSize;
-
-            VkWriteDescriptorSet descriptorWrite;
-            descriptorWrite.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrite.dstSet          = descriptorSet;
-            descriptorWrite.dstBinding      = mBinding;
-            descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            descriptorWrite.descriptorCount = 1;
-            descriptorWrite.pBufferInfo     = &bufferInfo;
+            
+            mBufferInfo.buffer                  = mBuffer;
+            mBufferInfo.offset                  = 0;
+            mBufferInfo.range                   = mSize;
+            VkWriteDescriptorSet descriptorWrite{};
+            descriptorWrite.sType               = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrite.dstSet              = descriptorSet;
+            descriptorWrite.dstBinding          = mBinding;
+            descriptorWrite.dstArrayElement     = 0;
+            descriptorWrite.descriptorType      = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorWrite.descriptorCount     = 1;
+            descriptorWrite.pBufferInfo         = &mBufferInfo;
             return descriptorWrite;
         }
 
@@ -114,8 +113,8 @@ namespace Homura
     private:
         UnifromUpdateCallback   mCallback;
         std::vector<char>       mDataBuffer;
-        VkDeviceSize            mSize;
         uint32_t                mBinding;
+        VkDescriptorBufferInfo  mBufferInfo;
     };
 
     class VulkanStagingBuffer : public VulkanBuffer

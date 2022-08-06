@@ -199,7 +199,6 @@ namespace Homura
             rhi->setupShaders(FileSystem::getPath("resources/shader/model/model.frag.spv"), FRAGMENT);
 
             rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
-            rhi->setupPipeline();
             rhi->createCommandBuffer();
 
             loadModel();
@@ -207,6 +206,7 @@ namespace Homura
 
             rhi->createUniformBuffer(0, sizeof(UniformBufferObject));
             rhi->setWriteDataCallback(UpdateUniform);
+            rhi->setupPipeline();
 
             rhi->beginCommandBuffer();
             rhi->createVertexBuffer(vertices.data(), sizeof(vertices[0]) * vertices.size(), vertices.size());
@@ -223,18 +223,18 @@ namespace Homura
         std::vector<VkDescriptorSetLayoutBinding> getDescriptorSetLayoutBinding()
         {
             VkDescriptorSetLayoutBinding uboLayoutBinding{};
-            uboLayoutBinding.binding = 0;
-            uboLayoutBinding.descriptorCount = 1;
-            uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            uboLayoutBinding.pImmutableSamplers = nullptr;
-            uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+            uboLayoutBinding.binding                = 0;
+            uboLayoutBinding.descriptorCount        = 1;
+            uboLayoutBinding.descriptorType         = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            uboLayoutBinding.pImmutableSamplers     = nullptr;
+            uboLayoutBinding.stageFlags             = VK_SHADER_STAGE_VERTEX_BIT;
 
             VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-            samplerLayoutBinding.binding = 1;
-            samplerLayoutBinding.descriptorCount = 1;
-            samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            samplerLayoutBinding.binding            = 1;
+            samplerLayoutBinding.descriptorCount    = 1;
+            samplerLayoutBinding.descriptorType     = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             samplerLayoutBinding.pImmutableSamplers = &rhi->getSampler()->getHandle();
-            samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            samplerLayoutBinding.stageFlags         = VK_SHADER_STAGE_FRAGMENT_BIT;
             return {uboLayoutBinding, samplerLayoutBinding};
         }
 
