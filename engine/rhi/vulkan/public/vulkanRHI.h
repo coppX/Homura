@@ -18,10 +18,10 @@ namespace Homura
     class VulkanRHI : public std::enable_shared_from_this<VulkanRHI>
     {
     public:
-        VulkanRHI(uint32_t width, uint32_t height);
+        VulkanRHI();
         virtual ~VulkanRHI();
 
-        void init();
+        void init(int width, int height, std::string title);
         void exit();
         void update();
         VkSampleCountFlagBits getSampleCount();
@@ -54,7 +54,7 @@ namespace Homura
         void updateDescriptorSet();
     private:
         
-        ApplicationWindowPtr createWindow();
+        ApplicationWindowPtr createWindow(int width, int height, std::string title);
         VulkanInstancePtr createInstance();
         VulkanDevicePtr createDevice();
         VulkanSurfacePtr createSurface();
@@ -111,9 +111,6 @@ namespace Homura
         VulkanTextureDepthPtr               mRenderTargetDepth;
         VulkanShaderPtr                     mShader;
         VulkanSamplerPtr                    mSampler;
-
-        uint32_t                            mWidth;
-        uint32_t                            mHeight;
 
         VulkanTexture2DPtr                  mDepthStencil;
         std::vector<VulkanBufferPtr>        mBuffers;

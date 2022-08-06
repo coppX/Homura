@@ -23,7 +23,7 @@
 
 namespace Homura
 {
-    VulkanRHI::VulkanRHI(uint32_t width, uint32_t height)
+    VulkanRHI::VulkanRHI()
         : mInstance{nullptr}
         , mSurface{nullptr}
         , mDevice{nullptr}
@@ -34,8 +34,6 @@ namespace Homura
         , mDescriptorPool{nullptr}
         , mRenderPass{nullptr}
         , mWindow{nullptr}
-        , mWidth{width}
-        , mHeight{height}
         , mMouseCallback{}
         , mFramebufferResizeCallback{}
     {
@@ -47,9 +45,9 @@ namespace Homura
 
     }
 
-    void VulkanRHI::init()
+    void VulkanRHI::init(int width, int height, std::string title)
     {
-        createWindow();
+        createWindow(width, height, title);
         createInstance();
         createSurface();
         createDevice();
@@ -89,10 +87,10 @@ namespace Homura
         return mSampler;
     }
 
-    ApplicationWindowPtr VulkanRHI::createWindow()
+    ApplicationWindowPtr VulkanRHI::createWindow(int width, int height, std::string title)
     {
-        mWindow = std::make_shared<ApplicationWindow>(shared_from_this(), mWidth, mHeight);
-        mWindow->create("Homura");
+        mWindow = std::make_shared<ApplicationWindow>(shared_from_this(), width, height);
+        mWindow->create(title);
         return mWindow;
     }
 
@@ -201,7 +199,7 @@ namespace Homura
         VulkanDescriptorSetLayoutPtr layout = std::make_shared<VulkanDescriptorSetLayout>(mDevice);
         std::vector<VkDescriptorSetLayoutBinding> bindings;
         VkDescriptorSetLayoutBinding binding{};
-        if (mUniformBuffers.size() > 0)
+        if (!mUniformBuffers.empty())
         {
             binding.binding         = mUniformBuffers[0]->getBinding();
             binding.descriptorCount = 1;
@@ -209,7 +207,7 @@ namespace Homura
             binding.stageFlags      = VK_SHADER_STAGE_VERTEX_BIT;
             bindings.push_back(binding);
         }
-        if (mSampleTextures.size() > 0)
+        if (!mSampleTextures.empty())
         {
             binding.binding         = mSampleTextures[0]->getBinding();
             binding.descriptorCount = 1;
@@ -468,7 +466,6 @@ namespace Homura
         }
     }
 
-
     void VulkanRHI::setMouseButtonCallBack(MouseCallback cb)
     {
         mMouseCallback = cb;
@@ -478,5 +475,4 @@ namespace Homura
     {
         mFramebufferResizeCallback = cb;
     }
-
 }

@@ -116,7 +116,7 @@ namespace Homura
     {
     public:
         TriangleApplication()
-            : rhi{std::make_shared<VulkanRHI>(960, 540)}
+            : rhi{std::make_shared<VulkanRHI>()}
         {
             
         }
@@ -128,7 +128,7 @@ namespace Homura
 
         bool init()
         {
-            rhi->init();
+            rhi->init(960, 540, "model");
             rhi->setFramebufferResizeCallback(&OnFramebufferChanged);
             rhi->setMouseButtonCallBack(&OnMouseButtonClicked);
 
@@ -213,9 +213,9 @@ namespace Homura
 
             std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
-            for (const auto &shape : shapes)
+            for (const auto& shape : shapes)
             {
-                for (const auto &index : shape.mesh.indices)
+                for (const auto& index : shape.mesh.indices)
                 {
                     Vertex vertex{};
 
@@ -230,7 +230,7 @@ namespace Homura
                             1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
                     };
 
-                    vertex.color = {1.0f, 1.0f, 1.0f};
+                    vertex.color = { 1.0f, 1.0f, 1.0f };
 
                     if (uniqueVertices.count(vertex) == 0)
                     {
