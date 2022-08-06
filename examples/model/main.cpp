@@ -79,8 +79,6 @@ namespace Homura
     const std::string MODEL_PATH = FileSystem::getPath("resources/models/viking_room.obj");
     const std::string TEXTURE_PATH = FileSystem::getPath("resources/textures/viking_room.png");
 
-    const int MAX_FRAMES_IN_FLIGHT = 2;
-
     struct UniformBufferObject
     {
         alignas(16) glm::mat4 model;
@@ -118,7 +116,7 @@ namespace Homura
     {
     public:
         TriangleApplication()
-            : rhi{ std::make_shared<VulkanRHI>(960, 540) }
+            : rhi{std::make_shared<VulkanRHI>(960, 540)}
         {
             
         }
@@ -138,44 +136,17 @@ namespace Homura
             VulkanTextureDepthPtr depthImg = rhi->createDepthResources();
             colorImages.push_back(colorImg);
             depthStencilImages.push_back(depthImg);
+            
+            ColorAttachmentDescription colorAttachmentDescription(colorImg->getFormat(), rhi->getSampleCount());
+            DepthAttachmentDescription depthAttachmentDescription(depthImg->getFormat(), rhi->getSampleCount());
+            ResolveAttachmentDescription resolveAttachmentDescription(colorImg->getFormat(), VK_SAMPLE_COUNT_1_BIT);
 
             RHIRenderPassInfo info;
-            VkAttachmentDescription colorAttachmentDescription{};
-            colorAttachmentDescription.format                       = colorImg->getFormat();
-            colorAttachmentDescription.samples                      = rhi->getSampleCount();
-            colorAttachmentDescription.loadOp                       = VK_ATTACHMENT_LOAD_OP_CLEAR;
-            colorAttachmentDescription.storeOp                      = VK_ATTACHMENT_STORE_OP_STORE;
-            colorAttachmentDescription.stencilLoadOp                = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            colorAttachmentDescription.stencilStoreOp               = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            colorAttachmentDescription.initialLayout                = VK_IMAGE_LAYOUT_UNDEFINED;
-            colorAttachmentDescription.finalLayout                  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            info.addAttachment(colorAttachmentDescription.getHandle());
+            info.addAttachment(depthAttachmentDescription.getHandle());
+            info.addAttachment(resolveAttachmentDescription.getHandle());
 
-            VkAttachmentDescription depthAttachmentDescription{};
-            depthAttachmentDescription.format                       = depthImg->getFormat();
-            depthAttachmentDescription.samples                      = rhi->getSampleCount();
-            depthAttachmentDescription.loadOp                       = VK_ATTACHMENT_LOAD_OP_CLEAR;
-            depthAttachmentDescription.storeOp                      = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            depthAttachmentDescription.stencilLoadOp                = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            depthAttachmentDescription.stencilStoreOp               = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            depthAttachmentDescription.initialLayout                = VK_IMAGE_LAYOUT_UNDEFINED;
-            depthAttachmentDescription.finalLayout                  = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-            VkAttachmentDescription colorAttachmentResolve{};
-            colorAttachmentResolve.format                           = colorImg->getFormat();
-            colorAttachmentResolve.samples                          = VK_SAMPLE_COUNT_1_BIT;
-            colorAttachmentResolve.loadOp                           = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            colorAttachmentResolve.storeOp                          = VK_ATTACHMENT_STORE_OP_STORE;
-            colorAttachmentResolve.stencilLoadOp                    = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            colorAttachmentResolve.stencilStoreOp                   = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            colorAttachmentResolve.initialLayout                    = VK_IMAGE_LAYOUT_UNDEFINED;
-            colorAttachmentResolve.finalLayout                      = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-
-            info.addAttachment(colorAttachmentDescription);
-            info.addAttachment(depthAttachmentDescription);
-            info.addAttachment(colorAttachmentResolve);
-
-            AttachmentReference reference({colorAttachmentDescription, depthAttachmentDescription, colorAttachmentResolve });
+            AttachmentReference reference({colorAttachmentDescription, depthAttachmentDescription, resolveAttachmentDescription});
             VulkanSubPassPtr subPass = std::make_shared<VulkanSubPass>(reference);
 
             info.addSubPass(subPass);
@@ -201,11 +172,12 @@ namespace Homura
             rhi->createDescriptorSet(getDescriptorSetLayoutBinding());
             rhi->createCommandBuffer();
 
-            loadModel();
-            loadSampleTexture(TEXTURE_PATH);
-
             rhi->createUniformBuffer(0, sizeof(UniformBufferObject));
             rhi->setWriteDataCallback(UpdateUniform);
+
+            loadModel();
+            loadSampleTexture(TEXTURE_PATH, 1);
+
             rhi->setupPipeline();
 
             rhi->beginCommandBuffer();
@@ -217,8 +189,6 @@ namespace Homura
             update();
             return true;
         }
-
-
 
         std::vector<VkDescriptorSetLayoutBinding> getDescriptorSetLayoutBinding()
         {
@@ -293,12 +263,12 @@ namespace Homura
             }
         }
 
-        void loadSampleTexture(std::string filename)
+        void loadSampleTexture(std::string filename, int binding)
         {
             int texWidth, texHeight, texChannels;
             stbi_uc* pixels = stbi_load(filename.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
             VkDeviceSize imageSize = texWidth * texHeight * 4;
-            rhi->createSampleTexture((void*)pixels, imageSize, texWidth, texHeight);
+            rhi->createSampleTexture(binding, (void*)pixels, imageSize, texWidth, texHeight);
         }
 
         std::vector<Vertex>                 vertices;

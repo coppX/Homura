@@ -92,7 +92,7 @@ namespace Homura
     ApplicationWindowPtr VulkanRHI::createWindow()
     {
         mWindow = std::make_shared<ApplicationWindow>(shared_from_this(), mWidth, mHeight);
-        mWindow->create("madoka");
+        mWindow->create("Homura");
         return mWindow;
     }
 
@@ -404,7 +404,7 @@ namespace Homura
         mUniformBuffers[index]->update();
     }
 
-    void VulkanRHI::createSampleTexture(void* imageData, uint32_t imageSize, uint32_t width, uint32_t height)
+    void VulkanRHI::createSampleTexture(int binding, void* imageData, uint32_t imageSize, uint32_t width, uint32_t height)
     {
         VulkanStagingBufferPtr stagingBuffer = std::make_shared<VulkanStagingBuffer>(mDevice, mCommandBuffer, imageSize, imageData);
         uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
@@ -418,7 +418,7 @@ namespace Homura
         sampleTexture->setImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mCommandBuffer);
         sampleTexture->fromBuffer(mCommandBuffer, stagingBuffer);
         sampleTexture->generateMipmaps(mCommandBuffer);
-        sampleTexture->setSampler(mSampler, 1);
+        sampleTexture->setSampler(mSampler, binding);
         mSampleTextures.push_back(sampleTexture);
     }
 
