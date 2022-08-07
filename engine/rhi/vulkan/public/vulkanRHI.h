@@ -68,7 +68,6 @@ namespace Homura
         VulkanPipelinePtr createPipeline();
         VulkanSamplerPtr createSampler();
 
-        void destroyBuffer();
         void destroySampleTexture();
         void destroyColorResources();
         void destroyDepthResources();
@@ -107,8 +106,8 @@ namespace Homura
         VulkanCommandBufferPtr              mCommandBuffer;
         VulkanFramebufferPtr                mFramebuffer;
         VulkanPipelinePtr                   mPipeline;
-        VulkanTexture2DPtr                  mRenderTarget;
-        VulkanTextureDepthPtr               mRenderTargetDepth;
+        VulkanTexture2DPtr                  mColorAttachment;
+        VulkanTextureDepthPtr               mDepthAttachment;
         VulkanShaderPtr                     mShader;
         VulkanSamplerPtr                    mSampler;
 

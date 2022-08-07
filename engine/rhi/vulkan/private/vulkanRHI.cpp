@@ -136,26 +136,26 @@ namespace Homura
 
     VulkanTexture2DPtr VulkanRHI::createColorResources()
     {
-        mRenderTarget =  std::make_shared<VulkanTexture2D>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, getSampleCount(), mSwapChain->getFormat(),
+        mColorAttachment = std::make_shared<VulkanTexture2D>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, getSampleCount(), mSwapChain->getFormat(),
                                           VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        return  mRenderTarget;
+        return mColorAttachment;
     }
 
     VulkanTextureDepthPtr VulkanRHI::createDepthResources()
     {
-        mRenderTargetDepth =  std::make_shared<VulkanTextureDepth>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, getSampleCount(), findDepthFormat(mDevice),
+        mDepthAttachment = std::make_shared<VulkanTextureDepth>(mDevice, mSwapChain->getExtent().width, mSwapChain->getExtent().height, 1, getSampleCount(), findDepthFormat(mDevice),
                                                     VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        return mRenderTargetDepth;
+        return mDepthAttachment;
     }
 
     void VulkanRHI::destroyColorResources()
     {
-        mRenderTarget->destroy();
+        mColorAttachment->destroy();
     }
 
     void VulkanRHI::destroyDepthResources()
     {
-        mRenderTargetDepth->destroy();
+        mDepthAttachment->destroy();
     }
 
     VulkanFramebufferPtr VulkanRHI::createFrameBuffer()
@@ -307,6 +307,12 @@ namespace Homura
         {
             buffer->destroy();
         }
+        mBuffers.clear();
+        for (auto& uniform : mUniformBuffers)
+        {
+            uniform->destroy();
+        }
+        mUniformBuffers.clear();
     }
 
     void VulkanRHI::destroySampler()
@@ -333,9 +339,12 @@ namespace Homura
         destroyColorResources();
         destroyDepthResources();
         destroyDescriptorSet();
-        destroyBuffer();
+        destroyBuffers();
         destroyCommandBuffer();
+        destroyCommandPool();
         destroyFrameBuffer();
+        destroySwapChain();
+        destroySurface();
         destroyPipeline();
         destroyRenderPass();
         destroyDescriptorPool();
@@ -368,6 +377,7 @@ namespace Homura
         mPipeline->setShaders(mShader);
         updateDescriptorSet();
         mPipeline->build(mDescriptorSet);
+        mShader->destroy();
     }
 
     VulkanShaderEntityPtr VulkanRHI::setupShaders(std::string filename, ShaderType type)
@@ -436,6 +446,7 @@ namespace Homura
         sampleTexture->generateMipmaps(mCommandBuffer);
         sampleTexture->setSampler(mSampler, binding);
         mSampleTextures.push_back(sampleTexture);
+        stagingBuffer->destroy();
     }
 
     void VulkanRHI::draw()
@@ -447,15 +458,6 @@ namespace Homura
     {
         mCommandBuffer->endRenderPass();
         mCommandBuffer->end();
-    }
-
-    void VulkanRHI::destroyBuffer()
-    {
-        for (auto& buffer : mBuffers)
-        {
-            buffer->destroy();
-        }
-        mBuffers.clear();
     }
 
     void VulkanRHI::destroySampleTexture()
