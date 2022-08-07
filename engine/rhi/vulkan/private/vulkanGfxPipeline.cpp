@@ -50,7 +50,7 @@ namespace Homura
     {
         mRenderPass = renderPass;
 
-        mInputAssemblyState.topology                        = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+        mInputAssemblyState.topology                        = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         mInputAssemblyState.primitiveRestartEnable          = VK_FALSE;
 
         mRasterizationState.depthBiasClamp                  = VK_FALSE;
@@ -58,7 +58,7 @@ namespace Homura
         mRasterizationState.polygonMode                     = VK_POLYGON_MODE_FILL;
         mRasterizationState.lineWidth                       = 1.0f;
         mRasterizationState.cullMode                        = VK_CULL_MODE_BACK_BIT;
-        mRasterizationState.frontFace                       = VK_FRONT_FACE_CLOCKWISE;
+        mRasterizationState.frontFace                       = VK_FRONT_FACE_COUNTER_CLOCKWISE;
         mRasterizationState.depthBiasEnable                 = VK_FALSE;
         mRasterizationState.depthBiasConstantFactor         = 0.0f;
         mRasterizationState.depthBiasClamp                  = 0.0f;
