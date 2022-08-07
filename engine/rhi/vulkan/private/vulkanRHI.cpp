@@ -348,6 +348,7 @@ namespace Homura
         destroyPipeline();
         destroyRenderPass();
         destroyDescriptorPool();
+        destroyDevice();
         destroyInstance();
         destroyWindow();
     }

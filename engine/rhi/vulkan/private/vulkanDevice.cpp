@@ -25,7 +25,7 @@ namespace Homura
 
     VulkanDevice::~VulkanDevice()
     {
-        destroy();
+        
     }
 
     void VulkanDevice::create()
