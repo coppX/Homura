@@ -45,6 +45,7 @@ namespace Homura
         createInfo.poolSizeCount    = static_cast<uint32_t>(poolSize.size());
         createInfo.pPoolSizes       = poolSize.data();
         createInfo.maxSets          = mFrameCount;
+        createInfo.flags            = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
         VERIFYVULKANRESULT(vkCreateDescriptorPool(mDevice->getHandle(), &createInfo, nullptr, &mDescriptorPool));
     }

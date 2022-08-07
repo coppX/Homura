@@ -54,10 +54,10 @@ namespace Homura
     class VulkanFences
     {
     public:
-        explicit VulkanFences(VulkanDevicePtr device);
+        explicit VulkanFences(VulkanDevicePtr device, uint32_t num);
         ~VulkanFences();
 
-        void create(uint32_t num);
+        void create();
         void destroy();
 
         void wait(uint32_t index);

@@ -33,6 +33,10 @@
 #include <functional>
 #include <glm/gtx/hash.hpp>
 
+static int width = 960;
+static int height = 520;
+static float aspect = width / (float)height;
+
 struct Vertex
 {
     glm::vec3 pos;
@@ -88,6 +92,7 @@ namespace Homura
 
     void OnFramebufferChanged(int width, int height)
     {
+        aspect = width / (float)height;
         std::cout << "framebuffer size changed " << width << " " << height << std::endl;
     }
 
@@ -106,7 +111,7 @@ namespace Homura
         UniformBufferObject ubo{};
         ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(45.0f), 960 / (float)540, 0.1f, 10.0f);
+        ubo.proj = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 10.0f);
         ubo.proj[1][1] *= -1;
         memcpy(data, &ubo, size);
         return sizeof(ubo);
@@ -128,7 +133,7 @@ namespace Homura
 
         bool init()
         {
-            rhi->init(960, 540, "model");
+            rhi->init(width, height, "model");
             rhi->setFramebufferResizeCallback(&OnFramebufferChanged);
             rhi->setMouseButtonCallBack(&OnMouseButtonClicked);
 

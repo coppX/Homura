@@ -98,16 +98,15 @@ namespace Homura
         }
         mCommandBuffers.clear();
 
-        if (imageInFlight != nullptr)
-        {
-            imageInFlight->destroy();
-            imageInFlight.reset();
-        }
+        // imageInFlight and inFlightFences points to the same fences, so release it once!
         if (inFlightFences != nullptr)
         {
             inFlightFences->destroy();
             inFlightFences.reset();
         }
+
+        imageInFlight.reset();
+
         if (mImageAvailableSemaphores != nullptr)
         {
             mImageAvailableSemaphores->destroy();
@@ -122,10 +121,9 @@ namespace Homura
 
     void VulkanCommandBuffer::createSyncObj()
     {
-        imageInFlight = std::make_shared<VulkanFences>(mDevice);
-        imageInFlight->create(mSwapChain->getImageCount());
-        inFlightFences = std::make_shared<VulkanFences>(mDevice);
-        inFlightFences->create(mMaxFrameCount);
+        imageInFlight = std::make_shared<VulkanFences>(mDevice, mSwapChain->getImageCount());
+        inFlightFences = std::make_shared<VulkanFences>(mDevice, mMaxFrameCount);
+        inFlightFences->create();
         mImageAvailableSemaphores = std::make_shared<VulkanSemaphores>(mDevice);
         mImageAvailableSemaphores->create(mMaxFrameCount);
         mRenderFinishedSemaphores = std::make_shared<VulkanSemaphores>(mDevice);

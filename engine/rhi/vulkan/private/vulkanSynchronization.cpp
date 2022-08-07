@@ -91,11 +91,14 @@ namespace Homura
         }
     }
 
-    VulkanFences::VulkanFences(VulkanDevicePtr device)
+    VulkanFences::VulkanFences(VulkanDevicePtr device, uint32_t num)
         : mDevice{device}
         , mFences{}
     {
-
+        for (uint32_t i = 0; i < num; i++)
+        {
+            mFences.emplace_back(VulkanFenceEntity(mDevice));
+        }
     }
 
     VulkanFences::~VulkanFences()
@@ -103,13 +106,11 @@ namespace Homura
 
     }
 
-    void VulkanFences::create(uint32_t num)
+    void VulkanFences::create()
     {
-        for (uint32_t i = 0; i < num; i++)
+        for (auto& fence : mFences)
         {
-            VulkanFenceEntity entity(mDevice);
-            entity.create(true);
-            mFences.emplace_back(entity);
+            fence.create(true);
         }
     }
 

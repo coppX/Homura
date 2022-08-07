@@ -74,7 +74,7 @@ namespace Homura
             mCommandBuffer->drawFrame(shared_from_this());
         }
         idle();
-        //cleanup();
+        cleanup();
     }
 
     VkSampleCountFlagBits VulkanRHI::getSampleCount()
