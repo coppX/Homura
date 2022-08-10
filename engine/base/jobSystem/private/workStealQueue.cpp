@@ -1,12 +1,12 @@
 //
 // Created by 最上川 on 2022/8/10/010.
 //
-#include "stealQueue.h"
+#include "workStealQueue.h"
 
 namespace Base
 {
     template<typename TYPE, size_t COUNT>
-    void StealQueue<TYPE, COUNT>::push(TYPE item)
+    void WorkStealQueue<TYPE, COUNT>::push(TYPE item)
     {
         int bottom = mBottom.load(std::memory_order_relaxed);
         mQueue[bottom & MASK] = item;
@@ -14,7 +14,7 @@ namespace Base
     }
 
     template<typename TYPE, size_t COUNT>
-    TYPE StealQueue<TYPE, COUNT>::pop()
+    TYPE WorkStealQueue<TYPE, COUNT>::pop()
     {
         int bottom = mBottom.fetch_sub(1, std::memory_order_seq_cst) - 1;
         int top = mTop.load(std::memory_order_seq_cst);
@@ -41,7 +41,7 @@ namespace Base
     }
 
     template<typename TYPE, size_t COUNT>
-    TYPE StealQueue<TYPE, COUNT>::steal()
+    TYPE WorkStealQueue<TYPE, COUNT>::steal()
     {
         while(true)
         {

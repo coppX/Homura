@@ -3,14 +3,14 @@
 //
 // https://www.zhihu.com/people/zhang-yan-99-47/posts
 
-#ifndef HOMURA_STEALQUEUE_H
-#define HOMURA_STEALQUEUE_H
+#ifndef HOMURA_WORKSTEALQUEUE_H
+#define HOMURA_WORKSTEALQUEUE_H
 #include <atomic>
 
 namespace Base
 {
     template<typename TYPE, size_t COUNT>
-    class StealQueue
+    class WorkStealQueue
     {
         static_assert(!(COUNT & (COUNT - 1)), "count must be a power of two");
         static constexpr size_t MASK = COUNT - 1u;
@@ -25,4 +25,4 @@ namespace Base
         TYPE steal();
     };
 }
-#endif //HOMURA_STEALQUEUE_H
+#endif //HOMURA_WORKSTEALQUEUE_H
