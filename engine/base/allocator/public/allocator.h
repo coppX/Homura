@@ -19,11 +19,6 @@ namespace Base
         assert((align % sizeof(void*)) == 0);
         void* p = nullptr;
 
-        // must be a power of two and >= sizeof(void*)
-        while (align < sizeof(void*))
-        {
-            align <<= 1;
-        }
 #if defined(WIN32)
         p = ::_aligned_malloc(size, align);
 #else
@@ -44,7 +39,15 @@ namespace Base
     template<typename TYPE>
     class allocator
     {
-        
+    public:
+
+        typedef ptrdiff_t   different_type;
+        typedef TYPE*       pointer;
+        typedef const TYPE* const_pointer;
+        typedef TYPE        value_type;
+    public:
+        TYPE* allocate(size_t n);
+        void deallocate(TYPE* p, size_t n);
     };
 }
 
