@@ -59,4 +59,11 @@ namespace Base
             return nullptr;
         }
     }
+    template<typename TYPE, size_t COUNT>
+    size_t WorkStealQueue<TYPE, COUNT>::getSize()
+    {
+        int top = mTop.load(std::memory_order_seq_cst);
+        int bottom = mBottom.load(std::memory_order_seq_cst);
+        return bottom - top;
+    }
 }

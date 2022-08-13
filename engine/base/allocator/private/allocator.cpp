@@ -13,7 +13,7 @@ namespace Base
     }
 
     template<typename TYPE>
-    void allocator<TYPE>::deallocate(TYPE *p, size_t n)
+    void allocator<TYPE>::deallocate(TYPE *p)
     {
         aligned_free(p);
     }

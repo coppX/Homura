@@ -47,7 +47,7 @@ namespace Base
         typedef TYPE        value_type;
     public:
         TYPE* allocate(size_t n);
-        void deallocate(TYPE* p, size_t n);
+        void deallocate(TYPE* p);
     };
 }
 

@@ -23,6 +23,7 @@ namespace Base
         void push(TYPE item);
         TYPE pop();
         TYPE steal();
+        size_t getSize();
     };
 }
 #endif //HOMURA_WORKSTEALQUEUE_H
