@@ -32,6 +32,11 @@ file(GLOB VULKAN
     "${CMAKE_CURRENT_LIST_DIR}/engine/platform/private/*.cpp"
     )
 
+file(GLOB BASE
+    "${CMAKE_CURRENT_LIST_DIR}/engine/base/jobSystem/private/*.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/engine/base/allocator/private/*.cpp"
+    )
+
 # compile GLSL shader to SPIR-V format
 file(GLOB_RECURSE SHADER ${CMAKE_CURRENT_LIST_DIR}/resources/shader/*.vert ${CMAKE_CURRENT_LIST_DIR}/resources/shader/*.frag)
 
@@ -58,7 +63,7 @@ foreach(CHAPTER ${CHAPTERS})
 
         file(GLOB SOURCE "${CHAPTER}/${DEMO}/main.cpp")
 
-        add_executable(${DEMO} ${SOURCE} ${VULKAN})
+        add_executable(${DEMO} ${SOURCE} ${VULKAN} ${BASE})
         target_link_libraries(${DEMO} ${LIBS})
 
     endforeach(DEMO)

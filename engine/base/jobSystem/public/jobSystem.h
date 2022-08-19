@@ -7,17 +7,21 @@
 #include <atomic>
 #include <thread>
 #include <vector>
-#include <workStealQueue.h>
-#include <allocator.h>
+#include <memory>
 
 namespace Base
 {
     static constexpr size_t CACHE_LINE_SIZE = 64;
     static constexpr size_t MAX_JOB_COUNT = 4096;
+
     struct Job;
+    template<typename TYPE, size_t COUNT>
+    class WorkStealQueue;
+    template<typename TYPE>
+    class allocator;
+
     using JobFunction = void(*)(Job*, const void*);
     using WorkQueue = WorkStealQueue<uint16_t, MAX_JOB_COUNT>;
-    using JobPool = allocator<Job>;
 
     struct alignas(CACHE_LINE_SIZE) Job
     {
@@ -31,27 +35,15 @@ namespace Base
 
     template<typename TYPE, size_t COUNT>
     struct Worker {
-        Worker()
-        {
-            mPool = mAllocator.allocate(COUNT);
-            mIndex = -1;
-        }
-
-        TYPE* createJob()
-        {
-            mIndex++;
-            return &mPool[mIndex & (COUNT - 1u)];
-        }
-
-        size_t getLoad()
-        {
-            return mQueue.getSize();
-        }
+        Worker();
+        ~Worker();
+        TYPE* createJob();
+        size_t getLoad();
     private:
         std::thread mThread;
-        WorkQueue mQueue;
+        std::shared_ptr<WorkQueue> mQueue;
         TYPE* mPool;
-        allocator<TYPE> mAllocator;
+        std::shared_ptr<allocator<TYPE>> mAllocator;
         int mIndex;
     };
 

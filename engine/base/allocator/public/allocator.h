@@ -40,12 +40,6 @@ namespace Base
     class allocator
     {
     public:
-
-        typedef ptrdiff_t   different_type;
-        typedef TYPE*       pointer;
-        typedef const TYPE* const_pointer;
-        typedef TYPE        value_type;
-    public:
         TYPE* allocate(size_t n);
         void deallocate(TYPE* p);
     };

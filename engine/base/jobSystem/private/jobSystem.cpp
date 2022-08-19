@@ -2,10 +2,40 @@
 // Created by 最上川 on 2022/8/9/009.
 //
 
-#include "jobSystem.h"
+#include <jobSystem.h>
+#include <allocator.h>
+#include <workStealQueue.h>
 
 namespace Base
 {
+    template<typename TYPE, size_t COUNT>
+    Worker<TYPE, COUNT>::Worker()
+    {
+        mQueue = std::make_shared<WorkQueue>();
+        mAllocator = std::make_shared<allocator<TYPE>>();
+        mPool = mAllocator->allocate(COUNT);
+        mIndex = -1;
+    }
+
+    template<typename TYPE, size_t COUNT>
+    Worker<TYPE, COUNT>::~Worker()
+    {
+        mAllocator->deallocate(mPool);
+    }
+
+    template<typename TYPE, size_t COUNT>
+    TYPE* Worker<TYPE, COUNT>::createJob()
+    {
+        mIndex++;
+        return &mPool[mIndex & (COUNT - 1u)];
+    }
+
+    template<typename TYPE, size_t COUNT>
+    size_t Worker<TYPE,COUNT>::getLoad()
+    {
+        return mQueue->getSize();
+    }
+
     JobSystem::JobSystem()
     {
         int threadCounts = std::thread::hardware_concurrency() - 1;
