@@ -87,7 +87,6 @@ namespace Homura
 
         uint32_t                        mCurrentFrame;
         uint32_t                        mMaxFrameCount;
-        uint32_t                        mImageIndex;
 
         bool                            mHasIndexBuffer;
         uint32_t                        mBufferDataCount;

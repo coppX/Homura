@@ -59,7 +59,6 @@ namespace Homura
         , mFramebuffrer{framebuffer}
         , mPipeline{pipeline}
         , mCurrentFrame{0}
-        , mImageIndex{0}
         , imageInFlight{}
         , inFlightFences{}
         , mImageAvailableSemaphores{}
@@ -368,7 +367,7 @@ namespace Homura
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) 
         {
-            mSwapChain->recreateSwapChain();
+            rhi->recreateSwapChain();
         }
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) 
         {
@@ -417,7 +416,7 @@ namespace Homura
         if (result == VK_ERROR_OUT_OF_DATE_KHR ||
             result == VK_SUBOPTIMAL_KHR) 
         {
-            mSwapChain->recreateSwapChain();
+            rhi->recreateSwapChain();
         }
         else if (result != VK_SUCCESS) 
         {

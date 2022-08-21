@@ -125,6 +125,7 @@ namespace Homura
         mWindow->resize();
         idle();
         cleanupSwapchain();
+
         createSwapChain();
         createRenderPass();
         createPipeline();
@@ -329,7 +330,6 @@ namespace Homura
         destroyPipeline();
         destroyRenderPass();
         destroySwapChain();
-        mSwapChain->destroy();
     }
 
     void VulkanRHI::cleanup()

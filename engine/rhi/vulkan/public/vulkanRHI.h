@@ -52,6 +52,8 @@ namespace Homura
         void createDescriptorSet();
         VulkanCommandBufferPtr createCommandBuffer();
         void updateDescriptorSet();
+
+        void recreateSwapChain();
     private:
         
         ApplicationWindowPtr createWindow(int width, int height, std::string title);
@@ -87,7 +89,6 @@ namespace Homura
         void destroyBuffers();
         void destroySampler();
 
-        void recreateSwapChain();
         void cleanupSwapchain();
         void cleanup();
         

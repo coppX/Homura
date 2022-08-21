@@ -214,9 +214,4 @@ namespace Homura
 
         return imageView;
     }
-
-    void VulkanSwapChain::recreateSwapChain()
-    {
-
-    }
 }
