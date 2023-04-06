@@ -29,8 +29,8 @@ namespace Homura
         VulkanTexture2DPtr createColorResources();
         VulkanTextureDepthPtr createDepthResources();
 
-        void setupRenderPass(RHIRenderPassInfo& info);
-        void setupFramebuffer(std::vector<VulkanTexture2DPtr>& colorImages, std::vector<VulkanTextureDepthPtr>& depthStencilImages);
+        void setupRenderPass(RHIRenderPassInfo info);
+        void setupFramebuffer();
         VulkanShaderEntityPtr setupShaders(std::string filename, ShaderType type);
         void setupPipeline();
 
@@ -48,6 +48,7 @@ namespace Homura
         void setMouseButtonCallBack(MouseCallback cb);
         void setFramebufferResizeCallback(FramebufferResizeCallback cb);
         void setWriteDataCallback(UnifromUpdateCallback cb);
+        void setUpdateAfterRecreateSwapchain(UpdateAfterRecreateSwapchain cb);
 
         void createDescriptorSet();
         VulkanCommandBufferPtr createCommandBuffer();
@@ -117,11 +118,14 @@ namespace Homura
         std::vector<VulkanUniformBufferPtr> mUniformBuffers;
         std::vector<VulkanTexture2DPtr>     mSampleTextures;
 
+        //test
+        RHIRenderPassInfo                   mInfo;
         // window
         ApplicationWindowPtr                mWindow;
     public:
         MouseCallback                       mMouseCallback;
         FramebufferResizeCallback           mFramebufferResizeCallback;
+        UpdateAfterRecreateSwapchain        mUpdateAfterRecreateSwapchain;
     };
 }
 #endif //HOMURA_VULKANRHI_H

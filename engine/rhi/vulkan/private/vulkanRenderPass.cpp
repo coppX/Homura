@@ -24,7 +24,7 @@ namespace Homura
 
     VulkanSubPass::~VulkanSubPass()
     {
-
+        std::cout << "debug" << std::endl;
     }
 
     VulkanRenderPass::VulkanRenderPass(VulkanDevicePtr device)
@@ -42,26 +42,30 @@ namespace Homura
         }
     }
 
-    void VulkanRenderPass::create(RHIRenderPassInfo& info)
+    void VulkanRenderPass::set(RHIRenderPassInfo info)
+    {
+        mInfo = info;
+    }
+
+    void VulkanRenderPass::build()
     {
         std::vector<VkSubpassDescription> subPasses{};
-        for (int i = 0; i < info.mSubPasses.size(); ++i)
+        for (int i = 0; i < mInfo.mSubPasses.size(); ++i)
         {
-            subPasses.push_back(info.mSubPasses[i]->getHandle());
+            subPasses.push_back(mInfo.mSubPasses[i]->getHandle());
         }
 
         VkRenderPassCreateInfo createInfo{};
         createInfo.sType            = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        createInfo.attachmentCount  = static_cast<uint32_t>(info.mAttachmentDescriptions.size());
-        createInfo.pAttachments     = info.mAttachmentDescriptions.data();
-        createInfo.dependencyCount  = static_cast<uint32_t>(info.mDependencies.size());
-        createInfo.pDependencies    = info.mDependencies.data();
+        createInfo.attachmentCount  = static_cast<uint32_t>(mInfo.mAttachmentDescriptions.size());
+        createInfo.pAttachments     = mInfo.mAttachmentDescriptions.data();
+        createInfo.dependencyCount  = static_cast<uint32_t>(mInfo.mDependencies.size());
+        createInfo.pDependencies    = mInfo.mDependencies.data();
         createInfo.subpassCount     = static_cast<uint32_t>(subPasses.size());
         createInfo.pSubpasses       = subPasses.data();
 
         VERIFYVULKANRESULT(vkCreateRenderPass(mDevice->getHandle(), &createInfo, nullptr, &mRenderPass));
     }
-
     void VulkanRenderPass::destroy()
     {
         if (mRenderPass != VK_NULL_HANDLE)

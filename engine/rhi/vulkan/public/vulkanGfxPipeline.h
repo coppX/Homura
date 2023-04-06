@@ -13,7 +13,7 @@ namespace Homura
     class VulkanPipeline
     {
     public:
-        VulkanPipeline(VulkanDevicePtr device);
+        explicit VulkanPipeline(VulkanDevicePtr device);
         ~VulkanPipeline();
 
         void create(VulkanRenderPassPtr renderPass, VkSampleCountFlagBits samples);

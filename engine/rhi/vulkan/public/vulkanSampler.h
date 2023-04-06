@@ -12,7 +12,7 @@ namespace Homura
     class VulkanSampler
     {
     public:
-        VulkanSampler(VulkanDevicePtr device);
+        explicit VulkanSampler(VulkanDevicePtr device);
         ~VulkanSampler();
 
         void create();

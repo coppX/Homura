@@ -16,7 +16,7 @@ namespace Homura
     class VulkanSubPass
     {
     public:
-        VulkanSubPass(AttachmentReference& references);
+        explicit VulkanSubPass(AttachmentReference& references);
         ~VulkanSubPass();
 
         VkSubpassDescription& getHandle()
@@ -30,10 +30,11 @@ namespace Homura
     class VulkanRenderPass
     {
     public:
-        VulkanRenderPass(VulkanDevicePtr device);
+        explicit VulkanRenderPass(VulkanDevicePtr device);
         ~VulkanRenderPass();
 
-        void create(RHIRenderPassInfo& info);
+        void set(RHIRenderPassInfo info);
+        void build();
         void destroy();
 
         VkRenderPass& getHandle()
@@ -48,6 +49,7 @@ namespace Homura
         std::vector<VulkanSubPass>              mSubPasses;
         std::vector<VkSubpassDependency>        mDependencies;
         std::vector<VkAttachmentDescription>    mAttachmentDescriptions;
+        RHIRenderPassInfo                       mInfo;
     };
 }
 #endif //HOMURA_VULKANRENDERPASS_H

@@ -128,11 +128,18 @@ namespace Homura
 
         createSwapChain();
         createRenderPass();
+        setupRenderPass(mInfo);
         createPipeline();
         createColorResources();
         createDepthResources();
         createFrameBuffer();
+        setupFramebuffer();
         createCommandBuffer();
+        setupPipeline();
+        if (mUpdateAfterRecreateSwapchain)
+        {
+            mUpdateAfterRecreateSwapchain();
+        }
     }
 
     VulkanTexture2DPtr VulkanRHI::createColorResources()
@@ -334,6 +341,7 @@ namespace Homura
 
     void VulkanRHI::cleanup()
     {
+        destroyShader();
         destroySampler();
         destroySampleTexture();
         destroyColorResources();
@@ -358,14 +366,18 @@ namespace Homura
         mDevice->idle();
     }
 
-    void VulkanRHI::setupRenderPass(RHIRenderPassInfo& info)
+    void VulkanRHI::setupRenderPass(RHIRenderPassInfo info)
     {
-        mRenderPass->create(info);
+        mInfo = info;
+        mRenderPass->set(info);
+        mRenderPass->build();
     }
 
-    void VulkanRHI::setupFramebuffer(std::vector<VulkanTexture2DPtr> &colorImages, std::vector<VulkanTextureDepthPtr> &depthStencilImages)
+    void VulkanRHI::setupFramebuffer()
     {
-        mFramebuffer->create(mRenderPass, colorImages, depthStencilImages);
+        std::vector<VulkanTexture2DPtr> colors{mColorAttachment};
+        std::vector<VulkanTextureDepthPtr> depth{mDepthAttachment};
+        mFramebuffer->create(mRenderPass, colors, depth);
     }
 
     void VulkanRHI::setupPipeline()
@@ -378,7 +390,7 @@ namespace Homura
         mPipeline->setShaders(mShader);
         updateDescriptorSet();
         mPipeline->build(mDescriptorSet);
-        mShader->destroy();
+//        mShader->destroy();
     }
 
     VulkanShaderEntityPtr VulkanRHI::setupShaders(std::string filename, ShaderType type)
@@ -477,5 +489,10 @@ namespace Homura
     void VulkanRHI::setFramebufferResizeCallback(FramebufferResizeCallback cb)
     {
         mFramebufferResizeCallback = cb;
+    }
+
+    void VulkanRHI::setUpdateAfterRecreateSwapchain(UpdateAfterRecreateSwapchain cb)
+    {
+        mUpdateAfterRecreateSwapchain = cb;
     }
 }

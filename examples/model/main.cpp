@@ -90,17 +90,6 @@ namespace Homura
         alignas(16) glm::mat4 proj;
     };
 
-    void OnFramebufferChanged(int width, int height)
-    {
-        aspect = width / (float)height;
-        std::cout << "framebuffer size changed " << width << " " << height << std::endl;
-    }
-
-    void OnMouseButtonClicked(int button, int action, int mods)
-    {
-        std::cout << "mouse clicked " << button << " " << action << " " << mods << std::endl;
-    }
-
     size_t UpdateUniform(void* data, uint32_t size)
     {
         static auto startTime = std::chrono::high_resolution_clock::now();
@@ -134,13 +123,19 @@ namespace Homura
         bool init()
         {
             rhi->init(width, height, "model");
-            rhi->setFramebufferResizeCallback(&OnFramebufferChanged);
-            rhi->setMouseButtonCallBack(&OnMouseButtonClicked);
+            rhi->setFramebufferResizeCallback([this](int width, int height) -> void {
+                aspect = width / (float)height;
+                std::cout << "framebuffer size changed " << width << " " << height << std::endl;
+            });
+            rhi->setMouseButtonCallBack([](int button, int action, int mods) -> void {
+                std::cout << "mouse clicked " << button << " " << action << " " << mods << std::endl;
+            });
 
+            rhi->setUpdateAfterRecreateSwapchain([this]() -> void {
+                recordCommand();
+            });
             VulkanTexture2DPtr colorImg = rhi->createColorResources();
             VulkanTextureDepthPtr depthImg = rhi->createDepthResources();
-            colorImages.push_back(colorImg);
-            depthStencilImages.push_back(depthImg);
             
             ColorAttachmentDescription colorAttachmentDescription(colorImg->getFormat(), rhi->getSampleCount());
             DepthAttachmentDescription depthAttachmentDescription(depthImg->getFormat(), rhi->getSampleCount());
@@ -167,7 +162,7 @@ namespace Homura
             info.addDependency(dependency);
 
             rhi->setupRenderPass(info);
-            rhi->setupFramebuffer(colorImages, depthStencilImages);
+            rhi->setupFramebuffer();
             
             auto vertexShader = rhi->setupShaders(FileSystem::getPath("resources/shader/model/model.vert.spv"), VERTEX);
             vertexShader->setVertexAttributeDescription(Vertex::getAttributeDescriptions());
@@ -183,14 +178,19 @@ namespace Homura
             rhi->createDescriptorSet();
             rhi->setupPipeline();
 
+            recordCommand();
+
+            update();
+            return true;
+        }
+
+        void recordCommand()
+        {
             rhi->beginCommandBuffer();
             rhi->createVertexBuffer(vertices.data(), sizeof(vertices[0]) * vertices.size(), vertices.size());
             rhi->createIndexBuffer(indices.data(), sizeof(indices[0]) * indices.size(), indices.size());
             rhi->draw();
             rhi->endCommandBuffer();
-
-            update();
-            return true;
         }
 
         void exit()
@@ -260,9 +260,6 @@ namespace Homura
         std::vector<Vertex>                 vertices;
         std::vector<uint32_t>               indices;
         VulkanRHIPtr                        rhi;
-
-        std::vector<VulkanTexture2DPtr>     colorImages;
-        std::vector<VulkanTextureDepthPtr>  depthStencilImages;
     };
 }
 

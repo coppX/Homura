@@ -13,7 +13,7 @@ namespace Homura
     class VulkanCommandPool
     {
     public:
-        VulkanCommandPool(VulkanDevicePtr device);
+        explicit VulkanCommandPool(VulkanDevicePtr device);
         ~VulkanCommandPool();
 
         void create();
@@ -74,7 +74,7 @@ namespace Homura
     private:
         VulkanDevicePtr                 mDevice;
         VulkanSwapChainPtr              mSwapChain;
-        VulkanFramebufferPtr            mFramebuffrer;
+        VulkanFramebufferPtr            mFramebuffer;
         VulkanPipelinePtr               mPipeline;
         //  sync
         VulkanFencesPtr                 imageInFlight;

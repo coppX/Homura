@@ -56,7 +56,7 @@ namespace Homura
         : mDevice{device}
         , mSwapChain{swapChain}
         , mCommandPool{commandPool}
-        , mFramebuffrer{framebuffer}
+        , mFramebuffer{framebuffer}
         , mPipeline{pipeline}
         , mCurrentFrame{0}
         , imageInFlight{}
@@ -181,9 +181,9 @@ namespace Homura
             VkRenderPassBeginInfo Info{};
             Info.sType                      = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             Info.renderPass                 = renderPass->getHandle();
-            Info.framebuffer                = mFramebuffrer->getHandle(i);
+            Info.framebuffer                = mFramebuffer->getHandle(i);
             Info.renderArea.offset          = {0, 0};
-            Info.renderArea.extent          = mFramebuffrer->getExtent();
+            Info.renderArea.extent          = mFramebuffer->getExtent();
 
             std::vector<VkClearValue> clearValues{ 2 };
             clearValues[0].color            = { {0.0f, 0.0f, 0.0f, 1.0f} };

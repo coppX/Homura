@@ -38,7 +38,7 @@ namespace Homura {
     };
 
     struct ColorAttachmentReference {
-        ColorAttachmentReference(int32_t attachmentIndex = -1)
+        explicit ColorAttachmentReference(int32_t attachmentIndex = -1)
             : mColorReference{} 
         {
             mColorReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -55,7 +55,7 @@ namespace Homura {
 
     struct DepthAttachmentReference 
     {
-        DepthAttachmentReference(uint32_t attachmentIndex)
+        explicit DepthAttachmentReference(uint32_t attachmentIndex)
             : mDepthReference{} 
         {
             mDepthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -72,7 +72,7 @@ namespace Homura {
 
     struct ColorAttachmentResolveRef
     {
-        ColorAttachmentResolveRef(uint32_t attachmentIndex)
+        explicit ColorAttachmentResolveRef(uint32_t attachmentIndex)
             : mColorResolveRef{}
         {
             mColorResolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -177,7 +177,7 @@ namespace Homura {
     };
 
     struct AttachmentReference {
-        AttachmentReference(std::vector<AttachmentDescription> descriptions)
+        explicit AttachmentReference(std::vector<AttachmentDescription> descriptions)
                 : ColorReference{}, DepthReference{}, InputReference{}, ResolveReference{} 
         {
             for (int i = 0; i < descriptions.size(); i++) {
