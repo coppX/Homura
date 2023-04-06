@@ -23,11 +23,6 @@ namespace Homura
         create();
     }
 
-    VulkanSwapChain::~VulkanSwapChain()
-    {
-
-    }
-
     void VulkanSwapChain::create()
     {
         auto swapChainSupportInfo = querySwapChainSupportInfo();

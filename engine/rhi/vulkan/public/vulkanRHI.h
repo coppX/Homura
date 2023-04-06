@@ -19,7 +19,7 @@ namespace Homura
     {
     public:
         VulkanRHI();
-        virtual ~VulkanRHI();
+        virtual ~VulkanRHI() = default;
 
         void init(int width, int height, std::string title);
         void exit();

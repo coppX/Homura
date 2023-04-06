@@ -16,11 +16,6 @@ namespace Homura
         create();
     }
 
-    VulkanSurface::~VulkanSurface()
-    {
-
-    }
-
     void VulkanSurface::create()
     {
         VERIFYVULKANRESULT(glfwCreateWindowSurface(mInstance->getHandle(), mWindow->getHandle(), nullptr, &mSurface));

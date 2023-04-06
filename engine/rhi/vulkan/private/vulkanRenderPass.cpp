@@ -22,11 +22,6 @@ namespace Homura
         mSubPassDescription.pDepthStencilAttachment = references.DepthReference.layout == VK_IMAGE_LAYOUT_UNDEFINED ? nullptr : &references.DepthReference;
     }
 
-    VulkanSubPass::~VulkanSubPass()
-    {
-        std::cout << "debug" << std::endl;
-    }
-
     VulkanRenderPass::VulkanRenderPass(VulkanDevicePtr device)
         : mDevice{device}
         , mRenderPass{VK_NULL_HANDLE}

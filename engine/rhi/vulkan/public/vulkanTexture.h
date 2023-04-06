@@ -38,7 +38,7 @@ namespace Homura
     public:
         VulkanTexture(VulkanDevicePtr device, uint32_t width, uint32_t height, TextureType type, VkImageTiling tiling, VkImageAspectFlags aspectFlags,
                       uint32_t mipLevels, uint32_t arraySize, VkSampleCountFlagBits numSamples, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
-        ~VulkanTexture();
+        ~VulkanTexture() = default;
 
         void destroy();
         void fromBuffer(VulkanCommandBufferPtr commandBuffer, VulkanBufferPtr buffer);

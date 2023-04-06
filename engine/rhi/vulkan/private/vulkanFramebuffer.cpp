@@ -20,11 +20,6 @@ namespace Homura
 
     }
 
-    VulkanFramebuffer::~VulkanFramebuffer()
-    {
-
-    }
-
     void VulkanFramebuffer::create(VulkanRenderPassPtr renderPass, std::vector<VulkanTexture2DPtr>& colorImages,
                                                                     std::vector<VulkanTextureDepthPtr>& depthStencilImages)
     {

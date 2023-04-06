@@ -36,11 +36,7 @@ namespace Homura
         , mWindow{nullptr}
         , mMouseCallback{}
         , mFramebufferResizeCallback{}
-    {
-
-    }
-
-    VulkanRHI::~VulkanRHI()
+        , mUpdateAfterRecreateSwapchain{}
     {
 
     }
@@ -390,7 +386,6 @@ namespace Homura
         mPipeline->setShaders(mShader);
         updateDescriptorSet();
         mPipeline->build(mDescriptorSet);
-//        mShader->destroy();
     }
 
     VulkanShaderEntityPtr VulkanRHI::setupShaders(std::string filename, ShaderType type)

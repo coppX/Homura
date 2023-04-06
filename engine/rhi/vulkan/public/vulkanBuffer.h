@@ -13,7 +13,7 @@ namespace Homura
     {
     public:
         VulkanBuffer(std::shared_ptr<VulkanDevice> device, VulkanCommandBufferPtr commandBuffer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags props);
-        ~VulkanBuffer();
+        ~VulkanBuffer() = default;
 
         void create();
         void destroy();

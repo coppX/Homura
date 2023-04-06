@@ -17,7 +17,7 @@ namespace Homura
     {
     public:
         explicit VulkanSubPass(AttachmentReference& references);
-        ~VulkanSubPass();
+        ~VulkanSubPass() = default;
 
         VkSubpassDescription& getHandle()
         {

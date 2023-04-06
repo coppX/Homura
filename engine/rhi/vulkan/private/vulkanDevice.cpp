@@ -23,11 +23,6 @@ namespace Homura
         create();
     }
 
-    VulkanDevice::~VulkanDevice()
-    {
-        
-    }
-
     void VulkanDevice::create()
     {
         pickPhysicalDevice();

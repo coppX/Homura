@@ -15,7 +15,7 @@ namespace Homura
     {
     public:
         explicit VulkanDescriptorSetLayout(VulkanDevicePtr device);
-        ~VulkanDescriptorSetLayout();
+        ~VulkanDescriptorSetLayout() = default;
 
         void create(const std::vector<VkDescriptorSetLayoutBinding>& bindings);
         void destroy();
@@ -33,7 +33,7 @@ namespace Homura
     {
     public:
         explicit VulkanPipelineLayout(VulkanDevicePtr device);
-        ~VulkanPipelineLayout();
+        ~VulkanPipelineLayout() = default;
 
         void create(VulkanDescriptorSetLayoutPtr descriptorSetLayout);
         void destroy();

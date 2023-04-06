@@ -16,7 +16,7 @@ namespace Homura
     {
     public:
         VulkanShaderEntity(VulkanDevicePtr device, VkShaderStageFlagBits stage, std::string entryPoint);
-        ~VulkanShaderEntity();
+        ~VulkanShaderEntity() = default;
 
         void create(std::vector<char> shaderCode);
         void destroy();
@@ -55,7 +55,7 @@ namespace Homura
     {
     public:
         explicit VulkanShader(VulkanDevicePtr device);
-        ~VulkanShader();
+        ~VulkanShader() = default;
 
         VulkanShaderEntityPtr setupShader(std::string filename, ShaderType type);
         void destroy();

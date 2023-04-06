@@ -14,7 +14,7 @@ namespace Homura
     {
     public:
         explicit VulkanFenceEntity(VulkanDevicePtr device);
-        ~VulkanFenceEntity();
+        ~VulkanFenceEntity() = default;
 
         VulkanFenceEntity& operator=(VulkanFenceEntity& r);
 
@@ -38,7 +38,7 @@ namespace Homura
     {
     public:
         explicit VulkanSemaphoreEntity(VulkanDevicePtr device);
-        ~VulkanSemaphoreEntity();
+        ~VulkanSemaphoreEntity() = default;
         void create();
         void destroy();
 
@@ -55,7 +55,7 @@ namespace Homura
     {
     public:
         explicit VulkanFences(VulkanDevicePtr device, uint32_t num);
-        ~VulkanFences();
+        ~VulkanFences() = default;
 
         void create();
         void destroy();
@@ -74,7 +74,7 @@ namespace Homura
     {
     public:
         explicit VulkanSemaphores(VulkanDevicePtr device);
-        ~VulkanSemaphores();
+        ~VulkanSemaphores() = default;
         
         void create(uint32_t num);
         void destroy();

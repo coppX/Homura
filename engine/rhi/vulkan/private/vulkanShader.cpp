@@ -20,11 +20,6 @@ namespace Homura
 
     }
 
-    VulkanShaderEntity::~VulkanShaderEntity()
-    {
-
-    }
-
     void VulkanShaderEntity::create(std::vector<char> shaderCode)
     {
         VkShaderModuleCreateInfo createInfo{};
@@ -78,11 +73,6 @@ namespace Homura
 
     VulkanShader::VulkanShader(VulkanDevicePtr device)
         : mDevice{device}
-    {
-
-    }
-
-    VulkanShader::~VulkanShader()
     {
 
     }

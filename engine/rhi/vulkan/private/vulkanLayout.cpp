@@ -15,11 +15,6 @@ namespace Homura
 
     }
 
-    VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
-    {
-
-    }
-
     void VulkanDescriptorSetLayout::create(const std::vector<VkDescriptorSetLayoutBinding>& bindings)
     {
         VkDescriptorSetLayoutCreateInfo createInfo{};
@@ -43,11 +38,6 @@ namespace Homura
     VulkanPipelineLayout::VulkanPipelineLayout(VulkanDevicePtr device)
         : mDevice{device}
         , mPipelineLayout{VK_NULL_HANDLE}
-    {
-
-    }
-
-    VulkanPipelineLayout::~VulkanPipelineLayout()
     {
 
     }

@@ -14,7 +14,7 @@ namespace Homura
     {
     public:
         VulkanSurface(VulkanInstancePtr instance, ApplicationWindowPtr window);
-        ~VulkanSurface();
+        ~VulkanSurface() = default;
 
         void create();
         void destroy();

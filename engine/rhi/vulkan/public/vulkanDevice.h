@@ -37,7 +37,7 @@ namespace Homura
     {
     public:
         VulkanDevice(VulkanInstancePtr instance, VulkanSurfacePtr surface);
-        ~VulkanDevice();
+        ~VulkanDevice() = default;
 
         void create();
         void destroy();

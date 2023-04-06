@@ -30,11 +30,6 @@ namespace Homura
         createImageView(mFormat, aspectFlags, mMipLevels);
     }
 
-    VulkanTexture::~VulkanTexture()
-    {
-
-    }
-
     void VulkanTexture::destroy()
     {
         if (mImageView != VK_NULL_HANDLE)

@@ -14,11 +14,7 @@ namespace Homura
     {
     public:
         VulkanQueue(VulkanDevicePtr device, uint32_t familyIndex);
-
-        virtual ~VulkanQueue()
-        {
-
-        }
+        ~VulkanQueue() = default;
 
         uint32_t getFamilyIndex() const
         {

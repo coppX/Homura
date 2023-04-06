@@ -22,11 +22,6 @@ namespace Homura
         create();
     }
 
-    VulkanBuffer::~VulkanBuffer()
-    {
-        
-    }
-
     void VulkanBuffer::create()
     {
         VkBufferCreateInfo bufferInfo{};

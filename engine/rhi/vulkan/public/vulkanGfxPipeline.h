@@ -14,7 +14,7 @@ namespace Homura
     {
     public:
         explicit VulkanPipeline(VulkanDevicePtr device);
-        ~VulkanPipeline();
+        ~VulkanPipeline() = default;
 
         void create(VulkanRenderPassPtr renderPass, VkSampleCountFlagBits samples);
         void destroy();

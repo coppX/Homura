@@ -26,7 +26,7 @@ namespace Homura
     {
     public:
         VulkanSwapChain(VulkanDevicePtr device, ApplicationWindowPtr window, VulkanSurfacePtr surface);
-        ~VulkanSwapChain();
+        ~VulkanSwapChain() = default;
 
         void create();
         void destroy();

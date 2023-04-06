@@ -41,11 +41,6 @@ namespace Homura
         mDynamicState.sType         = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     }
 
-    VulkanPipeline::~VulkanPipeline()
-    {
-
-    }
-
     void VulkanPipeline::create(VulkanRenderPassPtr renderPass, VkSampleCountFlagBits samples)
     {
         mRenderPass = renderPass;

@@ -15,11 +15,6 @@ namespace Homura
 
     }
 
-    VulkanFenceEntity::~VulkanFenceEntity()
-    {
-
-    }
-
     void VulkanFenceEntity::create(bool signaled)
     {
         VkFenceCreateInfo createInfo{};
@@ -70,11 +65,6 @@ namespace Homura
 
     }
 
-    VulkanSemaphoreEntity::~VulkanSemaphoreEntity()
-    {
-
-    }
-
     void VulkanSemaphoreEntity::create()
     {
         VkSemaphoreCreateInfo semaphoreInfo{};
@@ -99,11 +89,6 @@ namespace Homura
         {
             mFences.emplace_back(VulkanFenceEntity(mDevice));
         }
-    }
-
-    VulkanFences::~VulkanFences()
-    {
-
     }
 
     void VulkanFences::create()
@@ -161,11 +146,6 @@ namespace Homura
     VulkanSemaphores::VulkanSemaphores(VulkanDevicePtr device)
         : mDevice{device}
         , mSemaphores{}
-    {
-
-    }
-
-    VulkanSemaphores::~VulkanSemaphores()
     {
 
     }
