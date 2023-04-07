@@ -33,7 +33,7 @@ namespace Homura
         VK_IMAGE_TILING_OPTIMAL,    // TEXTURE_CUBE_ARRAY
     };
 
-    class VulkanTexture
+    class ENGINE_API VulkanTexture
     {
     public:
         VulkanTexture(VulkanDevicePtr device, uint32_t width, uint32_t height, TextureType type, VkImageTiling tiling, VkImageAspectFlags aspectFlags,
@@ -85,7 +85,7 @@ namespace Homura
         VkImageView                     mImageView;
     };
 
-    class VulkanTexture1D : public VulkanTexture
+    class ENGINE_API VulkanTexture1D : public VulkanTexture
     {
     public:
         VulkanTexture1D(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t layerCount, VkSampleCountFlagBits numSamples,
@@ -96,7 +96,7 @@ namespace Homura
         }
     };
 
-    class VulkanTexture2D : public VulkanTexture
+    class ENGINE_API VulkanTexture2D : public VulkanTexture
     {
     public:
         VulkanTexture2D(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
@@ -126,7 +126,7 @@ namespace Homura
         VkDescriptorImageInfo   mImageInfo;
     };
 
-    class VulkanTexture2DArray : public VulkanTexture
+    class ENGINE_API VulkanTexture2DArray : public VulkanTexture
     {
     public:
         VulkanTexture2DArray(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t ArraySize, VkSampleCountFlagBits numSamples,
@@ -137,7 +137,7 @@ namespace Homura
         }
     };
 
-    class VulkanTexture3D : public VulkanTexture
+    class ENGINE_API VulkanTexture3D : public VulkanTexture
     {
     public:
         VulkanTexture3D(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
@@ -148,7 +148,7 @@ namespace Homura
         }
     };
 
-    class VulkanTextureCube : public VulkanTexture
+    class ENGINE_API VulkanTextureCube : public VulkanTexture
     {
     public:
         VulkanTextureCube(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
@@ -159,7 +159,7 @@ namespace Homura
         }
     };
 
-    class VulkanTextureCubeArray : public VulkanTexture
+    class ENGINE_API VulkanTextureCubeArray : public VulkanTexture
     {
     public:
         VulkanTextureCubeArray(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t arraySize, VkSampleCountFlagBits numSamples,
@@ -170,7 +170,7 @@ namespace Homura
         }
     };
 
-    class VulkanTextureDepth : public VulkanTexture
+    class ENGINE_API VulkanTextureDepth : public VulkanTexture
     {
     public:
         VulkanTextureDepth(VulkanDevicePtr device, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,

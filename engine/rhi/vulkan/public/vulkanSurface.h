@@ -10,7 +10,7 @@
 
 namespace Homura
 {
-    class VulkanSurface
+    class ENGINE_API VulkanSurface
     {
     public:
         VulkanSurface(VulkanInstancePtr instance, ApplicationWindowPtr window);

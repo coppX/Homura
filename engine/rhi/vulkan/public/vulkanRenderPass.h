@@ -11,9 +11,9 @@
 
 namespace Homura
 {
-    struct RHIRenderPassInfo;
+    struct ENGINE_API RHIRenderPassInfo;
 
-    class VulkanSubPass
+    class ENGINE_API VulkanSubPass
     {
     public:
         explicit VulkanSubPass(AttachmentReference& references);
@@ -27,7 +27,7 @@ namespace Homura
         VkSubpassDescription                mSubPassDescription;
     };
 
-    class VulkanRenderPass
+    class ENGINE_API VulkanRenderPass
     {
     public:
         explicit VulkanRenderPass(VulkanDevicePtr device);

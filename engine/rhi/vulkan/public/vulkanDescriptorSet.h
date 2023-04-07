@@ -10,7 +10,7 @@
 
 namespace Homura
 {
-    class VulkanDescriptorPool
+    class ENGINE_API VulkanDescriptorPool
     {
     public:
         VulkanDescriptorPool(VulkanDevicePtr device, uint32_t frameCount);
@@ -34,7 +34,7 @@ namespace Homura
         uint32_t            mFrameCount;
     };
 
-    class VulkanDescriptorSet
+    class ENGINE_API VulkanDescriptorSet
     {
     public:
         VulkanDescriptorSet(VulkanDevicePtr device, VulkanDescriptorPoolPtr pool, VulkanDescriptorSetLayoutPtr layout);

@@ -15,7 +15,7 @@
 
 namespace Homura
 {
-    class VulkanRHI : public std::enable_shared_from_this<VulkanRHI>
+    class ENGINE_API VulkanRHI : public std::enable_shared_from_this<VulkanRHI>
     {
     public:
         VulkanRHI();

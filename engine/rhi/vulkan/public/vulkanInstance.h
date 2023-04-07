@@ -12,7 +12,7 @@
 
 namespace Homura
 {
-    class VulkanInstance
+    class ENGINE_API VulkanInstance
     {
     public:
         VulkanInstance();

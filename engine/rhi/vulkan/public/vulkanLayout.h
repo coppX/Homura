@@ -11,7 +11,7 @@
 
 namespace Homura
 {
-    class VulkanDescriptorSetLayout
+    class ENGINE_API VulkanDescriptorSetLayout
     {
     public:
         explicit VulkanDescriptorSetLayout(VulkanDevicePtr device);
@@ -29,7 +29,7 @@ namespace Homura
         VkDescriptorSetLayout   mSetLayout;
     };
 
-    class VulkanPipelineLayout
+    class ENGINE_API VulkanPipelineLayout
     {
     public:
         explicit VulkanPipelineLayout(VulkanDevicePtr device);

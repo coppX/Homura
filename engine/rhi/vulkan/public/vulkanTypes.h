@@ -81,5 +81,6 @@ namespace Homura
     using FramebufferResizeCallback     = std::function<void(int, int)>;
     using UnifromUpdateCallback         = std::function<uint32_t(void*, uint32_t)>;
     using UpdateAfterRecreateSwapchain  = std::function<void()>;
+#define ENGINE_API
 }
 #endif //HOMURA_VULKANTYPES_H

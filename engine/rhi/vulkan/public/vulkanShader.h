@@ -12,7 +12,7 @@
 
 namespace Homura
 {
-    class VulkanShaderEntity
+    class ENGINE_API VulkanShaderEntity
     {
     public:
         VulkanShaderEntity(VulkanDevicePtr device, VkShaderStageFlagBits stage, std::string entryPoint);
@@ -51,7 +51,7 @@ namespace Homura
         std::vector<VkVertexInputBindingDescription>    mVertexInputBindingDes;
     };
 
-    class VulkanShader
+    class ENGINE_API VulkanShader
     {
     public:
         explicit VulkanShader(VulkanDevicePtr device);

@@ -9,7 +9,7 @@
 
 namespace Homura
 {
-    class VulkanBuffer
+    class ENGINE_API VulkanBuffer
     {
     public:
         VulkanBuffer(std::shared_ptr<VulkanDevice> device, VulkanCommandBufferPtr commandBuffer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags props);
@@ -48,7 +48,7 @@ namespace Homura
         VulkanBuffer*           mStagingBuffer;
     };
 
-    class VulkanVertexBuffer : public VulkanBuffer
+    class ENGINE_API VulkanVertexBuffer : public VulkanBuffer
     {
     public:
         VulkanVertexBuffer(VulkanDevicePtr device, VulkanCommandBufferPtr commandBuffer, VkDeviceSize size, void* pData)
@@ -58,7 +58,7 @@ namespace Homura
         }
     };
 
-    class VulkanIndexBuffer : public VulkanBuffer
+    class ENGINE_API VulkanIndexBuffer : public VulkanBuffer
     {
     public:
         VulkanIndexBuffer(VulkanDevicePtr device, VulkanCommandBufferPtr commandBuffer, VkDeviceSize size, void* pData)
@@ -68,7 +68,7 @@ namespace Homura
         }
     };
 
-    class VulkanUniformBuffer : public VulkanBuffer
+    class ENGINE_API VulkanUniformBuffer : public VulkanBuffer
     {
     public:
         VulkanUniformBuffer(VulkanDevicePtr device, VulkanCommandBufferPtr commandBuffer, VkDeviceSize size, uint32_t binding)
@@ -122,7 +122,7 @@ namespace Homura
         VkDescriptorBufferInfo  mBufferInfo;
     };
 
-    class VulkanStagingBuffer : public VulkanBuffer
+    class ENGINE_API VulkanStagingBuffer : public VulkanBuffer
     {
     public:
         VulkanStagingBuffer(VulkanDevicePtr device, VulkanCommandBufferPtr commandBuffer, VkDeviceSize size, void* pData)

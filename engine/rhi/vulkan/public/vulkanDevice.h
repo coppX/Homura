@@ -23,7 +23,7 @@ namespace Homura
             "VK_LAYER_KHRONOS_validation"
     };
 
-    struct QueueFamilyIndices
+    struct ENGINE_API QueueFamilyIndices
     {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;
@@ -33,7 +33,7 @@ namespace Homura
         }
     };
 
-    class VulkanDevice : public std::enable_shared_from_this<VulkanDevice>
+    class ENGINE_API VulkanDevice : public std::enable_shared_from_this<VulkanDevice>
     {
     public:
         VulkanDevice(VulkanInstancePtr instance, VulkanSurfacePtr surface);

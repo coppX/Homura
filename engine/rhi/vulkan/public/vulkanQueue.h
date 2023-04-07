@@ -10,7 +10,7 @@
 
 namespace Homura
 {
-    class VulkanQueue
+    class ENGINE_API VulkanQueue
     {
     public:
         VulkanQueue(VulkanDevicePtr device, uint32_t familyIndex);

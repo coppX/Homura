@@ -10,7 +10,7 @@
 
 namespace Homura
 {
-    class VulkanPipeline
+    class ENGINE_API VulkanPipeline
     {
     public:
         explicit VulkanPipeline(VulkanDevicePtr device);

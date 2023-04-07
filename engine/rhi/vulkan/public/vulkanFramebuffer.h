@@ -10,7 +10,7 @@
 
 namespace Homura
 {
-    class VulkanFramebuffer
+    class ENGINE_API VulkanFramebuffer
     {
     public:
         VulkanFramebuffer(VulkanDevicePtr device, VulkanSwapChainPtr swapChain);

@@ -16,13 +16,13 @@
 
 namespace Homura
 {
-    struct SwapChainSupportInfo {
+    struct ENGINE_API SwapChainSupportInfo {
         VkSurfaceCapabilitiesKHR mCapabilities;
         std::vector<VkSurfaceFormatKHR> mFormats;
         std::vector<VkPresentModeKHR> mPresentModes;
     };
 
-    class VulkanSwapChain
+    class ENGINE_API VulkanSwapChain
     {
     public:
         VulkanSwapChain(VulkanDevicePtr device, ApplicationWindowPtr window, VulkanSurfacePtr surface);

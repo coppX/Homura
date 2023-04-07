@@ -10,7 +10,7 @@
 #include <vector>
 
 namespace Homura {
-    struct RHIRenderPassInfo {
+    struct ENGINE_API RHIRenderPassInfo {
         std::vector<VulkanSubPassPtr> mSubPasses;
         std::vector<VkSubpassDependency> mDependencies;
         std::vector<VkAttachmentDescription> mAttachmentDescriptions;// color, depth
@@ -37,7 +37,7 @@ namespace Homura {
         }
     };
 
-    struct ColorAttachmentReference {
+    struct ENGINE_API ColorAttachmentReference {
         explicit ColorAttachmentReference(int32_t attachmentIndex = -1)
             : mColorReference{} 
         {
@@ -53,7 +53,7 @@ namespace Homura {
         VkAttachmentReference mColorReference;
     };
 
-    struct DepthAttachmentReference 
+    struct ENGINE_API DepthAttachmentReference
     {
         explicit DepthAttachmentReference(uint32_t attachmentIndex)
             : mDepthReference{} 
@@ -70,7 +70,7 @@ namespace Homura {
         VkAttachmentReference mDepthReference;
     };
 
-    struct ColorAttachmentResolveRef
+    struct ENGINE_API ColorAttachmentResolveRef
     {
         explicit ColorAttachmentResolveRef(uint32_t attachmentIndex)
             : mColorResolveRef{}
@@ -82,7 +82,7 @@ namespace Homura {
         VkAttachmentReference mColorResolveRef;
     };
 
-    struct AttachmentDescription
+    struct ENGINE_API AttachmentDescription
     {
         AttachmentDescription(VkFormat format, VkSampleCountFlagBits samples,
             VkAttachmentLoadOp loadOp,
@@ -112,7 +112,7 @@ namespace Homura {
         VkAttachmentDescription mDescription;
     };
 
-    struct ColorAttachmentDescription : public AttachmentDescription
+    struct ENGINE_API ColorAttachmentDescription : public AttachmentDescription
     {
         ColorAttachmentDescription(VkFormat format, VkSampleCountFlagBits samples,
             VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
@@ -128,7 +128,7 @@ namespace Homura {
         }
     };
 
-    struct DepthAttachmentDescription : public AttachmentDescription
+    struct ENGINE_API DepthAttachmentDescription : public AttachmentDescription
     {
         DepthAttachmentDescription(VkFormat format, VkSampleCountFlagBits samples,
             VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
@@ -144,7 +144,7 @@ namespace Homura {
         }
     };
 
-    struct InputAttachmentDescription : public AttachmentDescription
+    struct ENGINE_API InputAttachmentDescription : public AttachmentDescription
     {
         InputAttachmentDescription(VkFormat format, VkSampleCountFlagBits samples,
             VkAttachmentLoadOp loadOp,
@@ -160,7 +160,7 @@ namespace Homura {
         }
     };
 
-    struct ResolveAttachmentDescription : public AttachmentDescription
+    struct ENGINE_API ResolveAttachmentDescription : public AttachmentDescription
     {
         ResolveAttachmentDescription(VkFormat format, VkSampleCountFlagBits samples,
             VkAttachmentLoadOp loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -176,7 +176,7 @@ namespace Homura {
         }
     };
 
-    struct AttachmentReference {
+    struct ENGINE_API AttachmentReference {
         explicit AttachmentReference(std::vector<AttachmentDescription> descriptions)
                 : ColorReference{}, DepthReference{}, InputReference{}, ResolveReference{} 
         {

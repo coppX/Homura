@@ -10,7 +10,7 @@
 
 namespace Homura
 {
-    class VulkanFenceEntity
+    class ENGINE_API VulkanFenceEntity
     {
     public:
         explicit VulkanFenceEntity(VulkanDevicePtr device);
@@ -34,7 +34,7 @@ namespace Homura
         VkFence         mFence;
     };
 
-    class VulkanSemaphoreEntity
+    class ENGINE_API VulkanSemaphoreEntity
     {
     public:
         explicit VulkanSemaphoreEntity(VulkanDevicePtr device);
@@ -51,7 +51,7 @@ namespace Homura
         VkSemaphore     mSemaphore;
     };
 
-    class VulkanFences
+    class ENGINE_API VulkanFences
     {
     public:
         explicit VulkanFences(VulkanDevicePtr device, uint32_t num);
@@ -70,7 +70,7 @@ namespace Homura
         std::vector<VulkanFenceEntity>  mFences;
     };
 
-    class VulkanSemaphores
+    class ENGINE_API VulkanSemaphores
     {
     public:
         explicit VulkanSemaphores(VulkanDevicePtr device);

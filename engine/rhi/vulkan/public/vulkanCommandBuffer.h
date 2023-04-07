@@ -10,7 +10,7 @@
 
 namespace Homura
 {
-    class VulkanCommandPool
+    class ENGINE_API VulkanCommandPool
     {
     public:
         explicit VulkanCommandPool(VulkanDevicePtr device);
@@ -29,7 +29,7 @@ namespace Homura
         VkCommandPool               mCommandPool;
     };
 
-    class VulkanCommandBuffer
+    class ENGINE_API VulkanCommandBuffer
     {
     public:
         VulkanCommandBuffer(VulkanDevicePtr device, VulkanSwapChainPtr swapChain, VulkanCommandPoolPtr commandPool, VulkanFramebufferPtr framebuffer, VulkanPipelinePtr pipeline);

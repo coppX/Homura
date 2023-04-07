@@ -9,7 +9,7 @@
 
 namespace Homura
 {
-    class VulkanSampler
+    class ENGINE_API VulkanSampler
     {
     public:
         explicit VulkanSampler(VulkanDevicePtr device);
