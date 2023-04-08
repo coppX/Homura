@@ -106,16 +106,16 @@ namespace Homura
         return sizeof(ubo);
     }
 
-    class TriangleApplication : Application
+    class ModelApplication : Application
     {
     public:
-        TriangleApplication()
+        ModelApplication()
             : rhi{std::make_shared<VulkanRHI>()}
         {
             
         }
 
-        ~TriangleApplication()
+        ~ModelApplication()
         {
             exit();
         }
@@ -123,7 +123,7 @@ namespace Homura
         bool init()
         {
             rhi->init(width, height, "model");
-            rhi->setFramebufferResizeCallback([this](int width, int height) -> void {
+            rhi->setFramebufferResizeCallback([](int width, int height) -> void {
                 aspect = width / (float)height;
                 std::cout << "framebuffer size changed " << width << " " << height << std::endl;
             });
@@ -265,7 +265,7 @@ namespace Homura
 
 int main()
 {
-    Homura::TriangleApplication app;
+    Homura::ModelApplication app;
     try
     {
         app.init();
